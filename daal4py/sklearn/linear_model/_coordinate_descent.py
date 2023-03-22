@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import numpy as np
 import numbers
@@ -22,7 +22,13 @@ from sklearn.utils import check_array, check_X_y
 from sklearn.linear_model._coordinate_descent import ElasticNet as ElasticNet_original
 from sklearn.linear_model._coordinate_descent import Lasso as Lasso_original
 from daal4py.sklearn._utils import (
-    make2d, getFPType, get_patch_message, sklearn_check_version, PatchingConditionsChain)
+    make2d,
+    getFPType,
+    get_patch_message,
+    sklearn_check_version,
+    PatchingConditionsChain,
+)
+
 if sklearn_check_version('1.0') and not sklearn_check_version('1.2'):
     from sklearn.linear_model._base import _deprecate_normalize
 if sklearn_check_version('1.1') and not sklearn_check_version('1.2'):
@@ -43,15 +49,22 @@ def _daal4py_check(self, X, y, check_input):
 
     # check alpha
     if self.alpha == 0:
-        warnings.warn("With alpha=0, this algorithm does not converge "
-                      "well. You are advised to use the LinearRegression "
-                      "estimator", stacklevel=2)
+        warnings.warn(
+            "With alpha=0, this algorithm does not converge "
+            "well. You are advised to use the LinearRegression "
+            "estimator",
+            stacklevel=2,
+        )
 
     # check l1_ratio
-    if not isinstance(self.l1_ratio, numbers.Number) or \
-            self.l1_ratio < 0 or self.l1_ratio > 1:
-        raise ValueError("l1_ratio must be between 0 and 1; "
-                         f"got l1_ratio={self.l1_ratio}")
+    if (
+        not isinstance(self.l1_ratio, numbers.Number)
+        or self.l1_ratio < 0
+        or self.l1_ratio > 1
+    ):
+        raise ValueError(
+            "l1_ratio must be between 0 and 1; " f"got l1_ratio={self.l1_ratio}"
+        )
 
     # check precompute
     if isinstance(self.precompute, np.ndarray):
@@ -60,8 +73,10 @@ def _daal4py_check(self, X, y, check_input):
         self.precompute = make2d(self.precompute)
     else:
         if self.precompute not in [False, True, 'auto']:
-            raise ValueError("precompute should be one of True, False, "
-                             "'auto' or array-like. Got %r" % self.precompute)
+            raise ValueError(
+                "precompute should be one of True, False, "
+                "'auto' or array-like. Got %r" % self.precompute
+            )
 
     # check selection
     if self.selection not in ['random', 'cyclic']:
@@ -69,7 +84,6 @@ def _daal4py_check(self, X, y, check_input):
 
 
 def _daal4py_fit_enet(self, X, y_, check_input):
-
     # appropriate checks
     _daal4py_check(self, X, y_, check_input)
     X = make2d(X)
@@ -85,12 +99,12 @@ def _daal4py_fit_enet(self, X, y_, check_input):
 
     penalty_L1 = np.asarray(self.alpha * self.l1_ratio, dtype=X.dtype)
     penalty_L2 = np.asarray(self.alpha * (1.0 - self.l1_ratio), dtype=X.dtype)
-    if (penalty_L1.size != 1 or penalty_L2.size != 1):
+    if penalty_L1.size != 1 or penalty_L2.size != 1:
         raise ValueError("alpha or l1_ratio length is wrong")
     penalty_L1 = penalty_L1.reshape((1, -1))
     penalty_L2 = penalty_L2.reshape((1, -1))
 
-    #normalizing and centering
+    # normalizing and centering
     X_offset = np.zeros(X.shape[1], dtype=X.dtype)
     X_scale = np.ones(X.shape[1], dtype=X.dtype)
     if y.ndim == 1:
@@ -114,18 +128,22 @@ def _daal4py_fit_enet(self, X, y_, check_input):
             y = y - y_offset
 
     # only for compliance with Sklearn
-    if isinstance(self.precompute, np.ndarray) and self.fit_intercept and \
-       not np.allclose(X_offset, np.zeros(X.shape[1])) or \
-       _normalize and not np.allclose(X_scale, np.ones(X.shape[1])):
-        warnings.warn("Gram matrix was provided but X was centered"
-                      " to fit intercept, "
-                      "or X was normalized : recomputing Gram matrix.",
-                      UserWarning)
+    if (
+        isinstance(self.precompute, np.ndarray)
+        and self.fit_intercept
+        and not np.allclose(X_offset, np.zeros(X.shape[1]))
+        or _normalize
+        and not np.allclose(X_scale, np.ones(X.shape[1]))
+    ):
+        warnings.warn(
+            "Gram matrix was provided but X was centered"
+            " to fit intercept, "
+            "or X was normalized : recomputing Gram matrix.",
+            UserWarning,
+        )
 
     mse_alg = daal4py.optimization_solver_mse(
-        numberOfTerms=X.shape[0],
-        fptype=_fptype,
-        method='defaultDense'
+        numberOfTerms=X.shape[0], fptype=_fptype, method='defaultDense'
     )
     mse_alg.setup(X, y, None)
 
@@ -141,36 +159,43 @@ def _daal4py_fit_enet(self, X, y_, check_input):
     )
 
     # set warm_start
-    if self.warm_start and hasattr(self, "coef_") and \
-            isinstance(self.coef_, np.ndarray):
+    if (
+        self.warm_start
+        and hasattr(self, "coef_")
+        and isinstance(self.coef_, np.ndarray)
+    ):
         n_rows = y.shape[1]
         n_cols = X.shape[1] + 1
         inputArgument = np.zeros((n_rows, n_cols), dtype=_fptype)
         for i in range(n_rows):
-            inputArgument[i][0] = self.intercept_ if (
-                n_rows == 1) else self.intercept_[i]
-            inputArgument[i][1:] = self.coef_[:].copy(order='C') if (
-                n_rows == 1) else self.coef_[i, :].copy(order='C')
+            inputArgument[i][0] = (
+                self.intercept_ if (n_rows == 1) else self.intercept_[i]
+            )
+            inputArgument[i][1:] = (
+                self.coef_[:].copy(order='C')
+                if (n_rows == 1)
+                else self.coef_[i, :].copy(order='C')
+            )
         cd_solver.setup(inputArgument)
-    doUse_condition = self.copy_X is False or \
-        (self.fit_intercept and _normalize and self.copy_X)
+    doUse_condition = self.copy_X is False or (
+        self.fit_intercept and _normalize and self.copy_X
+    )
     elastic_net_alg = daal4py.elastic_net_training(
         fptype=_fptype,
         method='defaultDense',
-        interceptFlag=(
-            self.fit_intercept is True),
+        interceptFlag=(self.fit_intercept is True),
         dataUseInComputation='doUse' if doUse_condition else 'doNotUse',
         penaltyL1=penalty_L1,
         penaltyL2=penalty_L2,
-        optimizationSolver=cd_solver
+        optimizationSolver=cd_solver,
     )
     try:
         if isinstance(self.precompute, np.ndarray):
             elastic_net_res = elastic_net_alg.compute(
-                data=X, dependentVariables=y, gramMatrix=self.precompute)
+                data=X, dependentVariables=y, gramMatrix=self.precompute
+            )
         else:
-            elastic_net_res = elastic_net_alg.compute(
-                data=X, dependentVariables=y)
+            elastic_net_res = elastic_net_alg.compute(data=X, dependentVariables=y)
     except RuntimeError:
         return None
 
@@ -182,7 +207,8 @@ def _daal4py_fit_enet(self, X, y_, check_input):
     if self.fit_intercept and _normalize:
         elastic_net_model.Beta[:, 1:] = elastic_net_model.Beta[:, 1:] / X_scale
         elastic_net_model.Beta[:, 0] = (
-            y_offset - np.dot(X_offset, elastic_net_model.Beta[:, 1:].T)).T
+            y_offset - np.dot(X_offset, elastic_net_model.Beta[:, 1:].T)
+        ).T
 
     coefs = elastic_net_model.Beta
 
@@ -205,8 +231,11 @@ def _daal4py_fit_enet(self, X, y_, check_input):
 
     # only for compliance with Sklearn
     if self.max_iter == n_iter + 1:
-        warnings.warn("Objective did not converge. You might want to "
-                      "increase the number of iterations.", ConvergenceWarning)
+        warnings.warn(
+            "Objective did not converge. You might want to "
+            "increase the number of iterations.",
+            ConvergenceWarning,
+        )
 
     return self
 
@@ -216,14 +245,15 @@ def _daal4py_predict_enet(self, X):
     _fptype = getFPType(self.coef_)
 
     elastic_net_palg = daal4py.elastic_net_prediction(
-        fptype=_fptype,
-        method='defaultDense'
+        fptype=_fptype, method='defaultDense'
     )
     if sklearn_check_version('0.23'):
         if self.n_features_in_ != X.shape[1]:
-            raise ValueError(f'X has {X.shape[1]} features, '
-                             f'but ElasticNet is expecting '
-                             f'{self.n_features_in_} features as input')
+            raise ValueError(
+                f'X has {X.shape[1]} features, '
+                f'but ElasticNet is expecting '
+                f'{self.n_features_in_} features as input'
+            )
     elastic_net_res = elastic_net_palg.compute(X, self.daal_model_)
 
     res = elastic_net_res.prediction
@@ -234,7 +264,6 @@ def _daal4py_predict_enet(self, X):
 
 
 def _daal4py_fit_lasso(self, X, y_, check_input):
-
     # appropriate checks
     _daal4py_check(self, X, y_, check_input)
     X = make2d(X)
@@ -248,7 +277,7 @@ def _daal4py_fit_lasso(self, X, y_, check_input):
         self.n_features_in_ = X.shape[1]
     self._y = y
 
-    #normalizing and centering
+    # normalizing and centering
     X_offset = np.zeros(X.shape[1], dtype=X.dtype)
     X_scale = np.ones(X.shape[1], dtype=X.dtype)
     if y.ndim == 1:
@@ -272,19 +301,22 @@ def _daal4py_fit_lasso(self, X, y_, check_input):
             y = y - y_offset
 
     # only for compliance with Sklearn
-    if isinstance(self.precompute, np.ndarray) and \
-       self.fit_intercept and not np.allclose(
-            X_offset, np.zeros(X.shape[1])) or \
-       _normalize and not np.allclose(X_scale, np.ones(X.shape[1])):
-        warnings.warn("Gram matrix was provided but X was centered"
-                      " to fit intercept, "
-                      "or X was normalized : recomputing Gram matrix.",
-                      UserWarning)
+    if (
+        isinstance(self.precompute, np.ndarray)
+        and self.fit_intercept
+        and not np.allclose(X_offset, np.zeros(X.shape[1]))
+        or _normalize
+        and not np.allclose(X_scale, np.ones(X.shape[1]))
+    ):
+        warnings.warn(
+            "Gram matrix was provided but X was centered"
+            " to fit intercept, "
+            "or X was normalized : recomputing Gram matrix.",
+            UserWarning,
+        )
 
     mse_alg = daal4py.optimization_solver_mse(
-        numberOfTerms=X.shape[0],
-        fptype=_fptype,
-        method='defaultDense'
+        numberOfTerms=X.shape[0], fptype=_fptype, method='defaultDense'
     )
     mse_alg.setup(X, y, None)
 
@@ -296,37 +328,44 @@ def _daal4py_fit_lasso(self, X, y_, check_input):
         seed=0 if self.random_state is None else self.random_state,
         nIterations=self.max_iter,
         positive=self.positive,
-        accuracyThreshold=self.tol
+        accuracyThreshold=self.tol,
     )
 
     # set warm_start
-    if self.warm_start and hasattr(self, "coef_") and \
-            isinstance(self.coef_, np.ndarray):
+    if (
+        self.warm_start
+        and hasattr(self, "coef_")
+        and isinstance(self.coef_, np.ndarray)
+    ):
         n_rows = y.shape[1]
         n_cols = X.shape[1] + 1
         inputArgument = np.zeros((n_rows, n_cols), dtype=_fptype)
         for i in range(n_rows):
-            inputArgument[i][0] = self.intercept_ if (
-                n_rows == 1) else self.intercept_[i]
-            inputArgument[i][1:] = self.coef_[:].copy(order='C') if (
-                n_rows == 1) else self.coef_[i, :].copy(order='C')
+            inputArgument[i][0] = (
+                self.intercept_ if (n_rows == 1) else self.intercept_[i]
+            )
+            inputArgument[i][1:] = (
+                self.coef_[:].copy(order='C')
+                if (n_rows == 1)
+                else self.coef_[i, :].copy(order='C')
+            )
         cd_solver.setup(inputArgument)
-    doUse_condition = self.copy_X is False or \
-        (self.fit_intercept and _normalize and self.copy_X)
+    doUse_condition = self.copy_X is False or (
+        self.fit_intercept and _normalize and self.copy_X
+    )
     lasso_alg = daal4py.lasso_regression_training(
         fptype=_fptype,
         method='defaultDense',
         interceptFlag=(self.fit_intercept is True),
         dataUseInComputation='doUse' if doUse_condition else 'doNotUse',
-        lassoParameters=np.asarray(
-            self.alpha, dtype=X.dtype
-        ).reshape((1, -1)),
+        lassoParameters=np.asarray(self.alpha, dtype=X.dtype).reshape((1, -1)),
         optimizationSolver=cd_solver,
     )
     try:
         if isinstance(self.precompute, np.ndarray):
             lasso_res = lasso_alg.compute(
-                data=X, dependentVariables=y, gramMatrix=self.precompute)
+                data=X, dependentVariables=y, gramMatrix=self.precompute
+            )
         else:
             lasso_res = lasso_alg.compute(data=X, dependentVariables=y)
     except RuntimeError:
@@ -339,8 +378,9 @@ def _daal4py_fit_lasso(self, X, y_, check_input):
     # update coefficients if normalizing and centering
     if self.fit_intercept and _normalize:
         lasso_model.Beta[:, 1:] = lasso_model.Beta[:, 1:] / X_scale
-        lasso_model.Beta[:, 0] = \
-            (y_offset - np.dot(X_offset, lasso_model.Beta[:, 1:].T)).T
+        lasso_model.Beta[:, 0] = (
+            y_offset - np.dot(X_offset, lasso_model.Beta[:, 1:].T)
+        ).T
 
     coefs = lasso_model.Beta
 
@@ -362,9 +402,12 @@ def _daal4py_fit_lasso(self, X, y_, check_input):
         self.n_iter_ = np.full(y.shape[1], n_iter)
 
     # only for compliance with Sklearn
-    if (self.max_iter == n_iter + 1):
-        warnings.warn("Objective did not converge. You might want to "
-                      "increase the number of iterations.", ConvergenceWarning)
+    if self.max_iter == n_iter + 1:
+        warnings.warn(
+            "Objective did not converge. You might want to "
+            "increase the number of iterations.",
+            ConvergenceWarning,
+        )
 
     return self
 
@@ -374,14 +417,15 @@ def _daal4py_predict_lasso(self, X):
     _fptype = getFPType(self.coef_)
 
     lasso_palg = daal4py.lasso_regression_prediction(
-        fptype=_fptype,
-        method='defaultDense'
+        fptype=_fptype, method='defaultDense'
     )
     if sklearn_check_version('0.23'):
         if self.n_features_in_ != X.shape[1]:
-            raise ValueError(f'X has {X.shape[1]} features, '
-                             f'but Lasso is expecting '
-                             f'{self.n_features_in_} features as input')
+            raise ValueError(
+                f'X has {X.shape[1]} features, '
+                f'but Lasso is expecting '
+                f'{self.n_features_in_} features as input'
+            )
     lasso_res = lasso_palg.compute(X, self.daal_model_)
 
     res = lasso_res.prediction
@@ -441,8 +485,9 @@ def _fit(self, X, y, sample_weight=None, check_input=True):
         y = check_array(y, copy=False, dtype=X.dtype.type, ensure_2d=False)
 
     if not sp.issparse(X):
-        self.fit_shape_good_for_daal_ = \
+        self.fit_shape_good_for_daal_ = (
             True if X.ndim <= 1 else True if X.shape[0] >= X.shape[1] else False
+        )
     else:
         self.fit_shape_good_for_daal_ = False
 
@@ -450,17 +495,23 @@ def _fit(self, X, y, sample_weight=None, check_input=True):
     class_inst = ElasticNet if class_name == 'ElasticNet' else Lasso
 
     _function_name = f"sklearn.linear_model.{class_name}.fit"
-    _patching_status = PatchingConditionsChain(
-        _function_name)
-    _dal_ready = _patching_status.and_conditions([
-        (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
-        (self.fit_shape_good_for_daal_,
-            "The shape of X does not satisfy oneDAL requirements: "
-            "number of features > number of samples."),
-        (X.dtype == np.float64 or X.dtype == np.float32,
-            f"'{X.dtype}' X data type is not supported. "
-            "Only np.float32 and np.float64 are supported."),
-        (sample_weight is None, "Sample weights are not supported.")])
+    _patching_status = PatchingConditionsChain(_function_name)
+    _dal_ready = _patching_status.and_conditions(
+        [
+            (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
+            (
+                self.fit_shape_good_for_daal_,
+                "The shape of X does not satisfy oneDAL requirements: "
+                "number of features > number of samples.",
+            ),
+            (
+                X.dtype == np.float64 or X.dtype == np.float32,
+                f"'{X.dtype}' X data type is not supported. "
+                "Only np.float32 and np.float64 are supported.",
+            ),
+            (sample_weight is None, "Sample weights are not supported."),
+        ]
+    )
     _patching_status.write_log()
 
     if not _dal_ready:
@@ -468,10 +519,10 @@ def _fit(self, X, y, sample_weight=None, check_input=True):
             del self.daal_model_
         if sklearn_check_version('0.23'):
             res_new = super(class_inst, self).fit(
-                X, y, sample_weight=sample_weight, check_input=check_input)
+                X, y, sample_weight=sample_weight, check_input=check_input
+            )
         else:
-            res_new = super(class_inst, self).fit(
-                X, y, check_input=check_input)
+            res_new = super(class_inst, self).fit(X, y, check_input=check_input)
         self._gap = res_new.dual_gap_
         return res_new
     self.n_iter_ = None
@@ -482,16 +533,13 @@ def _fit(self, X, y, sample_weight=None, check_input=True):
         # this assert is not required for Intel(R) oneAPI Data
         # Analytics Library
         print(type(X), X.flags['F_CONTIGUOUS'])
-        if isinstance(X, np.ndarray) and \
-                X.flags['F_CONTIGUOUS'] is False:
+        if isinstance(X, np.ndarray) and X.flags['F_CONTIGUOUS'] is False:
             # print(X.flags)
             raise ValueError("ndarray is not Fortran contiguous")
 
     if sklearn_check_version('1.0') and not sklearn_check_version('1.2'):
         self._normalize = _deprecate_normalize(
-            self.normalize,
-            default=False,
-            estimator_name=class_name
+            self.normalize, default=False, estimator_name=class_name
         )
 
     # only for pass tests
@@ -509,27 +557,25 @@ def _fit(self, X, y, sample_weight=None, check_input=True):
     if res is None:
         if hasattr(self, 'daal_model_'):
             del self.daal_model_
-        logging.info(
-            _function_name + ": " + get_patch_message("sklearn_after_daal")
-        )
+        logging.info(_function_name + ": " + get_patch_message("sklearn_after_daal"))
         if sklearn_check_version('0.23'):
             res_new = super(class_inst, self).fit(
-                X, y, sample_weight=sample_weight, check_input=check_input)
+                X, y, sample_weight=sample_weight, check_input=check_input
+            )
         else:
-            res_new = super(class_inst, self).fit(
-                X, y, check_input=check_input)
+            res_new = super(class_inst, self).fit(X, y, check_input=check_input)
         self._gap = res_new.dual_gap_
         return res_new
     return res
 
 
 def _dual_gap(self):
-    if (self._gap is None):
+    if self._gap is None:
         l1_reg = self.alpha * self.l1_ratio * self._X.shape[0]
         l2_reg = self.alpha * (1.0 - self.l1_ratio) * self._X.shape[0]
         n_targets = self._y.shape[1]
 
-        if (n_targets == 1):
+        if n_targets == 1:
             self._gap = self.tol + 1.0
             X_offset = np.average(self._X, axis=0)
             y_offset = np.average(self._y, axis=0)
@@ -538,11 +584,10 @@ def _dual_gap(self):
             XtA = np.dot((self._X - X_offset).T, R) - l2_reg * coef
             R_norm2 = np.dot(R.T, R)
             coef_norm2 = np.dot(self.coef_, self.coef_)
-            dual_norm_XtA = np.max(
-                XtA) if self.positive else np.max(np.abs(XtA))
+            dual_norm_XtA = np.max(XtA) if self.positive else np.max(np.abs(XtA))
             if dual_norm_XtA > l1_reg:
                 const = l1_reg / dual_norm_XtA
-                A_norm2 = R_norm2 * (const ** 2)
+                A_norm2 = R_norm2 * (const**2)
                 self._gap = 0.5 * (R_norm2 + A_norm2)
             else:
                 const = 1.0
@@ -550,7 +595,7 @@ def _dual_gap(self):
             l1_norm = np.sum(np.abs(self.coef_))
             tmp = l1_reg * l1_norm
             tmp -= const * np.dot(R.T, (self._y - y_offset))
-            tmp += 0.5 * l2_reg * (1 + const ** 2) * coef_norm2
+            tmp += 0.5 * l2_reg * (1 + const**2) * coef_norm2
             self._gap += tmp
             self._gap = self._gap[0][0]
         else:
@@ -558,17 +603,16 @@ def _dual_gap(self):
             X_offset = np.average(self._X, axis=0)
             y_offset = np.average(self._y, axis=0)
             for k in range(n_targets):
-                R = (self._y[:, k] - y_offset[k]) - \
-                    np.dot((self._X - X_offset), self.coef_[k, :].T)
-                XtA = np.dot((self._X - X_offset).T, R) - \
-                    l2_reg * self.coef_[k, :].T
+                R = (self._y[:, k] - y_offset[k]) - np.dot(
+                    (self._X - X_offset), self.coef_[k, :].T
+                )
+                XtA = np.dot((self._X - X_offset).T, R) - l2_reg * self.coef_[k, :].T
                 R_norm2 = np.dot(R.T, R)
                 coef_norm2 = np.dot(self.coef_[k, :], self.coef_[k, :].T)
-                dual_norm_XtA = np.max(
-                    XtA) if self.positive else np.max(np.abs(XtA))
+                dual_norm_XtA = np.max(XtA) if self.positive else np.max(np.abs(XtA))
                 if dual_norm_XtA > l1_reg:
                     const = l1_reg / dual_norm_XtA
-                    A_norm2 = R_norm2 * (const ** 2)
+                    A_norm2 = R_norm2 * (const**2)
                     self._gap[k] = 0.5 * (R_norm2 + A_norm2)
                 else:
                     const = 1.0
@@ -576,7 +620,7 @@ def _dual_gap(self):
                 l1_norm = np.sum(np.abs(self.coef_[k, :]))
                 tmp = l1_reg * l1_norm
                 tmp -= const * np.dot(R.T, (self._y[:, k] - y_offset[k]))
-                tmp += 0.5 * l2_reg * (1 + const ** 2) * coef_norm2
+                tmp += 0.5 * l2_reg * (1 + const**2) * coef_norm2
                 self._gap[k] += tmp
     return self._gap
 
@@ -614,7 +658,9 @@ class ElasticNet(ElasticNet_original):
                 random_state=random_state,
                 selection=selection,
             )
+
     else:
+
         def __init__(
             self,
             alpha=1.0,
@@ -646,6 +692,7 @@ class ElasticNet(ElasticNet_original):
             )
 
     if sklearn_check_version('0.23'):
+
         @support_usm_ndarray()
         def fit(self, X, y, sample_weight=None, check_input=True):
             """
@@ -684,8 +731,12 @@ class ElasticNet(ElasticNet_original):
             To avoid memory re-allocation it is advised to allocate the
             initial data in memory directly using that format.
             """
-            return _fit(self, X, y, sample_weight=sample_weight, check_input=check_input)
+            return _fit(
+                self, X, y, sample_weight=sample_weight, check_input=check_input
+            )
+
     else:
+
         @support_usm_ndarray()
         def fit(self, X, y, check_input=True):
             """
@@ -734,21 +785,26 @@ class ElasticNet(ElasticNet_original):
             self._check_feature_names(X, reset=False)
 
         X = check_array(
-            X,
-            accept_sparse=['csr', 'csc', 'coo'],
-            dtype=[np.float64, np.float32]
+            X, accept_sparse=['csr', 'csc', 'coo'], dtype=[np.float64, np.float32]
         )
-        good_shape_for_daal = \
+        good_shape_for_daal = (
             True if X.ndim <= 1 else True if X.shape[0] >= X.shape[1] else False
+        )
 
         _patching_status = PatchingConditionsChain(
-            "sklearn.linear_model.ElasticNet.predict")
-        _dal_ready = _patching_status.and_conditions([
-            (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
-            (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
-            (good_shape_for_daal,
-                "The shape of X does not satisfy oneDAL requirements: "
-                "number of features > number of samples.")])
+            "sklearn.linear_model.ElasticNet.predict"
+        )
+        _dal_ready = _patching_status.and_conditions(
+            [
+                (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
+                (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
+                (
+                    good_shape_for_daal,
+                    "The shape of X does not satisfy oneDAL requirements: "
+                    "number of features > number of samples.",
+                ),
+            ]
+        )
         _patching_status.write_log()
 
         if not _dal_ready:
@@ -772,6 +828,7 @@ class Lasso(Lasso_original):
     __doc__ = Lasso_original.__doc__
 
     if sklearn_check_version('1.2'):
+
         def __init__(
             self,
             alpha=1.0,
@@ -798,7 +855,9 @@ class Lasso(Lasso_original):
                 random_state=random_state,
                 selection=selection,
             )
+
     else:
+
         def __init__(
             self,
             alpha=1.0,
@@ -829,6 +888,7 @@ class Lasso(Lasso_original):
             )
 
     if sklearn_check_version('0.23'):
+
         @support_usm_ndarray()
         def fit(self, X, y, sample_weight=None, check_input=True):
             """
@@ -868,7 +928,9 @@ class Lasso(Lasso_original):
             initial data in memory directly using that format.
             """
             return _fit(self, X, y, sample_weight, check_input)
+
     else:
+
         @support_usm_ndarray()
         def fit(self, X, y, check_input=True):
             """
@@ -915,21 +977,24 @@ class Lasso(Lasso_original):
         if sklearn_check_version('1.0'):
             self._check_feature_names(X, reset=False)
         X = check_array(
-            X,
-            accept_sparse=['csr', 'csc', 'coo'],
-            dtype=[np.float64, np.float32]
+            X, accept_sparse=['csr', 'csc', 'coo'], dtype=[np.float64, np.float32]
         )
-        good_shape_for_daal = \
+        good_shape_for_daal = (
             True if X.ndim <= 1 else True if X.shape[0] >= X.shape[1] else False
+        )
 
-        _patching_status = PatchingConditionsChain(
-            "sklearn.linear_model.Lasso.predict")
-        _dal_ready = _patching_status.and_conditions([
-            (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
-            (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
-            (good_shape_for_daal,
-                "The shape of X does not satisfy oneDAL requirements: "
-                "number of features > number of samples.")])
+        _patching_status = PatchingConditionsChain("sklearn.linear_model.Lasso.predict")
+        _dal_ready = _patching_status.and_conditions(
+            [
+                (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
+                (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
+                (
+                    good_shape_for_daal,
+                    "The shape of X does not satisfy oneDAL requirements: "
+                    "number of features > number of samples.",
+                ),
+            ]
+        )
         _patching_status.write_log()
 
         if not _dal_ready:

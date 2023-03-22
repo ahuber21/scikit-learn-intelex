@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py K-Means example for distributed memory systems; SPMD mode
 # run like this:
@@ -34,7 +34,7 @@ def main(method='plusPlusDense'):
     # now slice the data,
     # it would have been better to read only what we need, of course...
     rpp = int(data.shape[0] / d4p.num_procs())
-    data = data[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
+    data = data[rpp * d4p.my_procid() : rpp * d4p.my_procid() + rpp, :]
 
     # compute initial centroids
     init_result = init_algo.compute(data)

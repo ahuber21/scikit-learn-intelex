@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py Adaboost example for shared memory systems
 
@@ -25,6 +25,7 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
@@ -66,6 +67,6 @@ if __name__ == "__main__":
     print("\nGround truth (first 20 observations):\n", ptdata[:20])
     print(
         "Adaboost classification results: (first 20 observations):\n",
-        predict_result.prediction[:20]
+        predict_result.prediction[:20],
     )
     print('All looks good!')

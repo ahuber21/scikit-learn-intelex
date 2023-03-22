@@ -28,8 +28,7 @@ def generate_data(par, size, seed=777):
     rng = np.random.default_rng(seed)
 
     for b in range(size):
-        data = rng.uniform(b, (b + 1) * (b + 1),
-                           size=(ns, nf))
+        data = rng.uniform(b, (b + 1) * (b + 1), size=(ns, nf))
         weights = rng.uniform(1, (b + 1), size=ns)
         weight_blocks.append(weights)
         data_blocks.append(data)

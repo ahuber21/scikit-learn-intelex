@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import numpy as np
 import warnings
 
-from sklearn.neighbors._lof import LocalOutlierFactor as \
-    sklearn_LocalOutlierFactor
+from sklearn.neighbors._lof import LocalOutlierFactor as sklearn_LocalOutlierFactor
 
 from .knn_unsupervised import NearestNeighbors
 
@@ -42,10 +41,12 @@ from .._device_offload import dispatch, wrap_output_data
 from .._config import config_context
 
 if sklearn_check_version("1.0"):
+
     class LocalOutlierFactor(sklearn_LocalOutlierFactor):
         if sklearn_check_version('1.2'):
             _parameter_constraints: dict = {
-                **sklearn_LocalOutlierFactor._parameter_constraints}
+                **sklearn_LocalOutlierFactor._parameter_constraints
+            }
 
         def __init__(
             self,
@@ -69,7 +70,7 @@ if sklearn_check_version("1.0"):
                 metric_params=metric_params,
                 n_jobs=n_jobs,
                 contamination=contamination,
-                novelty=novelty
+                novelty=novelty,
             )
 
         def _fit(self, X, y, queue=None):
@@ -83,7 +84,7 @@ if sklearn_check_version("1.0"):
                     metric=self.metric,
                     p=self.p,
                     metric_params=self.metric_params,
-                    n_jobs=self.n_jobs
+                    n_jobs=self.n_jobs,
                 )
                 self._knn.fit(X)
 
@@ -105,8 +106,10 @@ if sklearn_check_version("1.0"):
                     )
                 self.n_neighbors_ = max(1, min(self.n_neighbors, n_samples - 1))
 
-                self._distances_fit_X_, _neighbors_indices_fit_X_ =\
-                    self._knn.kneighbors(n_neighbors=self.n_neighbors_)
+                (
+                    self._distances_fit_X_,
+                    _neighbors_indices_fit_X_,
+                ) = self._knn.kneighbors(n_neighbors=self.n_neighbors_)
 
                 self._lrd = self._local_reachability_density(
                     self._distances_fit_X_, _neighbors_indices_fit_X_
@@ -134,10 +137,16 @@ if sklearn_check_version("1.0"):
                 return self
 
         def fit(self, X, y=None):
-            return dispatch(self, 'neighbors.LocalOutlierFactor.fit', {
-                'onedal': self.__class__._fit,
-                'sklearn': None,
-            }, X, y)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor.fit',
+                {
+                    'onedal': self.__class__._fit,
+                    'sklearn': None,
+                },
+                X,
+                y,
+            )
 
         def _onedal_predict(self, X, queue=None):
             with config_context(target_offload=queue):
@@ -155,10 +164,15 @@ if sklearn_check_version("1.0"):
 
         @wrap_output_data
         def _predict(self, X=None):
-            return dispatch(self, 'neighbors.LocalOutlierFactor.predict', {
-                'onedal': self.__class__._onedal_predict,
-                'sklearn': None,
-            }, X)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor.predict',
+                {
+                    'onedal': self.__class__._onedal_predict,
+                    'sklearn': None,
+                },
+                X,
+            )
 
         def _score_samples(self, X, queue=None):
             with config_context(target_offload=queue):
@@ -168,7 +182,9 @@ if sklearn_check_version("1.0"):
                 distances_X, neighbors_indices_X = self._knn.kneighbors(
                     X, n_neighbors=self.n_neighbors_
                 )
-                X_lrd = self._local_reachability_density(distances_X, neighbors_indices_X)
+                X_lrd = self._local_reachability_density(
+                    distances_X, neighbors_indices_X
+                )
 
                 lrd_ratios_array = self._lrd[neighbors_indices_X] / X_lrd[:, np.newaxis]
 
@@ -190,10 +206,15 @@ if sklearn_check_version("1.0"):
         @available_if(_check_novelty_score_samples)
         @wrap_output_data
         def score_samples(self, X):
-            return dispatch(self, 'neighbors.LocalOutlierFactor.score_samples', {
-                'onedal': self.__class__._score_samples,
-                'sklearn': None,
-            }, X)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor.score_samples',
+                {
+                    'onedal': self.__class__._score_samples,
+                    'sklearn': None,
+                },
+                X,
+            )
 
         def _check_novelty_fit_predict(self):
             if self.novelty:
@@ -211,17 +232,25 @@ if sklearn_check_version("1.0"):
         @available_if(_check_novelty_fit_predict)
         @wrap_output_data
         def fit_predict(self, X, y=None):
-            return dispatch(self, 'neighbors.LocalOutlierFactor.fit_predict', {
-                'onedal': self.__class__._fit_predict,
-                'sklearn': None,
-            }, X, y)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor.fit_predict',
+                {
+                    'onedal': self.__class__._fit_predict,
+                    'sklearn': None,
+                },
+                X,
+                y,
+            )
 
         def _onedal_gpu_supported(self, method_name, *data):
             return True
 
         def _onedal_cpu_supported(self, method_name, *data):
             return True
+
 else:
+
     class LocalOutlierFactor(sklearn_LocalOutlierFactor):
         def __init__(
             self,
@@ -245,7 +274,7 @@ else:
                 metric_params=metric_params,
                 n_jobs=n_jobs,
                 contamination=contamination,
-                novelty=novelty
+                novelty=novelty,
             )
 
         def _fit(self, X, y=None, queue=None):
@@ -257,7 +286,7 @@ else:
                     metric=self.metric,
                     p=self.p,
                     metric_params=self.metric_params,
-                    n_jobs=self.n_jobs
+                    n_jobs=self.n_jobs,
                 )
                 self._knn.fit(X)
 
@@ -279,8 +308,10 @@ else:
                     )
                 self.n_neighbors_ = max(1, min(self.n_neighbors, n_samples - 1))
 
-                self._distances_fit_X_, _neighbors_indices_fit_X_ =\
-                    self._knn.kneighbors(n_neighbors=self.n_neighbors_)
+                (
+                    self._distances_fit_X_,
+                    _neighbors_indices_fit_X_,
+                ) = self._knn.kneighbors(n_neighbors=self.n_neighbors_)
 
                 self._lrd = self._local_reachability_density(
                     self._distances_fit_X_, _neighbors_indices_fit_X_
@@ -308,10 +339,16 @@ else:
                 return self
 
         def fit(self, X, y=None):
-            return dispatch(self, 'neighbors.LocalOutlierFactor.fit', {
-                'onedal': self.__class__._fit,
-                'sklearn': None,
-            }, X, y)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor.fit',
+                {
+                    'onedal': self.__class__._fit,
+                    'sklearn': None,
+                },
+                X,
+                y,
+            )
 
         def _onedal_predict(self, X, queue=None):
             with config_context(target_offload=queue):
@@ -329,10 +366,15 @@ else:
 
         @wrap_output_data
         def _predict(self, X=None):
-            return dispatch(self, 'neighbors.LocalOutlierFactor.predict', {
-                'onedal': self.__class__._onedal_predict,
-                'sklearn': None,
-            }, X)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor.predict',
+                {
+                    'onedal': self.__class__._onedal_predict,
+                    'sklearn': None,
+                },
+                X,
+            )
 
         def _onedal_score_samples(self, X, queue=None):
             with config_context(target_offload=queue):
@@ -342,7 +384,9 @@ else:
                 distances_X, neighbors_indices_X = self._knn.kneighbors(
                     X, n_neighbors=self.n_neighbors_
                 )
-                X_lrd = self._local_reachability_density(distances_X, neighbors_indices_X)
+                X_lrd = self._local_reachability_density(
+                    distances_X, neighbors_indices_X
+                )
 
                 lrd_ratios_array = self._lrd[neighbors_indices_X] / X_lrd[:, np.newaxis]
 
@@ -352,17 +396,24 @@ else:
         @wrap_output_data
         def _score_samples(self, X):
             if not self.novelty:
-                msg = ('score_samples is not available when novelty=False. The '
-                       'scores of the training samples are always available '
-                       'through the negative_outlier_factor_ attribute. Use '
-                       'novelty=True if you want to use LOF for novelty detection '
-                       'and compute score_samples for new unseen data.')
+                msg = (
+                    'score_samples is not available when novelty=False. The '
+                    'scores of the training samples are always available '
+                    'through the negative_outlier_factor_ attribute. Use '
+                    'novelty=True if you want to use LOF for novelty detection '
+                    'and compute score_samples for new unseen data.'
+                )
                 raise AttributeError(msg)
 
-            return dispatch(self, 'neighbors.LocalOutlierFactor.score_samples', {
-                'onedal': self.__class__._onedal_score_samples,
-                'sklearn': None,
-            }, X)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor.score_samples',
+                {
+                    'onedal': self.__class__._onedal_score_samples,
+                    'sklearn': None,
+                },
+                X,
+            )
 
         def _onedal_fit_predict(self, X, y, queue=None):
             with config_context(target_offload=queue):
@@ -370,10 +421,16 @@ else:
 
         @wrap_output_data
         def _fit_predict(self, X, y=None):
-            return dispatch(self, 'neighbors.LocalOutlierFactor._onedal_fit_predict', {
-                'onedal': self.__class__._onedal_fit_predict,
-                'sklearn': None,
-            }, X, y)
+            return dispatch(
+                self,
+                'neighbors.LocalOutlierFactor._onedal_fit_predict',
+                {
+                    'onedal': self.__class__._onedal_fit_predict,
+                    'sklearn': None,
+                },
+                X,
+                y,
+            )
 
         def _onedal_gpu_supported(self, method_name, *data):
             return True

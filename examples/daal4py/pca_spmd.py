@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py PCA example for distributed memory systems; SPMD mode
 # run like this:
@@ -40,12 +40,16 @@ if __name__ == "__main__":
     # PCA result objects provide eigenvalues, eigenvectors, means and variances
     assert allclose(result1.eigenvalues, result2.eigenvalues)
     assert allclose(result1.eigenvectors, result2.eigenvectors)
-    assert result1.means is None and \
-           result2.means is None or \
-           allclose(result1.means, result2.means)
-    assert result1.variances is None and \
-           result2.variances is None or \
-           allclose(result1.variances, result2.variances)
+    assert (
+        result1.means is None
+        and result2.means is None
+        or allclose(result1.means, result2.means)
+    )
+    assert (
+        result1.variances is None
+        and result2.variances is None
+        or allclose(result1.variances, result2.variances)
+    )
 
     print('All looks good!')
     d4p.daalfini()

@@ -22,12 +22,13 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.validation import check_array
 from collections.abc import Sequence
 from numbers import Integral
-from daal4py.sklearn.utils.validation import _daal_assert_all_finite as assert_all_finite
+from daal4py.sklearn.utils.validation import (
+    _daal_assert_all_finite as assert_all_finite,
+)
 
 
 class DataConversionWarning(UserWarning):
-    """Warning used to notify implicit data conversions happening in the code.
-    """
+    """Warning used to notify implicit data conversions happening in the code."""
 
 
 def _column_or_1d(y, warn=False):
@@ -42,21 +43,23 @@ def _column_or_1d(y, warn=False):
         return np.ravel(y)
     if len(shape) == 2 and shape[1] == 1:
         if warn:
-            warnings.warn("A column-vector y was passed when a 1d array was"
-                          " expected. Please change the shape of y to "
-                          "(n_samples, ), for example using ravel().",
-                          DataConversionWarning, stacklevel=2)
+            warnings.warn(
+                "A column-vector y was passed when a 1d array was"
+                " expected. Please change the shape of y to "
+                "(n_samples, ), for example using ravel().",
+                DataConversionWarning,
+                stacklevel=2,
+            )
         return np.ravel(y)
 
     raise ValueError(
-        "y should be a 1d array, "
-        "got an array of shape {} instead.".format(shape))
+        "y should be a 1d array, " "got an array of shape {} instead.".format(shape)
+    )
 
 
 def _compute_class_weight(class_weight, classes, y):
     if set(y) - set(classes):
-        raise ValueError("classes should include all valid labels that can "
-                         "be in y")
+        raise ValueError("classes should include all valid labels that can " "be in y")
     if class_weight is None or len(class_weight) == 0:
         weight = np.ones(classes.shape[0], dtype=np.float64, order='C')
     elif class_weight == 'balanced':
@@ -74,8 +77,10 @@ def _compute_class_weight(class_weight, classes, y):
         # user-defined dictionary
         weight = np.ones(classes.shape[0], dtype=np.float64, order='C')
         if not isinstance(class_weight, dict):
-            raise ValueError("class_weight must be dict, 'balanced', or None,"
-                             " got: %r" % class_weight)
+            raise ValueError(
+                "class_weight must be dict, 'balanced', or None,"
+                " got: %r" % class_weight
+            )
         for c in class_weight:
             i = np.searchsorted(classes, c)
             if i >= len(classes) or classes[i] != c:
@@ -89,20 +94,27 @@ def _validate_targets(y, class_weight, dtype):
     y_ = _column_or_1d(y, warn=True)
     _check_classification_targets(y)
     classes, y = np.unique(y_, return_inverse=True)
-    class_weight_res = _compute_class_weight(class_weight,
-                                             classes=classes, y=y_)
+    class_weight_res = _compute_class_weight(class_weight, classes=classes, y=y_)
 
     if len(classes) < 2:
         raise ValueError(
             "The number of classes has to be greater than one; got %d"
-            " class" % len(classes))
+            " class" % len(classes)
+        )
 
     return np.asarray(y, dtype=dtype, order='C'), class_weight_res, classes
 
 
-def _check_array(array, dtype="numeric", accept_sparse=False, order=None,
-                 copy=False, force_all_finite=True,
-                 ensure_2d=True, accept_large_sparse=True):
+def _check_array(
+    array,
+    dtype="numeric",
+    accept_sparse=False,
+    order=None,
+    copy=False,
+    force_all_finite=True,
+    ensure_2d=True,
+    accept_large_sparse=True,
+):
     if force_all_finite:
         if sp.issparse(array):
             if hasattr(array, 'data'):
@@ -119,7 +131,8 @@ def _check_array(array, dtype="numeric", accept_sparse=False, order=None,
         copy=copy,
         force_all_finite=force_all_finite,
         ensure_2d=ensure_2d,
-        accept_large_sparse=accept_large_sparse)
+        accept_large_sparse=accept_large_sparse,
+    )
 
     if sp.isspmatrix(array):
         return array
@@ -136,25 +149,31 @@ def _check_array(array, dtype="numeric", accept_sparse=False, order=None,
 
 
 def _check_X_y(
-        X,
-        y,
-        dtype="numeric",
-        accept_sparse=False,
-        order=None,
-        copy=False,
-        force_all_finite=True,
-        ensure_2d=True,
-        accept_large_sparse=True,
-        y_numeric=False,
-        accept_2d_y=False):
+    X,
+    y,
+    dtype="numeric",
+    accept_sparse=False,
+    order=None,
+    copy=False,
+    force_all_finite=True,
+    ensure_2d=True,
+    accept_large_sparse=True,
+    y_numeric=False,
+    accept_2d_y=False,
+):
     if y is None:
         raise ValueError("y cannot be None")
 
-    X = _check_array(X, accept_sparse=accept_sparse,
-                     dtype=dtype, order=order, copy=copy,
-                     force_all_finite=force_all_finite,
-                     ensure_2d=ensure_2d,
-                     accept_large_sparse=accept_large_sparse)
+    X = _check_array(
+        X,
+        accept_sparse=accept_sparse,
+        dtype=dtype,
+        order=order,
+        copy=copy,
+        force_all_finite=force_all_finite,
+        ensure_2d=ensure_2d,
+        accept_large_sparse=accept_large_sparse,
+    )
 
     if not accept_2d_y:
         y = _column_or_1d(y, warn=True)
@@ -165,16 +184,23 @@ def _check_X_y(
     lengths = [X.shape[0], y.shape[0]]
     uniques = np.unique(lengths)
     if len(uniques) > 1:
-        raise ValueError("Found input variables with inconsistent numbers of"
-                         " samples: %r" % [int(length) for length in lengths])
+        raise ValueError(
+            "Found input variables with inconsistent numbers of"
+            " samples: %r" % [int(length) for length in lengths]
+        )
 
     return X, y
 
 
 def _check_classification_targets(y):
     y_type = _type_of_target(y)
-    if y_type not in ['binary', 'multiclass', 'multiclass-multioutput',
-                      'multilabel-indicator', 'multilabel-sequences']:
+    if y_type not in [
+        'binary',
+        'multiclass',
+        'multiclass-multioutput',
+        'multilabel-indicator',
+        'multilabel-sequences',
+    ]:
         raise ValueError("Unknown label type: %r" % y_type)
 
 
@@ -184,10 +210,11 @@ def _type_of_target(y):
     valid = (is_sequence or is_array or is_spmatrix) and is_not_string
 
     if not valid:
-        raise ValueError('Expected array-like (array or non-string sequence), '
-                         'got %r' % y)
+        raise ValueError(
+            'Expected array-like (array or non-string sequence), ' 'got %r' % y
+        )
 
-    sparse_pandas = (y.__class__.__name__ in ['SparseSeries', 'SparseArray'])
+    sparse_pandas = y.__class__.__name__ in ['SparseSeries', 'SparseArray']
     if sparse_pandas:
         raise ValueError("y cannot be class 'SparseSeries' or 'SparseArray'")
 
@@ -207,19 +234,23 @@ def _type_of_target(y):
 
     # The old sequence of sequences format
     try:
-        if not hasattr(y[0], '__array__') and isinstance(y[0], Sequence) \
-                and not isinstance(y[0], str):
-            raise ValueError('You appear to be using a legacy multi-label data'
-                             ' representation. Sequence of sequences are no'
-                             ' longer supported; use a binary array or sparse'
-                             ' matrix instead - the MultiLabelBinarizer'
-                             ' transformer can convert to this format.')
+        if (
+            not hasattr(y[0], '__array__')
+            and isinstance(y[0], Sequence)
+            and not isinstance(y[0], str)
+        ):
+            raise ValueError(
+                'You appear to be using a legacy multi-label data'
+                ' representation. Sequence of sequences are no'
+                ' longer supported; use a binary array or sparse'
+                ' matrix instead - the MultiLabelBinarizer'
+                ' transformer can convert to this format.'
+            )
     except IndexError:
         pass
 
     # Invalid inputs
-    if y.ndim > 2 or (y.dtype == object and len(
-            y) and not isinstance(y.flat[0], str)):
+    if y.ndim > 2 or (y.dtype == object and len(y) and not isinstance(y.flat[0], str)):
         return 'unknown'  # [[[1, 2]]] or [obj_1] and not ["label_1"]
 
     if y.ndim == 2 and y.shape[1] == 0:
@@ -264,12 +295,14 @@ def _is_multilabel(y):
     if issparse(y):
         if isinstance(y, (dok_matrix, lil_matrix)):
             y = y.tocsr()
-        return len(y.data) == 0 or np.unique(y.data).size == 1 and \
-            (y.dtype.kind in 'biu' or _is_integral_float(np.unique(y.data)))
+        return (
+            len(y.data) == 0
+            or np.unique(y.data).size == 1
+            and (y.dtype.kind in 'biu' or _is_integral_float(np.unique(y.data)))
+        )
     labels = np.unique(y)
 
-    return len(labels) < 3 and (
-        y.dtype.kind in 'biu' or _is_integral_float(labels))
+    return len(labels) < 3 and (y.dtype.kind in 'biu' or _is_integral_float(labels))
 
 
 def _check_n_features(self, X, reset):
@@ -299,7 +332,8 @@ def _check_n_features(self, X, reset):
     if n_features != self.n_features_in_:
         raise ValueError(
             f"X has {n_features} features, but {self.__class__.__name__} "
-            f"is expecting {self.n_features_in_} features as input.")
+            f"is expecting {self.n_features_in_} features as input."
+        )
 
 
 def _num_features(X, fallback_1d=False):
@@ -308,10 +342,7 @@ def _num_features(X, fallback_1d=False):
         type_name = type_.__qualname__
     else:
         type_name = f"{type_.__module__}.{type_.__qualname__}"
-    message = (
-        "Unable to find the number of features from X of type "
-        f"{type_name}"
-    )
+    message = "Unable to find the number of features from X of type " f"{type_name}"
     if not hasattr(X, '__len__') and not hasattr(X, 'shape'):
         if not hasattr(X, '__array__'):
             raise TypeError(message)
@@ -330,8 +361,9 @@ def _num_features(X, fallback_1d=False):
 
     # Do not consider an array-like of strings or dicts to be a 2D array
     if isinstance(first_sample, (str, bytes, dict)):
-        message += (f" where the samples are of type "
-                    f"{type(first_sample).__qualname__}")
+        message += (
+            f" where the samples are of type " f"{type(first_sample).__qualname__}"
+        )
         raise TypeError(message)
 
     try:
@@ -361,8 +393,8 @@ def _num_samples(x):
     if hasattr(x, "shape") and x.shape is not None:
         if len(x.shape) == 0:
             raise TypeError(
-                "Singleton array %r cannot be considered a valid collection." %
-                x)
+                "Singleton array %r cannot be considered a valid collection." % x
+            )
     # Check that shape is returning an integer or default to len
     # Dask dataframes may not return numeric shape[0] value
     if hasattr(x, "shape") and isinstance(x.shape[0], Integral):

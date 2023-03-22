@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,27 +13,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
+
 
 def set_sklearn_ex_verbose():
     import logging
     import warnings
     import os
     import sys
+
     logLevel = os.environ.get("SKLEARNEX_VERBOSE")
     try:
         if logLevel is not None:
             logging.basicConfig(
                 stream=sys.stdout,
-                format='SKLEARNEX %(levelname)s: %(message)s', level=logLevel.upper())
+                format='SKLEARNEX %(levelname)s: %(message)s',
+                level=logLevel.upper(),
+            )
     except Exception:
-        warnings.warn('Unknown level "{}" for logging.\n'
-                      'Please, use one of "CRITICAL", "ERROR", '
-                      '"WARNING", "INFO", "DEBUG".'.format(logLevel))
+        warnings.warn(
+            'Unknown level "{}" for logging.\n'
+            'Please, use one of "CRITICAL", "ERROR", '
+            '"WARNING", "INFO", "DEBUG".'.format(logLevel)
+        )
 
 
 def get_patch_message(s, queue=None, cpu_fallback=False):
     import sys
+
     if s == "onedal":
         message = "running accelerated version on "
         if queue is not None:
@@ -46,6 +53,7 @@ def get_patch_message(s, queue=None, cpu_fallback=False):
 
         elif 'daal4py.oneapi' in sys.modules:
             from daal4py.oneapi import _get_device_name_sycl_ctxt
+
             dev = _get_device_name_sycl_ctxt()
             if dev == 'cpu' or dev is None:
                 message += 'CPU'
@@ -55,8 +63,9 @@ def get_patch_message(s, queue=None, cpu_fallback=False):
                 else:
                     message += 'GPU'
             else:
-                raise ValueError(f"Unexpected device name {dev}."
-                                 " Supported types are cpu and gpu")
+                raise ValueError(
+                    f"Unexpected device name {dev}." " Supported types are cpu and gpu"
+                )
         else:
             message += 'CPU'
 
@@ -67,10 +76,12 @@ def get_patch_message(s, queue=None, cpu_fallback=False):
     else:
         raise ValueError(
             f"Invalid input - expected one of 'onedal','sklearn',"
-            f" 'sklearn_after_onedal', got {s}")
+            f" 'sklearn_after_onedal', got {s}"
+        )
     return message
 
 
 def get_sklearnex_version(rule):
     from daal4py.sklearn._utils import daal_check_version
+
     return daal_check_version(rule)

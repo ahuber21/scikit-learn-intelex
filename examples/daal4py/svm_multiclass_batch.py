@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py multi-class SVM example for shared memory systems
 
@@ -25,6 +25,7 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
@@ -45,7 +46,7 @@ def main(readcsv=read_csv, method='defaultDense'):
     algorithm = d4p.multi_class_classifier_training(
         nClasses=nClasses,
         training=d4p.svm_training(method='thunder'),
-        prediction=d4p.svm_prediction()
+        prediction=d4p.svm_prediction(),
     )
 
     # Pass data to training. Training result provides model
@@ -63,7 +64,7 @@ def main(readcsv=read_csv, method='defaultDense'):
     algorithm = d4p.multi_class_classifier_prediction(
         nClasses,
         training=d4p.svm_training(method='thunder'),
-        prediction=d4p.svm_prediction()
+        prediction=d4p.svm_prediction(),
     )
     # Pass data to prediction. Prediction result provides prediction
     pred_result = algorithm.compute(pred_data, train_result.model)
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     (pred_res, pred_labels) = main()
     print(
         "\nSVM classification results (first 20 observations):\n",
-        pred_res.prediction[0:20]
+        pred_res.prediction[0:20],
     )
     print("\nGround truth (first 20 observations):\n", pred_labels[0:20])
     print('All looks good!')

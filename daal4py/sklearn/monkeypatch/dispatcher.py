@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 from daal4py.sklearn._utils import set_idp_sklearn_verbose
 from ..neighbors import KNeighborsRegressor as KNeighborsRegressor_daal4py
@@ -31,9 +31,12 @@ from ..linear_model.coordinate_descent import Lasso as Lasso_daal4py
 from ..linear_model.coordinate_descent import ElasticNet as ElasticNet_daal4py
 from ..linear_model.linear import LinearRegression as LinearRegression_daal4py
 from ..linear_model.ridge import Ridge as Ridge_daal4py
-from ..linear_model.logistic_path import LogisticRegression as LogisticRegression_daal4py
-from ..linear_model.logistic_path import logistic_regression_path as \
-    daal_optimized_logistic_path
+from ..linear_model.logistic_path import (
+    LogisticRegression as LogisticRegression_daal4py,
+)
+from ..linear_model.logistic_path import (
+    logistic_regression_path as daal_optimized_logistic_path,
+)
 from ..decomposition._pca import PCA as PCA_daal4py
 from ..manifold import TSNE as TSNE_daal4py
 from sklearn import model_selection
@@ -61,32 +64,75 @@ def _get_map_of_algorithms():
         'kmeans': [[(cluster_module, 'KMeans', KMeans_daal4py), None]],
         'dbscan': [[(cluster_module, 'DBSCAN', DBSCAN_daal4py), None]],
         'distances': [[(metrics, 'pairwise_distances', daal_pairwise_distances), None]],
-        'linear': [[(linear_model_module, 'LinearRegression',
-                     LinearRegression_daal4py), None]],
+        'linear': [
+            [(linear_model_module, 'LinearRegression', LinearRegression_daal4py), None]
+        ],
         'ridge': [[(linear_model_module, 'Ridge', Ridge_daal4py), None]],
         'elasticnet': [[(linear_model_module, 'ElasticNet', ElasticNet_daal4py), None]],
         'lasso': [[(linear_model_module, 'Lasso', Lasso_daal4py), None]],
         'svm': [[(svm_module, 'SVC', SVC_daal4py), None]],
-        'logistic': [[(logistic_module, '_logistic_regression_path',
-                       daal_optimized_logistic_path), None]],
-        'log_reg': [[(linear_model_module, 'LogisticRegression',
-                    LogisticRegression_daal4py), None]],
-        'knn_classifier': [[(neighbors_module, 'KNeighborsClassifier',
-                             KNeighborsClassifier_daal4py), None]],
-        'nearest_neighbors': [[(neighbors_module, 'NearestNeighbors',
-                                NearestNeighbors_daal4py), None]],
-        'knn_regressor': [[(neighbors_module, 'KNeighborsRegressor',
-                            KNeighborsRegressor_daal4py), None]],
-        'random_forest_classifier': [[(ensemble_module, 'RandomForestClassifier',
-                                       RandomForestClassifier_daal4py), None]],
-        'random_forest_regressor': [[(ensemble_module, 'RandomForestRegressor',
-                                      RandomForestRegressor_daal4py), None]],
-        'train_test_split': [[(model_selection, 'train_test_split',
-                               _daal_train_test_split), None]],
-        'fin_check': [[(validation, '_assert_all_finite',
-                        _daal_assert_all_finite), None]],
-        'roc_auc_score': [[(metrics, 'roc_auc_score',
-                           _daal_roc_auc_score), None]],
+        'logistic': [
+            [
+                (
+                    logistic_module,
+                    '_logistic_regression_path',
+                    daal_optimized_logistic_path,
+                ),
+                None,
+            ]
+        ],
+        'log_reg': [
+            [
+                (linear_model_module, 'LogisticRegression', LogisticRegression_daal4py),
+                None,
+            ]
+        ],
+        'knn_classifier': [
+            [
+                (
+                    neighbors_module,
+                    'KNeighborsClassifier',
+                    KNeighborsClassifier_daal4py,
+                ),
+                None,
+            ]
+        ],
+        'nearest_neighbors': [
+            [(neighbors_module, 'NearestNeighbors', NearestNeighbors_daal4py), None]
+        ],
+        'knn_regressor': [
+            [
+                (neighbors_module, 'KNeighborsRegressor', KNeighborsRegressor_daal4py),
+                None,
+            ]
+        ],
+        'random_forest_classifier': [
+            [
+                (
+                    ensemble_module,
+                    'RandomForestClassifier',
+                    RandomForestClassifier_daal4py,
+                ),
+                None,
+            ]
+        ],
+        'random_forest_regressor': [
+            [
+                (
+                    ensemble_module,
+                    'RandomForestRegressor',
+                    RandomForestRegressor_daal4py,
+                ),
+                None,
+            ]
+        ],
+        'train_test_split': [
+            [(model_selection, 'train_test_split', _daal_train_test_split), None]
+        ],
+        'fin_check': [
+            [(validation, '_assert_all_finite', _daal_assert_all_finite), None]
+        ],
+        'roc_auc_score': [[(metrics, 'roc_auc_score', _daal_roc_auc_score), None]],
         'tsne': [[(manifold_module, 'TSNE', TSNE_daal4py), None]],
     }
     mapping['svc'] = mapping['svm']
@@ -130,23 +176,28 @@ def enable(name=None, verbose=True, deprecation=True, get_map=_get_map_of_algori
             do_patch(key, get_map)
     if deprecation:
         set_idp_sklearn_verbose()
-        warnings.warn_explicit("\nScikit-learn patching with daal4py is deprecated "
-                               "and will be removed in the future.\n"
-                               "Use Intel(R) Extension "
-                               "for Scikit-learn* module instead "
-                               "(pip install scikit-learn-intelex).\n"
-                               "To enable patching, please use one of the "
-                               "following options:\n"
-                               "1) From the command line:\n"
-                               "    python -m sklearnex <your_script>\n"
-                               "2) From your script:\n"
-                               "    from sklearnex import patch_sklearn\n"
-                               "    patch_sklearn()",
-                               FutureWarning, "dispatcher.py", 151)
+        warnings.warn_explicit(
+            "\nScikit-learn patching with daal4py is deprecated "
+            "and will be removed in the future.\n"
+            "Use Intel(R) Extension "
+            "for Scikit-learn* module instead "
+            "(pip install scikit-learn-intelex).\n"
+            "To enable patching, please use one of the "
+            "following options:\n"
+            "1) From the command line:\n"
+            "    python -m sklearnex <your_script>\n"
+            "2) From your script:\n"
+            "    from sklearnex import patch_sklearn\n"
+            "    patch_sklearn()",
+            FutureWarning,
+            "dispatcher.py",
+            151,
+        )
     if verbose and deprecation and sys.stderr is not None:
         sys.stderr.write(
             "Intel(R) oneAPI Data Analytics Library solvers for sklearn enabled: "
-            "https://intelpython.github.io/daal4py/sklearn.html\n")
+            "https://intelpython.github.io/daal4py/sklearn.html\n"
+        )
 
 
 def disable(name=None, get_map=_get_map_of_algorithms):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # -*- coding: utf-8 -*-
 #
@@ -95,7 +95,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-#html_theme = 'alabaster'
+# html_theme = 'alabaster'
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "sidebarwidth": 30,
@@ -113,11 +113,7 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/style.css'
-    ]
-}
+html_context = {'css_files': ['_static/style.css']}
 
 
 # Custom sidebar templates, must be a dictionary that maps document names
@@ -130,10 +126,7 @@ html_context = {
 #
 # html_sidebars = {}
 html_sidebars = {
-    '**': [
-        'globaltoc.html', 'relations.html',
-        'sourcelink.html', 'searchbox.html'
-    ]
+    '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html']
 }
 
 
@@ -149,15 +142,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -167,8 +157,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'daal4py.tex', 'daal4py Documentation',
-     'Intel', 'manual'),
+    (master_doc, 'daal4py.tex', 'daal4py Documentation', 'Intel', 'manual'),
 ]
 
 
@@ -176,10 +165,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'daal4py', 'daal4py Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'daal4py', 'daal4py Documentation', [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -188,9 +174,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'daal4py', 'daal4py Documentation',
-     author, 'daal4py', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'daal4py',
+        'daal4py Documentation',
+        author,
+        'daal4py',
+        'One line description of project.',
+        'Miscellaneous',
+    ),
 ]
 
 

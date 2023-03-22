@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2022 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 from abc import ABCMeta
 
@@ -26,14 +26,14 @@ from ..datatypes import (
     _check_n_features,
     _check_classification_targets,
     _convert_to_supported,
-    _num_samples
+    _num_samples,
 )
 
 from daal4py import (
     bf_knn_classification_training,
     bf_knn_classification_prediction,
     kdtree_knn_classification_training,
-    kdtree_knn_classification_prediction
+    kdtree_knn_classification_prediction,
 )
 from onedal import _backend
 
@@ -47,9 +47,10 @@ class NeighborsCommonBase(metaclass=ABCMeta):
     def _parse_auto_method(self, method, n_samples, n_features):
         result_method = method
 
-        if (method in ['auto', 'ball_tree']):
-            condition = self.n_neighbors is not None and \
-                self.n_neighbors >= n_samples // 2
+        if method in ['auto', 'ball_tree']:
+            condition = (
+                self.n_neighbors is not None and self.n_neighbors >= n_samples // 2
+            )
             if self.metric == 'precomputed' or n_features > 15 or condition:
                 result_method = 'brute'
             else:
@@ -60,8 +61,9 @@ class NeighborsCommonBase(metaclass=ABCMeta):
 
         return result_method
 
-    def _validate_data(self, X, y=None, reset=True,
-                       validate_separately=False, **check_params):
+    def _validate_data(
+        self, X, y=None, reset=True, validate_separately=False, **check_params
+    ):
         if y is None:
             if self.requires_y:
                 raise ValueError(
@@ -146,7 +148,7 @@ class NeighborsCommonBase(metaclass=ABCMeta):
             'resultsToCompute': 'computeIndicesOfNeighbors|computeDistances',
             'resultsToEvaluate': 'none'
             if getattr(self, '_y', None) is None or _is_regressor(self)
-            else 'computeClassLabels'
+            else 'computeClassLabels',
         }
         if class_count != 0:
             params['nClasses'] = class_count
@@ -154,9 +156,15 @@ class NeighborsCommonBase(metaclass=ABCMeta):
 
 
 class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
-    def __init__(self, n_neighbors=None, radius=None,
-                 algorithm='auto', metric='minkowski',
-                 p=2, metric_params=None):
+    def __init__(
+        self,
+        n_neighbors=None,
+        radius=None,
+        algorithm='auto',
+        metric='minkowski',
+        p=2,
+        metric_params=None,
+    ):
         self.n_neighbors = n_neighbors
         self.radius = radius
         self.algorithm = algorithm
@@ -176,7 +184,8 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
         if len(self.classes_) < 2:
             raise ValueError(
                 "The number of classes has to be greater than one; got %d"
-                " class" % len(self.classes_))
+                " class" % len(self.classes_)
+            )
 
     def _fit(self, X, y, queue):
         self._onedal_model = None
@@ -185,7 +194,8 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
         self.classes_ = None
         self.effective_metric_ = getattr(self, 'effective_metric_', self.metric)
         self.effective_metric_params_ = getattr(
-            self, 'effective_metric_params_', self.metric_params)
+            self, 'effective_metric_params_', self.metric_params
+        )
 
         if y is not None or self.requires_y:
             shape = getattr(y, 'shape', None)
@@ -203,8 +213,7 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
                 self.classes_ = []
                 self._y = np.empty(y.shape, dtype=int)
                 for k in range(self._y.shape[1]):
-                    classes, self._y[:, k] = np.unique(
-                        y[:, k], return_inverse=True)
+                    classes, self._y[:, k] = np.unique(y[:, k], return_inverse=True)
                     self.classes_.append(classes)
 
                 if not self.outputs_2d_:
@@ -223,19 +232,16 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
 
         if self.n_neighbors is not None:
             if self.n_neighbors <= 0:
-                raise ValueError(
-                    "Expected n_neighbors > 0. Got %d" %
-                    self.n_neighbors
-                )
+                raise ValueError("Expected n_neighbors > 0. Got %d" % self.n_neighbors)
             if not isinstance(self.n_neighbors, Integral):
                 raise TypeError(
                     "n_neighbors does not take %s value, "
-                    "enter integer value" %
-                    type(self.n_neighbors))
+                    "enter integer value" % type(self.n_neighbors)
+                )
 
         self._fit_method = super()._parse_auto_method(
-            self.algorithm,
-            self.n_samples_fit_, self.n_features_in_)
+            self.algorithm, self.n_samples_fit_, self.n_features_in_
+        )
 
         _fit_y = None
         gpu_device = queue is not None and queue.sycl_device.is_gpu
@@ -252,30 +258,30 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
 
         return result
 
-    def _kneighbors(self, X=None, n_neighbors=None,
-                    return_distance=True, queue=None):
+    def _kneighbors(self, X=None, n_neighbors=None, return_distance=True, queue=None):
         n_features = getattr(self, 'n_features_in_', None)
         shape = getattr(X, 'shape', None)
         if n_features and shape and len(shape) > 1 and shape[1] != n_features:
-            raise ValueError((f'X has {X.shape[1]} features, '
-                              f'but kneighbors is expecting '
-                              f'{n_features} features as input'))
+            raise ValueError(
+                (
+                    f'X has {X.shape[1]} features, '
+                    f'but kneighbors is expecting '
+                    f'{n_features} features as input'
+                )
+            )
 
         _check_is_fitted(self)
 
         if n_neighbors is None:
             n_neighbors = self.n_neighbors
         elif n_neighbors <= 0:
-            raise ValueError(
-                "Expected n_neighbors > 0. Got %d" %
-                n_neighbors
-            )
+            raise ValueError("Expected n_neighbors > 0. Got %d" % n_neighbors)
         else:
             if not isinstance(n_neighbors, Integral):
                 raise TypeError(
                     "n_neighbors does not take %s value, "
-                    "enter integer value" %
-                    type(n_neighbors))
+                    "enter integer value" % type(n_neighbors)
+                )
 
         if X is not None:
             query_is_train = False
@@ -292,13 +298,13 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
         if n_neighbors > n_samples_fit:
             raise ValueError(
                 "Expected n_neighbors <= n_samples, "
-                " but n_samples = %d, n_neighbors = %d" %
-                (n_samples_fit, n_neighbors)
+                " but n_samples = %d, n_neighbors = %d" % (n_samples_fit, n_neighbors)
             )
 
         chunked_results = None
         method = super()._parse_auto_method(
-            self._fit_method, self.n_samples_fit_, n_features)
+            self._fit_method, self.n_samples_fit_, n_features
+        )
 
         gpu_device = queue is not None and queue.sycl_device.is_gpu
         if self.effective_metric_ == 'euclidean' and not gpu_device:
@@ -307,7 +313,8 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
             params = super()._get_onedal_params(X)
 
         prediction_results = self._onedal_predict(
-            self._onedal_model, X, params, queue=queue)
+            self._onedal_model, X, params, queue=queue
+        )
 
         if self.effective_metric_ == 'euclidean' and not gpu_device:
             distances = prediction_results.distances
@@ -358,26 +365,36 @@ class NeighborsBase(NeighborsCommonBase, metaclass=ABCMeta):
         dup_gr_nbrs = np.all(sample_mask, axis=1)
         sample_mask[:, 0][dup_gr_nbrs] = False
 
-        neigh_ind = np.reshape(
-            neigh_ind[sample_mask], (n_queries, n_neighbors - 1))
+        neigh_ind = np.reshape(neigh_ind[sample_mask], (n_queries, n_neighbors - 1))
 
         if return_distance:
             neigh_dist = np.reshape(
-                neigh_dist[sample_mask], (n_queries, n_neighbors - 1))
+                neigh_dist[sample_mask], (n_queries, n_neighbors - 1)
+            )
             return neigh_dist, neigh_ind
         return neigh_ind
 
 
 class KNeighborsClassifier(NeighborsBase, ClassifierMixin):
-    def __init__(self, n_neighbors=5, *,
-                 weights='uniform', algorithm='auto',
-                 p=2, metric='minkowski', metric_params=None, **kwargs):
+    def __init__(
+        self,
+        n_neighbors=5,
+        *,
+        weights='uniform',
+        algorithm='auto',
+        p=2,
+        metric='minkowski',
+        metric_params=None,
+        **kwargs,
+    ):
         super().__init__(
             n_neighbors=n_neighbors,
             algorithm=algorithm,
-            metric=metric, p=p,
+            metric=metric,
+            p=p,
             metric_params=metric_params,
-            **kwargs)
+            **kwargs,
+        )
         self.weights = weights
 
     def _get_onedal_params(self, X, y=None):
@@ -405,8 +422,9 @@ class KNeighborsClassifier(NeighborsBase, ClassifierMixin):
         policy = _get_policy(queue, X, y)
         X, y = _convert_to_supported(policy, X, y)
         params = self._get_onedal_params(X, y)
-        train_alg = _backend.neighbors.classification.train(policy, params,
-                                                            *to_table(X, y))
+        train_alg = _backend.neighbors.classification.train(
+            policy, params, *to_table(X, y)
+        )
 
         return train_alg.model
 
@@ -431,7 +449,8 @@ class KNeighborsClassifier(NeighborsBase, ClassifierMixin):
             params['result_option'] += '|responses'
         params['fptype'] = 'float' if X.dtype == np.float32 else 'double'
         result = _backend.neighbors.classification.infer(
-            policy, params, model, to_table(X))
+            policy, params, model, to_table(X)
+        )
 
         return result
 
@@ -445,15 +464,19 @@ class KNeighborsClassifier(NeighborsBase, ClassifierMixin):
         n_samples_fit_ = getattr(self, 'n_samples_fit_', None)
         shape = getattr(X, 'shape', None)
         if n_features and shape and len(shape) > 1 and shape[1] != n_features:
-            raise ValueError((f'X has {X.shape[1]} features, '
-                              f'but KNNClassifier is expecting '
-                              f'{n_features} features as input'))
+            raise ValueError(
+                (
+                    f'X has {X.shape[1]} features, '
+                    f'but KNNClassifier is expecting '
+                    f'{n_features} features as input'
+                )
+            )
 
         _check_is_fitted(self)
 
         self._fit_method = super()._parse_auto_method(
-            self.algorithm,
-            n_samples_fit_, n_features)
+            self.algorithm, n_samples_fit_, n_features
+        )
 
         self._validate_n_classes()
 
@@ -468,8 +491,7 @@ class KNeighborsClassifier(NeighborsBase, ClassifierMixin):
             responses = prediction_result.prediction
         else:
             responses = from_table(prediction_result.responses)
-        result = self.classes_.take(
-            np.asarray(responses.ravel(), dtype=np.intp))
+        result = self.classes_.take(np.asarray(responses.ravel(), dtype=np.intp))
 
         return result
 
@@ -510,21 +532,30 @@ class KNeighborsClassifier(NeighborsBase, ClassifierMixin):
 
         return probabilities
 
-    def kneighbors(self, X=None, n_neighbors=None,
-                   return_distance=True, queue=None):
+    def kneighbors(self, X=None, n_neighbors=None, return_distance=True, queue=None):
         return super()._kneighbors(X, n_neighbors, return_distance, queue=queue)
 
 
 class KNeighborsRegressor(NeighborsBase, RegressorMixin):
-    def __init__(self, n_neighbors=5, *,
-                 weights='uniform', algorithm='auto',
-                 p=2, metric='minkowski', metric_params=None, **kwargs):
+    def __init__(
+        self,
+        n_neighbors=5,
+        *,
+        weights='uniform',
+        algorithm='auto',
+        p=2,
+        metric='minkowski',
+        metric_params=None,
+        **kwargs,
+    ):
         super().__init__(
             n_neighbors=n_neighbors,
             algorithm=algorithm,
-            metric=metric, p=p,
+            metric=metric,
+            p=p,
             metric_params=metric_params,
-            **kwargs)
+            **kwargs,
+        )
         self.weights = weights
 
     def _get_onedal_params(self, X, y=None):
@@ -569,8 +600,9 @@ class KNeighborsRegressor(NeighborsBase, RegressorMixin):
             return predict_alg(**params).compute(X, model)
 
         policy = _get_policy(queue, X)
-        backend = _backend.neighbors.regression if gpu_device \
-            else _backend.neighbors.search
+        backend = (
+            _backend.neighbors.regression if gpu_device else _backend.neighbors.search
+        )
 
         if hasattr(self, '_onedal_model'):
             model = self._onedal_model
@@ -583,8 +615,7 @@ class KNeighborsRegressor(NeighborsBase, RegressorMixin):
     def fit(self, X, y, queue=None):
         return super()._fit(X, y, queue=queue)
 
-    def kneighbors(self, X=None, n_neighbors=None,
-                   return_distance=True, queue=None):
+    def kneighbors(self, X=None, n_neighbors=None, return_distance=True, queue=None):
         return super()._kneighbors(X, n_neighbors, return_distance, queue=queue)
 
     def _predict_gpu(self, X, queue=None):
@@ -594,15 +625,19 @@ class KNeighborsRegressor(NeighborsBase, RegressorMixin):
         n_samples_fit_ = getattr(self, 'n_samples_fit_', None)
         shape = getattr(X, 'shape', None)
         if n_features and shape and len(shape) > 1 and shape[1] != n_features:
-            raise ValueError((f'X has {X.shape[1]} features, '
-                              f'but KNNClassifier is expecting '
-                              f'{n_features} features as input'))
+            raise ValueError(
+                (
+                    f'X has {X.shape[1]} features, '
+                    f'but KNNClassifier is expecting '
+                    f'{n_features} features as input'
+                )
+            )
 
         _check_is_fitted(self)
 
         self._fit_method = super()._parse_auto_method(
-            self.algorithm,
-            n_samples_fit_, n_features)
+            self.algorithm, n_samples_fit_, n_features
+        )
 
         params = self._get_onedal_params(X)
 
@@ -639,20 +674,33 @@ class KNeighborsRegressor(NeighborsBase, RegressorMixin):
     def predict(self, X, queue=None):
         gpu_device = queue is not None and queue.sycl_device.is_gpu
         is_uniform_weights = getattr(self, 'weights', 'uniform') == 'uniform'
-        return self._predict_gpu(X, queue=queue) \
-            if gpu_device and is_uniform_weights else self._predict_skl(X, queue=queue)
+        return (
+            self._predict_gpu(X, queue=queue)
+            if gpu_device and is_uniform_weights
+            else self._predict_skl(X, queue=queue)
+        )
 
 
 class NearestNeighbors(NeighborsBase):
-    def __init__(self, n_neighbors=5, *,
-                 weights='uniform', algorithm='auto',
-                 p=2, metric='minkowski', metric_params=None, **kwargs):
+    def __init__(
+        self,
+        n_neighbors=5,
+        *,
+        weights='uniform',
+        algorithm='auto',
+        p=2,
+        metric='minkowski',
+        metric_params=None,
+        **kwargs,
+    ):
         super().__init__(
             n_neighbors=n_neighbors,
             algorithm=algorithm,
-            metric=metric, p=p,
+            metric=metric,
+            p=p,
             metric_params=metric_params,
-            **kwargs)
+            **kwargs,
+        )
         self.weights = weights
 
     def _get_onedal_params(self, X, y=None):
@@ -662,8 +710,9 @@ class NearestNeighbors(NeighborsBase):
     def _get_daal_params(self, data):
         params = super()._get_daal_params(data)
         params['resultsToCompute'] = 'computeIndicesOfNeighbors|computeDistances'
-        params['resultsToEvaluate'] = 'none' if getattr(self, '_y', None) is None \
-            else 'computeClassLabels'
+        params['resultsToEvaluate'] = (
+            'none' if getattr(self, '_y', None) is None else 'computeClassLabels'
+        )
         return params
 
     def _onedal_fit(self, X, y, queue):
@@ -680,8 +729,7 @@ class NearestNeighbors(NeighborsBase):
 
         policy = _get_policy(queue, X, y)
         params = self._get_onedal_params(X, y)
-        train_alg = _backend.neighbors.search.train(policy, params,
-                                                    to_table(X))
+        train_alg = _backend.neighbors.search.train(policy, params, to_table(X))
 
         return train_alg.model
 
@@ -708,6 +756,5 @@ class NearestNeighbors(NeighborsBase):
     def fit(self, X, y, queue=None):
         return super()._fit(X, y, queue=queue)
 
-    def kneighbors(self, X=None, n_neighbors=None,
-                   return_distance=True, queue=None):
+    def kneighbors(self, X=None, n_neighbors=None, return_distance=True, queue=None):
         return super()._kneighbors(X, n_neighbors, return_distance, queue=queue)

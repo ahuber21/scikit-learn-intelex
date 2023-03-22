@@ -23,4 +23,5 @@ __all__ = [
     'linear_kernel',
     'rbf_kernel',
     'poly_kernel',
-    'sigmoid_kernel']
+    'sigmoid_kernel',
+]

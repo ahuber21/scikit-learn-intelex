@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py DBSCAN example for shared memory systems
 
@@ -27,18 +27,22 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
         return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
 
+
 try:
     from dpctx import device_context, device_type
+
     with device_context(device_type.gpu, 0):
         gpu_available = True
 except:
     try:
         from daal4py.oneapi import sycl_context
+
         with sycl_context('gpu'):
             gpu_available = True
     except:
@@ -49,12 +53,14 @@ except:
 def to_numpy(data):
     try:
         from pandas import DataFrame
+
         if isinstance(data, DataFrame):
             return np.ascontiguousarray(data.values)
     except ImportError:
         pass
     try:
         from scipy.sparse import csr_matrix
+
         if isinstance(data, csr_matrix):
             return data.toarray()
     except ImportError:
@@ -71,7 +77,7 @@ def compute(data, minObservations, epsilon):
         fptype='float',
         epsilon=epsilon,
         resultsToCompute='computeCoreIndices|computeCoreObservations',
-        memorySavingMode=True
+        memorySavingMode=True,
     )
     # and compute
     return algo.compute(data)
@@ -97,6 +103,7 @@ def main(readcsv=read_csv, method='defaultDense'):
 
         def cpu_context():
             return device_context(device_type.cpu, 0)
+
     except:
         from daal4py.oneapi import sycl_context
 
@@ -114,8 +121,9 @@ def main(readcsv=read_csv, method='defaultDense'):
             assert np.allclose(result_classic.nClusters, result_gpu.nClusters)
             assert np.allclose(result_classic.assignments, result_gpu.assignments)
             assert np.allclose(result_classic.coreIndices, result_gpu.coreIndices)
-            assert np.allclose(result_classic.coreObservations,
-                               result_gpu.coreObservations)
+            assert np.allclose(
+                result_classic.coreObservations, result_gpu.coreObservations
+            )
 
     with cpu_context():
         sycl_data = sycl_buffer(data)

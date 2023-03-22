@@ -20,14 +20,15 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 from numbers import Number
 
-from daal4py.sklearn._utils import (get_dtype, make2d)
+from daal4py.sklearn._utils import get_dtype, make2d
 from ..datatypes import (
     _check_X_y,
     _num_features,
     _check_array,
     _get_2d_shape,
     _check_n_features,
-    _convert_to_supported)
+    _convert_to_supported,
+)
 
 from ..common._mixin import RegressorMixin
 from ..common._policy import _get_policy
@@ -50,7 +51,8 @@ class BaseLinearRegression(BaseEstimator, metaclass=ABCMeta):
         intercept = 'intercept|' if self.fit_intercept else ''
         return {
             'fptype': 'float' if dtype == np.float32 else 'double',
-            'method': self.algorithm, 'intercept': self.fit_intercept,
+            'method': self.algorithm,
+            'intercept': self.fit_intercept,
             'result_option': (intercept + 'coefficients'),
         }
 
@@ -70,7 +72,8 @@ class BaseLinearRegression(BaseEstimator, metaclass=ABCMeta):
 
         # Finiteness is checked in the sklearnex wrapper
         X_loc, y_loc = _check_X_y(
-            X_loc, y_loc, force_all_finite=False, accept_2d_y=True)
+            X_loc, y_loc, force_all_finite=False, accept_2d_y=True
+        )
 
         self.n_features_in_ = _num_features(X_loc, fallback_1d=True)
 
@@ -114,14 +117,18 @@ class BaseLinearRegression(BaseEstimator, metaclass=ABCMeta):
                 intercept = np.asarray(intercept, dtype=dtype)
             assert n_targets_in == intercept.size
 
-        intercept = _check_array(intercept, dtype=[np.float64, np.float32],
-                                 force_all_finite=True, ensure_2d=False)
+        intercept = _check_array(
+            intercept,
+            dtype=[np.float64, np.float32],
+            force_all_finite=True,
+            ensure_2d=False,
+        )
         coefficients = _check_array(
             coefficients,
-            dtype=[
-                np.float64,
-                np.float32],
-            force_all_finite=True, ensure_2d=False)
+            dtype=[np.float64, np.float32],
+            force_all_finite=True,
+            ensure_2d=False,
+        )
 
         coefficients, intercept = make2d(coefficients), make2d(intercept)
         coefficients = coefficients.T if n_targets_in == 1 else coefficients
@@ -155,8 +162,12 @@ class BaseLinearRegression(BaseEstimator, metaclass=ABCMeta):
             X_loc = X
 
         # Finiteness is checked in the sklearnex wrapper
-        X_loc = _check_array(X_loc, dtype=[np.float64, np.float32],
-                             force_all_finite=False, ensure_2d=False)
+        X_loc = _check_array(
+            X_loc,
+            dtype=[np.float64, np.float32],
+            force_all_finite=False,
+            ensure_2d=False,
+        )
         _check_n_features(self, X_loc, False)
 
         if hasattr(self, '_onedal_model'):
@@ -189,13 +200,11 @@ class LinearRegression(RegressorMixin, BaseLinearRegression):
     """
 
     def __init__(
-            self,
-            fit_intercept=True,
-            copy_X=False,
-            *,
-            algorithm='norm_eq',
-            **kwargs):
-        super().__init__(fit_intercept=fit_intercept, copy_X=copy_X, algorithm=algorithm)
+        self, fit_intercept=True, copy_X=False, *, algorithm='norm_eq', **kwargs
+    ):
+        super().__init__(
+            fit_intercept=fit_intercept, copy_X=copy_X, algorithm=algorithm
+        )
 
     def fit(self, X, y, queue=None):
         return super()._fit(X, y, _backend.linear_model.regression, queue)

@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import numpy as np
 import sys
@@ -21,6 +21,7 @@ import warnings
 
 from daal4py import _get__daal_link_version__ as dv
 from sklearn import __version__ as sklearn_version
+
 try:
     from packaging.version import Version
 except ImportError:
@@ -30,12 +31,14 @@ import logging
 try:
     from pandas import DataFrame
     from pandas.core.dtypes.cast import find_common_type
+
     pandas_is_imported = True
 except (ImportError, ModuleNotFoundError):
     pandas_is_imported = False
 
 try:
     from daal4py.oneapi import is_in_sycl_ctxt as is_in_ctx
+
     ctx_imported = True
 except (ImportError, ModuleNotFoundError):
     ctx_imported = False
@@ -51,11 +54,15 @@ def set_idp_sklearn_verbose():
         if logLevel is not None:
             logging.basicConfig(
                 stream=sys.stdout,
-                format='%(levelname)s: %(message)s', level=logLevel.upper())
+                format='%(levelname)s: %(message)s',
+                level=logLevel.upper(),
+            )
     except Exception:
-        warnings.warn('Unknown level "{}" for logging.\n'
-                      'Please, use one of "CRITICAL", "ERROR", '
-                      '"WARNING", "INFO", "DEBUG".'.format(logLevel))
+        warnings.warn(
+            'Unknown level "{}" for logging.\n'
+            'Please, use one of "CRITICAL", "ERROR", '
+            '"WARNING", "INFO", "DEBUG".'.format(logLevel)
+        )
 
 
 def daal_check_version(rule):
@@ -131,8 +138,9 @@ def get_patch_message(s):
             elif dev == 'gpu':
                 message += 'GPU'
             else:
-                raise ValueError(f"Unexpected device name {dev}."
-                                 " Supported types are cpu and gpu")
+                raise ValueError(
+                    f"Unexpected device name {dev}." " Supported types are cpu and gpu"
+                )
         else:
             message += 'CPU'
 
@@ -143,7 +151,8 @@ def get_patch_message(s):
     else:
         raise ValueError(
             f"Invalid input - expected one of 'daal','sklearn',"
-            f" 'sklearn_after_daal', got {s}")
+            f" 'sklearn_after_daal', got {s}"
+        )
     return message
 
 
@@ -192,12 +201,14 @@ class PatchingConditionsChain:
 
     def and_conditions(self, conditions_and_messages, conditions_merging=all):
         self.patching_is_enabled &= conditions_merging(
-            self._iter_conditions(conditions_and_messages))
+            self._iter_conditions(conditions_and_messages)
+        )
         return self.patching_is_enabled
 
     def or_conditions(self, conditions_and_messages, conditions_merging=all):
         self.patching_is_enabled |= conditions_merging(
-            self._iter_conditions(conditions_and_messages))
+            self._iter_conditions(conditions_and_messages)
+        )
         return self.patching_is_enabled
 
     def get_status(self):
@@ -209,8 +220,10 @@ class PatchingConditionsChain:
         else:
             logging.debug(
                 f'{self.scope_name}: debugging for the patch is enabled to track'
-                ' the usage of Intel® oneAPI Data Analytics Library (oneDAL)')
+                ' the usage of Intel® oneAPI Data Analytics Library (oneDAL)'
+            )
             for message in self.messages:
                 logging.debug(
-                    f'{self.scope_name}: patching failed with cause - {message}')
+                    f'{self.scope_name}: patching failed with cause - {message}'
+                )
             logging.info(f"{self.scope_name}: {get_patch_message('sklearn')}")

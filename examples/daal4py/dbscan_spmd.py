@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py DBSCAN example for distributed memory systems; SPMD mode
 # run like this:
@@ -30,10 +30,12 @@ def main(method='defaultDense'):
     # Load the data
     data = np.loadtxt(infile, delimiter=',')
     rpp = int(data.shape[0] / d4p.num_procs())
-    data = data[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
+    data = data[rpp * d4p.my_procid() : rpp * d4p.my_procid() + rpp, :]
 
     # configure dbscan main object
-    algo = d4p.dbscan(minObservations=minObservations, epsilon=epsilon, distributed=True)
+    algo = d4p.dbscan(
+        minObservations=minObservations, epsilon=epsilon, distributed=True
+    )
     # and compute
     result = algo.compute(data)
 
@@ -44,7 +46,13 @@ if __name__ == "__main__":
     # Initialize SPMD mode
     d4p.daalinit()
     result = main()
-    print("\nResults on node with id = ", d4p.my_procid(), " :\n",
-          "\nFirst 10 cluster assignments:\n", result.assignments[0:10],
-          "\nNumber of clusters:\n", result.nClusters)
+    print(
+        "\nResults on node with id = ",
+        d4p.my_procid(),
+        " :\n",
+        "\nFirst 10 cluster assignments:\n",
+        result.assignments[0:10],
+        "\nNumber of clusters:\n",
+        result.nClusters,
+    )
     d4p.daalfini()

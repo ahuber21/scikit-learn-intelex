@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import numpy as np
 import numbers
@@ -28,6 +28,7 @@ from onedal.datatypes import _check_array
 from sklearn.utils.validation import check_array
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_is_fitted
+
 if sklearn_check_version('1.1') and not sklearn_check_version('1.2'):
     from sklearn.utils import check_scalar
 if sklearn_check_version('0.23'):
@@ -66,13 +67,11 @@ class PCA(sklearn_PCA):
         self.power_iteration_normalizer = power_iteration_normalizer
         self.random_state = random_state
 
-    def _validate_n_components(self, n_components, n_samples,
-                               n_features, n_sf_min):
+    def _validate_n_components(self, n_components, n_samples, n_features, n_sf_min):
         if n_components == "mle":
             if n_samples < n_features:
                 raise ValueError(
-                    "n_components='mle' is only supported if"
-                    " n_samples >= n_features"
+                    "n_components='mle' is only supported if" " n_samples >= n_features"
                 )
         elif not 0 <= n_components <= n_sf_min:
             raise ValueError(
@@ -82,10 +81,11 @@ class PCA(sklearn_PCA):
             )
         elif n_components >= 1:
             if not isinstance(n_components, numbers.Integral):
-                raise ValueError("n_components=%r must be of type int "
-                                 "when greater than or equal to 1, "
-                                 "was of type=%r"
-                                 % (n_components, type(n_components)))
+                raise ValueError(
+                    "n_components=%r must be of type int "
+                    "when greater than or equal to 1, "
+                    "was of type=%r" % (n_components, type(n_components))
+                )
 
     def fit(self, X, y=None):
         if sklearn_check_version('1.2'):
@@ -108,11 +108,13 @@ class PCA(sklearn_PCA):
             )
 
         if sklearn_check_version('0.23'):
-            X = self._validate_data(X, dtype=[np.float64, np.float32],
-                                    ensure_2d=True, copy=False)
+            X = self._validate_data(
+                X, dtype=[np.float64, np.float32], ensure_2d=True, copy=False
+            )
         else:
-            X = _check_array(X, dtype=[np.float64, np.float32],
-                             ensure_2d=True, copy=False)
+            X = _check_array(
+                X, dtype=[np.float64, np.float32], ensure_2d=True, copy=False
+            )
 
         n_samples, n_features = X.shape
         n_sf_min = min(n_samples, n_features)
@@ -125,8 +127,7 @@ class PCA(sklearn_PCA):
         else:
             n_components = self.n_components
 
-        self._validate_n_components(n_components, n_samples, n_features,
-                                    n_sf_min)
+        self._validate_n_components(n_components, n_samples, n_features, n_sf_min)
 
         self._fit_svd_solver = self.svd_solver
         shape_good_for_daal = X.shape[1] / X.shape[0] < 2
@@ -145,15 +146,18 @@ class PCA(sklearn_PCA):
                     n, p, k = X.shape[0], X.shape[1], n_components
                     # check if sklearnex is faster than randomized sklearn
                     # Refer to daal4py
-                    regression_coefs = np.array([
-                        [9.779873e-11, n * p * k],
-                        [-1.122062e-11, n * p * p],
-                        [1.127905e-09, n ** 2],
-                    ])
+                    regression_coefs = np.array(
+                        [
+                            [9.779873e-11, n * p * k],
+                            [-1.122062e-11, n * p * p],
+                            [1.127905e-09, n**2],
+                        ]
+                    )
 
-                    if n_components >= 1 and np.dot(
-                            regression_coefs[:, 0],
-                            regression_coefs[:, 1]) <= 0:
+                    if (
+                        n_components >= 1
+                        and np.dot(regression_coefs[:, 0], regression_coefs[:, 1]) <= 0
+                    ):
                         self._fit_svd_solver = 'randomized'
                     else:
                         self._fit_svd_solver = 'full'
@@ -166,15 +170,23 @@ class PCA(sklearn_PCA):
 
         # Call different fits for either full or truncated SVD
         if shape_good_for_daal and self._fit_svd_solver == "full":
-            return dispatch(self, 'decomposition.PCA.fit', {
-                'onedal': self.__class__._onedal_fit,
-                'sklearn': sklearn_PCA._fit_full,
-            }, X)
+            return dispatch(
+                self,
+                'decomposition.PCA.fit',
+                {
+                    'onedal': self.__class__._onedal_fit,
+                    'sklearn': sklearn_PCA._fit_full,
+                },
+                X,
+            )
         elif not shape_good_for_daal and self._fit_svd_solver == "full":
             return sklearn_PCA._fit_full(self, X, n_components)
         elif self._fit_svd_solver in ["arpack", "randomized"]:
             return sklearn_PCA._fit_truncated(
-                self, X, n_components, self._fit_svd_solver,
+                self,
+                X,
+                n_components,
+                self._fit_svd_solver,
             )
         else:
             raise ValueError(
@@ -186,21 +198,16 @@ class PCA(sklearn_PCA):
             return self._fit_svd_solver == 'full'
         elif method_name == 'decomposition.PCA.transform':
             return hasattr(self, '_onedal_estimator')
-        raise RuntimeError(
-            f'Unknown method {method_name} in {self.__class__.__name__}'
-        )
+        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
 
     def _onedal_cpu_supported(self, method_name, *data):
         if method_name == 'decomposition.PCA.fit':
             return self._fit_svd_solver == 'full'
         elif method_name == 'decomposition.PCA.transform':
             return hasattr(self, '_onedal_estimator')
-        raise RuntimeError(
-            f'Unknown method {method_name} in {self.__class__.__name__}'
-        )
+        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
 
     def _onedal_fit(self, X, y=None, queue=None):
-
         if self.n_components == 'mle' or self.n_components is None:
             onedal_n_components = min(X.shape)
         elif 0 < self.n_components < 1:
@@ -227,12 +234,7 @@ class PCA(sklearn_PCA):
         return self._onedal_estimator.predict(X, queue)
 
     def _onedal_transform(self, X):
-        X = _check_array(
-            X,
-            dtype=[np.float64, np.float32],
-            ensure_2d=True,
-            copy=False
-        )
+        X = _check_array(X, dtype=[np.float64, np.float32], ensure_2d=True, copy=False)
 
         if hasattr(self, "n_features_in_"):
             if self.n_features_in_ != X.shape[1]:
@@ -251,10 +253,15 @@ class PCA(sklearn_PCA):
 
         # Mean center
         X_centered = X - self.mean_
-        return dispatch(self, 'decomposition.PCA.transform', {
-            'onedal': self.__class__._onedal_predict,
-            'sklearn': sklearn_PCA.transform,
-        }, X_centered)
+        return dispatch(
+            self,
+            'decomposition.PCA.transform',
+            {
+                'onedal': self.__class__._onedal_predict,
+                'sklearn': sklearn_PCA.transform,
+            },
+            X_centered,
+        )
 
     def transform(self, X):
         check_is_fitted(self)
@@ -310,8 +317,9 @@ class PCA(sklearn_PCA):
         self.mean_ = self._onedal_estimator.mean_
         self.singular_values_ = self._onedal_estimator.singular_values_
         self.explained_variance_ = self._onedal_estimator.explained_variance_
-        self.explained_variance_ratio_ = \
+        self.explained_variance_ratio_ = (
             self._onedal_estimator.explained_variance_ratio_
+        )
 
         if self.n_components is None:
             self.n_components_ = self._onedal_estimator.n_components_
@@ -326,23 +334,25 @@ class PCA(sklearn_PCA):
                 )
         elif 0 < self.n_components < 1.0:
             ratio_cumsum = stable_cumsum(self.explained_variance_ratio_)
-            self.n_components_ = np.searchsorted(
-                ratio_cumsum, self.n_components, side='right') + 1
+            self.n_components_ = (
+                np.searchsorted(ratio_cumsum, self.n_components, side='right') + 1
+            )
         else:
             self.n_components_ = self._onedal_estimator.n_components_
 
         if self.n_components_ < n_sf_min:
             if self.explained_variance_.shape[0] == n_sf_min:
-                self.noise_variance_ = \
-                    self.explained_variance_[self.n_components_:].mean()
+                self.noise_variance_ = self.explained_variance_[
+                    self.n_components_ :
+                ].mean()
             else:
                 self.noise_variance_ = self._onedal_estimator.noise_variance_
         else:
-            self.noise_variance_ = 0.
+            self.noise_variance_ = 0.0
 
-        self.explained_variance_ = self.explained_variance_[:self.n_components_]
-        self.explained_variance_ratio_ = \
-            self.explained_variance_ratio_[:self.n_components_]
-        self.components_ = \
-            self._onedal_estimator.components_[:self.n_components_]
-        self.singular_values_ = self.singular_values_[:self.n_components_]
+        self.explained_variance_ = self.explained_variance_[: self.n_components_]
+        self.explained_variance_ratio_ = self.explained_variance_ratio_[
+            : self.n_components_
+        ]
+        self.components_ = self._onedal_estimator.components_[: self.n_components_]
+        self.singular_values_ = self.singular_values_[: self.n_components_]

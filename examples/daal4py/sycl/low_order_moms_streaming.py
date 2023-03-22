@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py low order moments example for streaming on shared memory systems
 
@@ -23,16 +23,19 @@ from daal4py.oneapi import sycl_buffer
 
 # let's use a generator for getting stream from file (defined in stream.py)
 import sys
+
 sys.path.insert(0, '..')
 from stream import read_next
 
 try:
     from dpctx import device_context, device_type
+
     with device_context(device_type.gpu, 0):
         gpu_available = True
 except:
     try:
         from daal4py.oneapi import sycl_context
+
         with sycl_context('gpu'):
             gpu_available = True
     except:
@@ -43,12 +46,14 @@ except:
 def to_numpy(data):
     try:
         from pandas import DataFrame
+
         if isinstance(data, DataFrame):
             return np.ascontiguousarray(data.values)
     except ImportError:
         pass
     try:
         from scipy.sparse import csr_matrix
+
         if isinstance(data, csr_matrix):
             return data.toarray()
     except ImportError:
@@ -79,6 +84,7 @@ def main(readcsv=None, method='defaultDense'):
 
         def cpu_context():
             return device_context(device_type.cpu, 0)
+
     except:
         from daal4py.oneapi import sycl_context
 
@@ -101,9 +107,18 @@ def main(readcsv=None, method='defaultDense'):
                 algo.compute(sycl_chunk)
             # finalize computation
             result_gpu = algo.finalize()
-        for name in ['minimum', 'maximum', 'sum', 'sumSquares', 'sumSquaresCentered',
-                     'mean', 'secondOrderRawMoment', 'variance', 'standardDeviation',
-                     'variation']:
+        for name in [
+            'minimum',
+            'maximum',
+            'sum',
+            'sumSquares',
+            'sumSquaresCentered',
+            'mean',
+            'secondOrderRawMoment',
+            'variance',
+            'standardDeviation',
+            'variation',
+        ]:
             assert np.allclose(getattr(result_classic, name), getattr(result_gpu, name))
     except RuntimeError:
         pass
@@ -122,8 +137,18 @@ def main(readcsv=None, method='defaultDense'):
 
     # result provides minimum, maximum, sum, sumSquares, sumSquaresCentered,
     # mean, secondOrderRawMoment, variance, standardDeviation, variation
-    for name in ['minimum', 'maximum', 'sum', 'sumSquares', 'sumSquaresCentered', 'mean',
-                 'secondOrderRawMoment', 'variance', 'standardDeviation', 'variation']:
+    for name in [
+        'minimum',
+        'maximum',
+        'sum',
+        'sumSquares',
+        'sumSquaresCentered',
+        'mean',
+        'secondOrderRawMoment',
+        'variance',
+        'standardDeviation',
+        'variation',
+    ]:
         assert np.allclose(getattr(result_classic, name), getattr(result_cpu, name))
 
     return result_classic

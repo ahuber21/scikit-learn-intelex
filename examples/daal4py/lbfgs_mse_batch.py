@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py LBFGS (limited memory Broyden-Fletcher-Goldfarb-Shanno)
 # example for shared memory systems
@@ -27,6 +27,7 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
@@ -47,9 +48,9 @@ def main(readcsv=read_csv, method='defaultDense'):
     # configure an LBFGS object
     sls = np.array([[1.0e-4]], dtype=np.double)
     niters = 1000
-    lbfgs_algo = d4p.optimization_solver_lbfgs(mse_algo,
-                                               stepLengthSequence=sls,
-                                               nIterations=niters)
+    lbfgs_algo = d4p.optimization_solver_lbfgs(
+        mse_algo, stepLengthSequence=sls, nIterations=niters
+    )
 
     # finally do the computation
     inp = np.array([[100]] * 11, dtype=np.double)
@@ -66,9 +67,8 @@ if __name__ == "__main__":
     print(
         "\nExpected coefficients:\n",
         np.array(
-            [[11], [1], [2], [3], [4], [5], [6], [7], [8], [9], [10]],
-            dtype=np.double
-        )
+            [[11], [1], [2], [3], [4], [5], [6], [7], [8], [9], [10]], dtype=np.double
+        ),
     )
     print("\nResulting coefficients:\n", res.minimum)
     print("\nNumber of iterations performed:\n", res.nIterations[0][0])

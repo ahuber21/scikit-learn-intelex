@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # -*- coding: utf-8 -*-
 #
@@ -31,6 +31,7 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('../'))
 
 
@@ -63,7 +64,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'nbsphinx',
     'sphinx_tabs.tabs',
-    'notfound.extension'
+    'notfound.extension',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -88,9 +89,14 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store',
-                    'usage.rst', 'patching/*',
-                    'kaggle/note-about-tps.rst']
+exclude_patterns = [
+    '_build',
+    'Thumbs.db',
+    '.DS_Store',
+    'usage.rst',
+    'patching/*',
+    'kaggle/note-about-tps.rst',
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -107,7 +113,7 @@ rst_prolog = """
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-#html_theme = 'alabaster'
+# html_theme = 'alabaster'
 html_theme = 'sphinx_book_theme'
 html_logo = '_static/oneAPI-rgb-rev-100.png'
 html_favicon = '_static/favicons.png'
@@ -132,7 +138,7 @@ html_theme_options = {
     'use_issues_button': True,
     'use_edit_page_button': True,
     'repository_branch': 'master',
-    'extra_footer': cookie_link
+    'extra_footer': cookie_link,
 }
 
 
@@ -153,15 +159,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -171,9 +174,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'scikit-learn-intelex.tex',
-     'Intel(R) Extension for Scikit-learn* Documentation',
-     'Intel', 'manual'),
+    (
+        master_doc,
+        'scikit-learn-intelex.tex',
+        'Intel(R) Extension for Scikit-learn* Documentation',
+        'Intel',
+        'manual',
+    ),
 ]
 
 
@@ -182,9 +189,13 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'scikit-learn-intelex',
-     'Intel(R) Extension for Scikit-learn* Documentation',
-     [author], 1)
+    (
+        master_doc,
+        'scikit-learn-intelex',
+        'Intel(R) Extension for Scikit-learn* Documentation',
+        [author],
+        1,
+    )
 ]
 
 
@@ -194,13 +205,16 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'scikit-learn-intelex',
-     'Intel(R) Extension for Scikit-learn* Documentation',
-     author,
-     'scikit-learn-intelex',
-     'Intel(R) Extension for Scikit-learn speeds up scikit-learn '
-     'beyond by providing drop-in patching.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'scikit-learn-intelex',
+        'Intel(R) Extension for Scikit-learn* Documentation',
+        author,
+        'scikit-learn-intelex',
+        'Intel(R) Extension for Scikit-learn speeds up scikit-learn '
+        'beyond by providing drop-in patching.',
+        'Miscellaneous',
+    ),
 ]
 
 

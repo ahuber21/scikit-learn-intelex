@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import os
 from os.path import join as jp
@@ -37,8 +37,21 @@ elif sys.platform in ['win32', 'cygwin']:
     IS_WIN = True
 
 
-def build_cpp(cc, cxx, sources, targetprefix, targetname, targetsuffix, libs, libdirs,
-              includes, eca, ela, defines, installpath=''):
+def build_cpp(
+    cc,
+    cxx,
+    sources,
+    targetprefix,
+    targetname,
+    targetsuffix,
+    libs,
+    libdirs,
+    includes,
+    eca,
+    ela,
+    defines,
+    installpath='',
+):
     import shutil
     import subprocess
     from sysconfig import get_paths as gp
@@ -56,7 +69,7 @@ def build_cpp(cc, cxx, sources, targetprefix, targetname, targetsuffix, libs, li
         library_dir_plat = ['/link'] + [f'/LIBPATH:{libdir}' for libdir in libdirs]
         additional_linker_opts = [
             '/DLL',
-            f'/OUT:{targetprefix}{targetname}{targetsuffix}'
+            f'/OUT:{targetprefix}{targetname}{targetsuffix}',
         ]
     else:
         eca += ['-fPIC']
@@ -93,19 +106,26 @@ def build_cpp(cc, cxx, sources, targetprefix, targetname, targetsuffix, libs, li
         cmd = [cxx] + objfiles + library_dir_plat + ela + libs + additional_linker_opts
     log.info(subprocess.list2cmdline(cmd))
     subprocess.check_call(cmd)
-    shutil.copy(f'{targetprefix}{targetname}{targetsuffix}',
-                os.path.join(d4p_dir, installpath))
+    shutil.copy(
+        f'{targetprefix}{targetname}{targetsuffix}', os.path.join(d4p_dir, installpath)
+    )
     if IS_WIN:
         target_lib_suffix = targetsuffix.replace('.dll', '.lib')
-        shutil.copy(f'{targetprefix}{targetname}{target_lib_suffix}',
-                    os.path.join(d4p_dir, installpath))
+        shutil.copy(
+            f'{targetprefix}{targetname}{target_lib_suffix}',
+            os.path.join(d4p_dir, installpath),
+        )
     os.chdir(d4p_dir)
 
 
-def custom_build_cmake_clib(iface, cxx=None, onedal_major_binary_version=1, no_dist=True):
+def custom_build_cmake_clib(
+    iface, cxx=None, onedal_major_binary_version=1, no_dist=True
+):
     import pybind11
+
     try:
         import dpctl
+
         dpctl_available = dpctl.__version__ >= '0.14'
     except ImportError:
         dpctl_available = False
@@ -179,7 +199,7 @@ def custom_build_cmake_clib(iface, cxx=None, onedal_major_binary_version=1, no_d
     if dpctl_available:
         cmake_args += [
             "-DDPCTL_INCLUDE_DIR=" + dpctl_include,
-            "-DONEDAL_DPCTL_INTEGRATION:BOOL=ON"
+            "-DONEDAL_DPCTL_INTEGRATION:BOOL=ON",
         ]
 
     if build_distribute:
@@ -187,7 +207,7 @@ def custom_build_cmake_clib(iface, cxx=None, onedal_major_binary_version=1, no_d
             "-DMPI_INCLUDE_DIRS=" + MPI_INCDIRS,
             "-DMPI_LIBRARY_DIR=" + MPI_LIBDIRS,
             "-DMPI_LIBS=" + MPI_LIBS,
-            "-DONEDAL_DIST_SPMD:BOOL=ON"
+            "-DONEDAL_DIST_SPMD:BOOL=ON",
         ]
 
     cpu_count = multiprocessing.cpu_count()
@@ -199,14 +219,9 @@ def custom_build_cmake_clib(iface, cxx=None, onedal_major_binary_version=1, no_d
             while '' in memfree:
                 memfree.remove('')
             memfree = int(memfree[1])  # total memory in kB
-        cpu_count = min(cpu_count, floor(max(1, memfree / 2 ** 20)))
+        cpu_count = min(cpu_count, floor(max(1, memfree / 2**20)))
 
-    make_args = [
-        "cmake",
-        "--build",
-        abs_build_temp_path,
-        "-j " + str(cpu_count)
-    ]
+    make_args = ["cmake", "--build", abs_build_temp_path, "-j " + str(cpu_count)]
 
     make_install_args = [
         "cmake",

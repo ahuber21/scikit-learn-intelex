@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import platform
+
 if "Windows" in platform.system():
     import os
     import sys
     import site
+
     current_path = os.path.dirname(__file__)
     path_to_env = site.getsitepackages()[0]
     path_to_libs = os.path.join(path_to_env, "Library", "bin")
@@ -40,12 +42,14 @@ try:
         _get__version__,
         _get__daal_link_version__,
         _get__daal_run_version__,
-        __has_dist__)
+        __has_dist__,
+    )
 except ImportError as e:
     s = str(e)
     if 'libfabric' in s:
         raise ImportError(
             s + '\n\nActivating your conda environment or sourcing mpivars.'
-            '[c]sh/psxevars.[c]sh may solve the issue.\n')
+            '[c]sh/psxevars.[c]sh may solve the issue.\n'
+        )
 
     raise

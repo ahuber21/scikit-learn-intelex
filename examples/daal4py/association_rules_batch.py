@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py assiciation rules example for shared memory systems
 
@@ -25,6 +25,7 @@ try:
 
     def read_csv(f, c=None, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c=None, t=np.float64):
@@ -35,7 +36,9 @@ def main(readcsv=read_csv, method='defaultDense'):
     infile = "./data/batch/apriori.csv"
 
     # configure a association_rules object
-    algo = d4p.association_rules(discoverRules=True, minSupport=0.001, minConfidence=0.7)
+    algo = d4p.association_rules(
+        discoverRules=True, minSupport=0.001, minConfidence=0.7
+    )
 
     # let's provide a file directly, not a table/array
     result1 = algo.compute(infile)

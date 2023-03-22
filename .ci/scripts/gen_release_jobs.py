@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import sys
 import argparse
@@ -44,4 +44,6 @@ for channel in CHANNELS:
             res_enum[res_key]['conda.activate'] = ACTIVATE[os]
             res_enum[res_key]['conda.channel'] = channel
 
-sys.stderr.write("##vso[task.setVariable variable=legs;isOutput=true]{}".format(res_enum))
+sys.stderr.write(
+    "##vso[task.setVariable variable=legs;isOutput=true]{}".format(res_enum)
+)

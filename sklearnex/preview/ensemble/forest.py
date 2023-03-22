@@ -16,8 +16,10 @@
 # ===============================================================================
 
 from daal4py.sklearn._utils import (
-    daal_check_version, sklearn_check_version,
-    make2d, get_dtype
+    daal_check_version,
+    sklearn_check_version,
+    make2d,
+    get_dtype,
 )
 
 import numpy as np
@@ -40,7 +42,8 @@ from sklearn.utils.validation import (
     check_is_fitted,
     check_consistent_length,
     check_array,
-    check_X_y)
+    check_X_y,
+)
 
 from onedal.datatypes import _check_array, _num_features, _num_samples
 
@@ -91,66 +94,77 @@ class BaseRandomForest(ABC):
             )
         if isinstance(self.min_samples_leaf, numbers.Integral):
             if not 1 <= self.min_samples_leaf:
-                raise ValueError("min_samples_leaf must be at least 1 "
-                                 "or in (0, 0.5], got %s"
-                                 % self.min_samples_leaf)
+                raise ValueError(
+                    "min_samples_leaf must be at least 1 "
+                    "or in (0, 0.5], got %s" % self.min_samples_leaf
+                )
         else:  # float
-            if not 0. < self.min_samples_leaf <= 0.5:
-                raise ValueError("min_samples_leaf must be at least 1 "
-                                 "or in (0, 0.5], got %s"
-                                 % self.min_samples_leaf)
+            if not 0.0 < self.min_samples_leaf <= 0.5:
+                raise ValueError(
+                    "min_samples_leaf must be at least 1 "
+                    "or in (0, 0.5], got %s" % self.min_samples_leaf
+                )
         if isinstance(self.min_samples_split, numbers.Integral):
             if not 2 <= self.min_samples_split:
-                raise ValueError("min_samples_split must be an integer "
-                                 "greater than 1 or a float in (0.0, 1.0]; "
-                                 "got the integer %s"
-                                 % self.min_samples_split)
+                raise ValueError(
+                    "min_samples_split must be an integer "
+                    "greater than 1 or a float in (0.0, 1.0]; "
+                    "got the integer %s" % self.min_samples_split
+                )
         else:  # float
-            if not 0. < self.min_samples_split <= 1.:
-                raise ValueError("min_samples_split must be an integer "
-                                 "greater than 1 or a float in (0.0, 1.0]; "
-                                 "got the float %s"
-                                 % self.min_samples_split)
+            if not 0.0 < self.min_samples_split <= 1.0:
+                raise ValueError(
+                    "min_samples_split must be an integer "
+                    "greater than 1 or a float in (0.0, 1.0]; "
+                    "got the float %s" % self.min_samples_split
+                )
         if not 0 <= self.min_weight_fraction_leaf <= 0.5:
             raise ValueError("min_weight_fraction_leaf must in [0, 0.5]")
         if self.min_impurity_split is not None:
-            warnings.warn("The min_impurity_split parameter is deprecated. "
-                          "Its default value has changed from 1e-7 to 0 in "
-                          "version 0.23, and it will be removed in 0.25. "
-                          "Use the min_impurity_decrease parameter instead.",
-                          FutureWarning)
+            warnings.warn(
+                "The min_impurity_split parameter is deprecated. "
+                "Its default value has changed from 1e-7 to 0 in "
+                "version 0.23, and it will be removed in 0.25. "
+                "Use the min_impurity_decrease parameter instead.",
+                FutureWarning,
+            )
 
-            if self.min_impurity_split < 0.:
-                raise ValueError("min_impurity_split must be greater than "
-                                 "or equal to 0")
-        if self.min_impurity_decrease < 0.:
-            raise ValueError("min_impurity_decrease must be greater than "
-                             "or equal to 0")
+            if self.min_impurity_split < 0.0:
+                raise ValueError(
+                    "min_impurity_split must be greater than " "or equal to 0"
+                )
+        if self.min_impurity_decrease < 0.0:
+            raise ValueError(
+                "min_impurity_decrease must be greater than " "or equal to 0"
+            )
         if self.max_leaf_nodes is not None:
             if not isinstance(self.max_leaf_nodes, numbers.Integral):
                 raise ValueError(
                     "max_leaf_nodes must be integral number but was "
-                    "%r" %
-                    self.max_leaf_nodes)
+                    "%r" % self.max_leaf_nodes
+                )
             if self.max_leaf_nodes < 2:
                 raise ValueError(
-                    ("max_leaf_nodes {0} must be either None "
-                     "or larger than 1").format(
-                        self.max_leaf_nodes))
+                    (
+                        "max_leaf_nodes {0} must be either None " "or larger than 1"
+                    ).format(self.max_leaf_nodes)
+                )
         if isinstance(self.max_bins, numbers.Integral):
             if not 2 <= self.max_bins:
-                raise ValueError("max_bins must be at least 2, got %s"
-                                 % self.max_bins)
+                raise ValueError("max_bins must be at least 2, got %s" % self.max_bins)
         else:
-            raise ValueError("max_bins must be integral number but was "
-                             "%r" % self.max_bins)
+            raise ValueError(
+                "max_bins must be integral number but was " "%r" % self.max_bins
+            )
         if isinstance(self.min_bin_size, numbers.Integral):
             if not 1 <= self.min_bin_size:
-                raise ValueError("min_bin_size must be at least 1, got %s"
-                                 % self.min_bin_size)
+                raise ValueError(
+                    "min_bin_size must be at least 1, got %s" % self.min_bin_size
+                )
         else:
-            raise ValueError("min_bin_size must be integral number but was "
-                             "%r" % self.min_bin_size)
+            raise ValueError(
+                "min_bin_size must be integral number but was " "%r" % self.min_bin_size
+            )
 
     def check_sample_weight(self, sample_weight, X, dtype=None):
         n_samples = _num_samples(X)
@@ -170,13 +184,17 @@ class BaseRandomForest(ABC):
                 accept_sparse=False,
                 ensure_2d=False,
                 dtype=dtype,
-                order="C")
+                order="C",
+            )
             if sample_weight.ndim != 1:
                 raise ValueError("Sample weights must be 1D array or scalar")
 
             if sample_weight.shape != (n_samples,):
-                raise ValueError("sample_weight.shape == {}, expected {}!"
-                                 .format(sample_weight.shape, (n_samples,)))
+                raise ValueError(
+                    "sample_weight.shape == {}, expected {}!".format(
+                        sample_weight.shape, (n_samples,)
+                    )
+                )
         return sample_weight
 
 
@@ -187,32 +205,34 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
         _parameter_constraints: dict = {
             **sklearn_RandomForestClassifier._parameter_constraints,
             "max_bins": [Interval(numbers.Integral, 2, None, closed="left")],
-            "min_bin_size": [Interval(numbers.Integral, 1, None, closed="left")]
+            "min_bin_size": [Interval(numbers.Integral, 1, None, closed="left")],
         }
 
     if sklearn_check_version('1.0'):
+
         def __init__(
-                self,
-                n_estimators=100,
-                criterion="gini",
-                max_depth=None,
-                min_samples_split=2,
-                min_samples_leaf=1,
-                min_weight_fraction_leaf=0.,
-                max_features='sqrt' if sklearn_check_version('1.1') else 'auto',
-                max_leaf_nodes=None,
-                min_impurity_decrease=0.,
-                bootstrap=True,
-                oob_score=False,
-                n_jobs=None,
-                random_state=None,
-                verbose=0,
-                warm_start=False,
-                class_weight=None,
-                ccp_alpha=0.0,
-                max_samples=None,
-                max_bins=256,
-                min_bin_size=1):
+            self,
+            n_estimators=100,
+            criterion="gini",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features='sqrt' if sklearn_check_version('1.1') else 'auto',
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            bootstrap=True,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            class_weight=None,
+            ccp_alpha=0.0,
+            max_samples=None,
+            max_bins=256,
+            min_bin_size=1,
+        ):
             super(RandomForestClassifier, self).__init__(
                 n_estimators=n_estimators,
                 criterion=criterion,
@@ -229,7 +249,7 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 random_state=random_state,
                 verbose=verbose,
                 warm_start=warm_start,
-                class_weight=class_weight
+                class_weight=class_weight,
             )
             self.warm_start = warm_start
             self.ccp_alpha = ccp_alpha
@@ -238,29 +258,33 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
             self.min_bin_size = min_bin_size
             self.min_impurity_split = None
             # self._estimator = DecisionTreeClassifier()
+
     else:
-        def __init__(self,
-                     n_estimators=100,
-                     criterion="gini",
-                     max_depth=None,
-                     min_samples_split=2,
-                     min_samples_leaf=1,
-                     min_weight_fraction_leaf=0.,
-                     max_features="auto",
-                     max_leaf_nodes=None,
-                     min_impurity_decrease=0.,
-                     min_impurity_split=None,
-                     bootstrap=True,
-                     oob_score=False,
-                     n_jobs=None,
-                     random_state=None,
-                     verbose=0,
-                     warm_start=False,
-                     class_weight=None,
-                     ccp_alpha=0.0,
-                     max_samples=None,
-                     max_bins=256,
-                     min_bin_size=1):
+
+        def __init__(
+            self,
+            n_estimators=100,
+            criterion="gini",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features="auto",
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            min_impurity_split=None,
+            bootstrap=True,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            class_weight=None,
+            ccp_alpha=0.0,
+            max_samples=None,
+            max_bins=256,
+            min_bin_size=1,
+        ):
             super(RandomForestClassifier, self).__init__(
                 n_estimators=n_estimators,
                 criterion=criterion,
@@ -280,7 +304,7 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 warm_start=warm_start,
                 class_weight=class_weight,
                 ccp_alpha=ccp_alpha,
-                max_samples=max_samples
+                max_samples=max_samples,
             )
             self.warm_start = warm_start
             self.ccp_alpha = ccp_alpha
@@ -316,17 +340,22 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
         -------
         self : object
         """
-        dispatch(self, 'ensemble.RandomForestClassifier.fit', {
-            'onedal': self.__class__._onedal_fit,
-            'sklearn': sklearn_RandomForestClassifier.fit,
-        }, X, y, sample_weight)
+        dispatch(
+            self,
+            'ensemble.RandomForestClassifier.fit',
+            {
+                'onedal': self.__class__._onedal_fit,
+                'sklearn': sklearn_RandomForestClassifier.fit,
+            },
+            X,
+            y,
+            sample_weight,
+        )
         return self
 
     def _onedal_ready(self, X, y, sample_weight):
         if sp.issparse(y):
-            raise ValueError(
-                "sparse multilabel-indicator for y is not supported."
-            )
+            raise ValueError("sparse multilabel-indicator for y is not supported.")
         if not self.bootstrap and self.max_samples is not None:
             raise ValueError(
                 "`max_sample` cannot be set if `bootstrap=False`. "
@@ -334,8 +363,9 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 "`max_sample=None`."
             )
         if not self.bootstrap and self.oob_score:
-            raise ValueError("Out of bag estimation only available"
-                             " if bootstrap=True")
+            raise ValueError(
+                "Out of bag estimation only available" " if bootstrap=True"
+            )
         if sklearn_check_version("1.2"):
             self._validate_params()
         else:
@@ -351,11 +381,15 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
         else:
             correct_oob_score = self.oob_score
 
-        ready = all([correct_oob_score,
-                     correct_sparsity,
-                     correct_ccp_alpha,
-                     correct_criterion,
-                     correct_warm_start])
+        ready = all(
+            [
+                correct_oob_score,
+                correct_sparsity,
+                correct_ccp_alpha,
+                correct_criterion,
+                correct_warm_start,
+            ]
+        )
         if ready:
             if sklearn_check_version("1.0"):
                 self._check_feature_names(X, reset=True)
@@ -368,7 +402,8 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                     " expected. Please change the shape of y to "
                     "(n_samples,), for example using ravel().",
                     DataConversionWarning,
-                    stacklevel=2)
+                    stacklevel=2,
+                )
             check_consistent_length(X, y)
 
             y = make2d(y)
@@ -401,10 +436,15 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
         y : ndarray of shape (n_samples,) or (n_samples, n_outputs)
             The predicted classes.
         """
-        return dispatch(self, 'ensemble.RandomForestClassifier.predict', {
-            'onedal': self.__class__._onedal_predict,
-            'sklearn': sklearn_RandomForestClassifier.predict,
-        }, X)
+        return dispatch(
+            self,
+            'ensemble.RandomForestClassifier.predict',
+            {
+                'onedal': self.__class__._onedal_predict,
+                'sklearn': sklearn_RandomForestClassifier.predict,
+            },
+            X,
+        )
 
     @wrap_output_data
     def predict_proba(self, X):
@@ -442,18 +482,28 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 num_features = _num_samples(X)
             if num_features != self.n_features_in_:
                 raise ValueError(
-                    (f'X has {num_features} features, '
-                     f'but RandomForestClassifier is expecting '
-                     f'{self.n_features_in_} features as input'))
-        return dispatch(self, 'ensemble.RandomForestClassifier.predict_proba', {
-            'onedal': self.__class__._onedal_predict_proba,
-            'sklearn': sklearn_RandomForestClassifier.predict_proba,
-        }, X)
+                    (
+                        f'X has {num_features} features, '
+                        f'but RandomForestClassifier is expecting '
+                        f'{self.n_features_in_} features as input'
+                    )
+                )
+        return dispatch(
+            self,
+            'ensemble.RandomForestClassifier.predict_proba',
+            {
+                'onedal': self.__class__._onedal_predict_proba,
+                'sklearn': sklearn_RandomForestClassifier.predict_proba,
+            },
+            X,
+        )
 
     if sklearn_check_version('1.0'):
+
         @deprecated(
             "Attribute `n_features_` was deprecated in version 1.0 and will be "
-            "removed in 1.2. Use `n_features_in_` instead.")
+            "removed in 1.2. Use `n_features_in_` instead."
+        )
         @property
         def n_features_(self):
             return self.n_features_in_
@@ -491,9 +541,8 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
         for i in range(self.n_estimators):
             est_i = clone(est)
             est_i.set_params(
-                random_state=random_state_checked.randint(
-                    np.iinfo(
-                        np.int32).max))
+                random_state=random_state_checked.randint(np.iinfo(np.int32).max)
+            )
             if sklearn_check_version('1.0'):
                 est_i.n_features_in_ = self.n_features_in_
             else:
@@ -501,19 +550,18 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
             est_i.n_outputs_ = self.n_outputs_
             est_i.classes_ = classes_
             est_i.n_classes_ = n_classes_
-            tree_i_state_class = get_tree_state_cls(
-                self._onedal_model, i, n_classes_)
+            tree_i_state_class = get_tree_state_cls(self._onedal_model, i, n_classes_)
             tree_i_state_dict = {
                 'max_depth': tree_i_state_class.max_depth,
                 'node_count': tree_i_state_class.node_count,
                 'nodes': tree_i_state_class.node_ar,
-                'values': tree_i_state_class.value_ar}
+                'values': tree_i_state_class.value_ar,
+            }
             est_i.tree_ = Tree(
                 self.n_features_in_,
-                np.array(
-                    [n_classes_],
-                    dtype=np.intp),
-                self.n_outputs_)
+                np.array([n_classes_], dtype=np.intp),
+                self.n_outputs_,
+            )
             est_i.tree_.__setstate__(tree_i_state_dict)
             estimators_.append(est_i)
 
@@ -543,8 +591,10 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 return False
             else:
                 return True
-        if method_name in ['ensemble.RandomForestClassifier.predict',
-                           'ensemble.RandomForestClassifier.predict_proba']:
+        if method_name in [
+            'ensemble.RandomForestClassifier.predict',
+            'ensemble.RandomForestClassifier.predict_proba',
+        ]:
             X = data[0]
             if not hasattr(self, '_onedal_model'):
                 return False
@@ -558,8 +608,7 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 return False
             else:
                 return True
-        raise RuntimeError(
-            f'Unknown method {method_name} in {self.__class__.__name__}')
+        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
 
     def _onedal_gpu_supported(self, method_name, *data):
         if method_name == 'ensemble.RandomForestClassifier.fit':
@@ -586,8 +635,10 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 return False
             else:
                 return True
-        if method_name in ['ensemble.RandomForestClassifier.predict',
-                           'ensemble.RandomForestClassifier.predict_proba']:
+        if method_name in [
+            'ensemble.RandomForestClassifier.predict',
+            'ensemble.RandomForestClassifier.predict_proba',
+        ]:
             X = data[0]
             if not hasattr(self, '_onedal_model'):
                 return False
@@ -601,19 +652,24 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
                 return False
             else:
                 return True
-        raise RuntimeError(
-            f'Unknown method {method_name} in {self.__class__.__name__}')
+        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
 
     def _onedal_fit(self, X, y, sample_weight=None, queue=None):
         if sklearn_check_version('1.2'):
             X, y = self._validate_data(
-                X, y, multi_output=False, accept_sparse=False,
-                dtype=[np.float64, np.float32]
+                X,
+                y,
+                multi_output=False,
+                accept_sparse=False,
+                dtype=[np.float64, np.float32],
             )
         else:
             X, y = check_X_y(
-                X, y, accept_sparse=False, dtype=[np.float64, np.float32],
-                multi_output=False
+                X,
+                y,
+                accept_sparse=False,
+                dtype=[np.float64, np.float32],
+                multi_output=False,
             )
 
         if sample_weight is not None:
@@ -649,8 +705,7 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
             sample_weight = [sample_weight]
 
         if n_classes_ < 2:
-            raise ValueError(
-                "Training data only contain information about one class.")
+            raise ValueError("Training data only contain information about one class.")
 
         if self.oob_score:
             err = 'out_of_bag_error_accuracy|out_of_bag_error_decision_function'
@@ -679,7 +734,7 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
             'class_weight': self.class_weight,
             'max_bins': self.max_bins,
             'min_bin_size': self.min_bin_size,
-            'max_samples': self.max_samples
+            'max_samples': self.max_samples,
         }
         self._cached_estimators_ = None
 
@@ -703,8 +758,7 @@ class RandomForestClassifier(sklearn_RandomForestClassifier, BaseRandomForest):
             self._check_feature_names(X, reset=False)
 
         res = self._onedal_estimator.predict(X, queue=queue)
-        return np.take(self.classes_,
-                       res.ravel().astype(np.int64, casting='unsafe'))
+        return np.take(self.classes_, res.ravel().astype(np.int64, casting='unsafe'))
 
     def _onedal_predict_proba(self, X, queue=None):
         X = check_array(X, dtype=[np.float64, np.float32])
@@ -723,32 +777,34 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
         _parameter_constraints: dict = {
             **sklearn_RandomForestRegressor._parameter_constraints,
             "max_bins": [Interval(numbers.Integral, 2, None, closed="left")],
-            "min_bin_size": [Interval(numbers.Integral, 1, None, closed="left")]
+            "min_bin_size": [Interval(numbers.Integral, 1, None, closed="left")],
         }
 
     if sklearn_check_version('1.0'):
+
         def __init__(
-                self,
-                n_estimators=100,
-                *,
-                criterion="squared_error",
-                max_depth=None,
-                min_samples_split=2,
-                min_samples_leaf=1,
-                min_weight_fraction_leaf=0.,
-                max_features=1.0 if sklearn_check_version('1.1') else 'auto',
-                max_leaf_nodes=None,
-                min_impurity_decrease=0.,
-                bootstrap=True,
-                oob_score=False,
-                n_jobs=None,
-                random_state=None,
-                verbose=0,
-                warm_start=False,
-                ccp_alpha=0.0,
-                max_samples=None,
-                max_bins=256,
-                min_bin_size=1):
+            self,
+            n_estimators=100,
+            *,
+            criterion="squared_error",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features=1.0 if sklearn_check_version('1.1') else 'auto',
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            bootstrap=True,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            ccp_alpha=0.0,
+            max_samples=None,
+            max_bins=256,
+            min_bin_size=1,
+        ):
             super(RandomForestRegressor, self).__init__(
                 n_estimators=n_estimators,
                 criterion=criterion,
@@ -764,7 +820,7 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
                 n_jobs=n_jobs,
                 random_state=random_state,
                 verbose=verbose,
-                warm_start=warm_start
+                warm_start=warm_start,
             )
             self.warm_start = warm_start
             self.ccp_alpha = ccp_alpha
@@ -772,28 +828,33 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
             self.max_bins = max_bins
             self.min_bin_size = min_bin_size
             self.min_impurity_split = None
+
     else:
-        def __init__(self,
-                     n_estimators=100, *,
-                     criterion="mse",
-                     max_depth=None,
-                     min_samples_split=2,
-                     min_samples_leaf=1,
-                     min_weight_fraction_leaf=0.,
-                     max_features="auto",
-                     max_leaf_nodes=None,
-                     min_impurity_decrease=0.,
-                     min_impurity_split=None,
-                     bootstrap=True,
-                     oob_score=False,
-                     n_jobs=None,
-                     random_state=None,
-                     verbose=0,
-                     warm_start=False,
-                     ccp_alpha=0.0,
-                     max_samples=None,
-                     max_bins=256,
-                     min_bin_size=1):
+
+        def __init__(
+            self,
+            n_estimators=100,
+            *,
+            criterion="mse",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features="auto",
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            min_impurity_split=None,
+            bootstrap=True,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            ccp_alpha=0.0,
+            max_samples=None,
+            max_bins=256,
+            min_bin_size=1,
+        ):
             super(RandomForestRegressor, self).__init__(
                 n_estimators=n_estimators,
                 criterion=criterion,
@@ -812,7 +873,7 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
                 verbose=verbose,
                 warm_start=warm_start,
                 ccp_alpha=ccp_alpha,
-                max_samples=max_samples
+                max_samples=max_samples,
             )
             self.warm_start = warm_start
             self.ccp_alpha = ccp_alpha
@@ -852,26 +913,25 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
         for i in range(self.n_estimators):
             est_i = clone(est)
             est_i.set_params(
-                random_state=random_state_checked.randint(
-                    np.iinfo(
-                        np.int32).max))
+                random_state=random_state_checked.randint(np.iinfo(np.int32).max)
+            )
             if sklearn_check_version('1.0'):
                 est_i.n_features_in_ = self.n_features_in_
             else:
                 est_i.n_features_ = self.n_features_in_
             est_i.n_classes_ = 1
             est_i.n_outputs_ = self.n_outputs_
-            tree_i_state_class = get_tree_state_reg(
-                self._onedal_model, i)
+            tree_i_state_class = get_tree_state_reg(self._onedal_model, i)
             tree_i_state_dict = {
                 'max_depth': tree_i_state_class.max_depth,
                 'node_count': tree_i_state_class.node_count,
                 'nodes': tree_i_state_class.node_ar,
-                'values': tree_i_state_class.value_ar}
+                'values': tree_i_state_class.value_ar,
+            }
 
             est_i.tree_ = Tree(
-                self.n_features_in_, np.array(
-                    [1], dtype=np.intp), self.n_outputs_)
+                self.n_features_in_, np.array([1], dtype=np.intp), self.n_outputs_
+            )
             est_i.tree_.__setstate__(tree_i_state_dict)
             estimators_.append(est_i)
 
@@ -880,8 +940,11 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
     def _onedal_cpu_supported(self, method_name, *data):
         if method_name == 'ensemble.RandomForestRegressor.fit':
             X, y, sample_weight = data
-            if not (self.oob_score and daal_check_version(
-                    (2021, 'P', 500)) or not self.oob_score):
+            if not (
+                self.oob_score
+                and daal_check_version((2021, 'P', 500))
+                or not self.oob_score
+            ):
                 return False
             elif self.criterion not in ["mse", "squared_error"]:
                 return False
@@ -903,8 +966,10 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
                 return False
             else:
                 return True
-        if method_name in ['ensemble.RandomForestRegressor.predict',
-                           'ensemble.RandomForestRegressor.predict_proba']:
+        if method_name in [
+            'ensemble.RandomForestRegressor.predict',
+            'ensemble.RandomForestRegressor.predict_proba',
+        ]:
             if not hasattr(self, '_onedal_model'):
                 return False
             elif sp.issparse(data[0]):
@@ -917,14 +982,16 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
                 return False
             else:
                 return True
-        raise RuntimeError(
-            f'Unknown method {method_name} in {self.__class__.__name__}')
+        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
 
     def _onedal_gpu_supported(self, method_name, *data):
         X, y, sample_weight = data
         if method_name == 'ensemble.RandomForestRegressor.fit':
-            if not (self.oob_score and daal_check_version(
-                    (2021, 'P', 500)) or not self.oob_score):
+            if not (
+                self.oob_score
+                and daal_check_version((2021, 'P', 500))
+                or not self.oob_score
+            ):
                 return False
             elif self.criterion not in ["mse", "squared_error"]:
                 return False
@@ -946,8 +1013,10 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
                 return False
             else:
                 return True
-        if method_name in ['ensemble.RandomForestRegressor.predict',
-                           'ensemble.RandomForestRegressor.predict_proba']:
+        if method_name in [
+            'ensemble.RandomForestRegressor.predict',
+            'ensemble.RandomForestRegressor.predict_proba',
+        ]:
             if not hasattr(self, '_onedal_model'):
                 return False
             elif sp.issparse(X):
@@ -960,14 +1029,11 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
                 return False
             else:
                 return True
-        raise RuntimeError(
-            f'Unknown method {method_name} in {self.__class__.__name__}')
+        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
 
     def _onedal_fit(self, X, y, sample_weight=None, queue=None):
         if sp.issparse(y):
-            raise ValueError(
-                "sparse multilabel-indicator for y is not supported."
-            )
+            raise ValueError("sparse multilabel-indicator for y is not supported.")
         if sklearn_check_version("1.2"):
             self._validate_params()
         else:
@@ -1008,7 +1074,7 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
             'warm_start': self.warm_start,
             'error_metric_mode': err,
             'variable_importance_mode': 'mdi',
-            'max_samples': self.max_samples
+            'max_samples': self.max_samples,
         }
         self._cached_estimators_ = None
         self._onedal_estimator = onedal_RandomForestRegressor(**onedal_params)
@@ -1069,10 +1135,17 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
             y = np.reshape(y, (-1, 1))
         self.n_outputs_ = y.shape[1]
 
-        dispatch(self, 'ensemble.RandomForestRegressor.fit', {
-            'onedal': self.__class__._onedal_fit,
-            'sklearn': sklearn_RandomForestRegressor.fit,
-        }, X, y, sample_weight)
+        dispatch(
+            self,
+            'ensemble.RandomForestRegressor.fit',
+            {
+                'onedal': self.__class__._onedal_fit,
+                'sklearn': sklearn_RandomForestRegressor.fit,
+            },
+            X,
+            y,
+            sample_weight,
+        )
         return self
 
     @wrap_output_data
@@ -1097,15 +1170,22 @@ class RandomForestRegressor(sklearn_RandomForestRegressor, BaseRandomForest):
         y : ndarray of shape (n_samples,) or (n_samples, n_outputs)
             The predicted classes.
         """
-        return dispatch(self, 'ensemble.RandomForestRegressor.predict', {
-            'onedal': self.__class__._onedal_predict,
-            'sklearn': sklearn_RandomForestRegressor.predict,
-        }, X)
+        return dispatch(
+            self,
+            'ensemble.RandomForestRegressor.predict',
+            {
+                'onedal': self.__class__._onedal_predict,
+                'sklearn': sklearn_RandomForestRegressor.predict,
+            },
+            X,
+        )
 
     if sklearn_check_version('1.0'):
+
         @deprecated(
             "Attribute `n_features_` was deprecated in version 1.0 and will be "
-            "removed in 1.2. Use `n_features_in_` instead.")
+            "removed in 1.2. Use `n_features_in_` instead."
+        )
         @property
         def n_features_(self):
             return self.n_features_in_

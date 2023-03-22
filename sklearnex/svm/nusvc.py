@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 from daal4py.sklearn._utils import sklearn_check_version
 from ._common import BaseSVC
@@ -32,17 +32,42 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
         _parameter_constraints: dict = {**sklearn_NuSVC._parameter_constraints}
 
     @_deprecate_positional_args
-    def __init__(self, *, nu=0.5, kernel='rbf', degree=3, gamma='scale',
-                 coef0=0.0, shrinking=True, probability=False,
-                 tol=1e-3, cache_size=200, class_weight=None,
-                 verbose=False, max_iter=-1, decision_function_shape='ovr',
-                 break_ties=False, random_state=None):
+    def __init__(
+        self,
+        *,
+        nu=0.5,
+        kernel='rbf',
+        degree=3,
+        gamma='scale',
+        coef0=0.0,
+        shrinking=True,
+        probability=False,
+        tol=1e-3,
+        cache_size=200,
+        class_weight=None,
+        verbose=False,
+        max_iter=-1,
+        decision_function_shape='ovr',
+        break_ties=False,
+        random_state=None
+    ):
         super().__init__(
-            nu=nu, kernel=kernel, degree=degree, gamma=gamma, coef0=coef0,
-            shrinking=shrinking, probability=probability, tol=tol, cache_size=cache_size,
-            class_weight=class_weight, verbose=verbose, max_iter=max_iter,
-            decision_function_shape=decision_function_shape, break_ties=break_ties,
-            random_state=random_state)
+            nu=nu,
+            kernel=kernel,
+            degree=degree,
+            gamma=gamma,
+            coef0=coef0,
+            shrinking=shrinking,
+            probability=probability,
+            tol=tol,
+            cache_size=cache_size,
+            class_weight=class_weight,
+            verbose=verbose,
+            max_iter=max_iter,
+            decision_function_shape=decision_function_shape,
+            break_ties=break_ties,
+            random_state=random_state,
+        )
 
     def fit(self, X, y, sample_weight=None):
         """
@@ -82,10 +107,17 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
             self._validate_params()
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=True)
-        dispatch(self, 'svm.NuSVC.fit', {
-            'onedal': self.__class__._onedal_fit,
-            'sklearn': sklearn_NuSVC.fit,
-        }, X, y, sample_weight)
+        dispatch(
+            self,
+            'svm.NuSVC.fit',
+            {
+                'onedal': self.__class__._onedal_fit,
+                'sklearn': sklearn_NuSVC.fit,
+            },
+            X,
+            y,
+            sample_weight,
+        )
 
         return self
 
@@ -109,10 +141,15 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
         """
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
-        return dispatch(self, 'svm.NuSVC.predict', {
-            'onedal': self.__class__._onedal_predict,
-            'sklearn': sklearn_NuSVC.predict,
-        }, X)
+        return dispatch(
+            self,
+            'svm.NuSVC.predict',
+            {
+                'onedal': self.__class__._onedal_predict,
+                'sklearn': sklearn_NuSVC.predict,
+            },
+            X,
+        )
 
     @property
     def predict_proba(self):
@@ -149,23 +186,35 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
     def _predict_proba(self, X):
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
-        sklearn_pred_proba = (sklearn_NuSVC.predict_proba
-                              if sklearn_check_version("1.0")
-                              else sklearn_NuSVC._predict_proba)
+        sklearn_pred_proba = (
+            sklearn_NuSVC.predict_proba
+            if sklearn_check_version("1.0")
+            else sklearn_NuSVC._predict_proba
+        )
 
-        return dispatch(self, 'svm.NuSVC.predict_proba', {
-            'onedal': self.__class__._onedal_predict_proba,
-            'sklearn': sklearn_pred_proba,
-        }, X)
+        return dispatch(
+            self,
+            'svm.NuSVC.predict_proba',
+            {
+                'onedal': self.__class__._onedal_predict_proba,
+                'sklearn': sklearn_pred_proba,
+            },
+            X,
+        )
 
     @wrap_output_data
     def decision_function(self, X):
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
-        return dispatch(self, 'svm.NuSVC.decision_function', {
-            'onedal': self.__class__._onedal_decision_function,
-            'sklearn': sklearn_NuSVC.decision_function,
-        }, X)
+        return dispatch(
+            self,
+            'svm.NuSVC.decision_function',
+            {
+                'onedal': self.__class__._onedal_decision_function,
+                'sklearn': sklearn_NuSVC.decision_function,
+            },
+            X,
+        )
 
     def _onedal_gpu_supported(self, method_name, *data):
         return False
@@ -173,9 +222,11 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
     def _onedal_cpu_supported(self, method_name, *data):
         if method_name == 'svm.NuSVC.fit':
             return self.kernel in ['linear', 'rbf', 'poly', 'sigmoid']
-        if method_name in ['svm.NuSVC.predict',
-                           'svm.NuSVC.predict_proba',
-                           'svm.NuSVC.decision_function']:
+        if method_name in [
+            'svm.NuSVC.predict',
+            'svm.NuSVC.predict_proba',
+            'svm.NuSVC.decision_function',
+        ]:
             return hasattr(self, '_onedal_estimator')
 
     def _onedal_fit(self, X, y, sample_weight=None, queue=None):
@@ -207,7 +258,8 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
     def _onedal_predict_proba(self, X, queue=None):
         if getattr(self, 'clf_prob', None) is None:
             raise NotFittedError(
-                "predict_proba is not available when fitted with probability=False")
+                "predict_proba is not available when fitted with probability=False"
+            )
         from .._config import get_config, config_context
 
         # We use stock metaestimators below, so the only way

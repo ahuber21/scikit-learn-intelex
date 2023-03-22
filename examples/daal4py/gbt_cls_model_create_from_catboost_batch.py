@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py Gradient Bossting Classification model creation from Catboost example
 
@@ -68,30 +68,36 @@ def main(readcsv=pd_read_csv, method='defaultDense'):
     daal_predict_algo = d4p.gbt_classification_prediction(
         nClasses=params['classes_count'],
         resultsToEvaluate="computeClassLabels",
-        fptype='float'
+        fptype='float',
     )
     daal_prediction = daal_predict_algo.compute(X_test, daal_model)
     daal_errors_count = np.count_nonzero(daal_prediction.prediction - y_test)
     assert np.absolute(cb_errors_count - daal_errors_count) == 0
 
-    return (cb_prediction, cb_errors_count, np.ravel(daal_prediction.prediction),
-            daal_errors_count, np.ravel(y_test))
+    return (
+        cb_prediction,
+        cb_errors_count,
+        np.ravel(daal_prediction.prediction),
+        daal_errors_count,
+        np.ravel(y_test),
+    )
 
 
 if __name__ == "__main__":
-    (cb_prediction, cb_errors_count,
-     daal_prediction, daal_errors_count, y_test) = main()
-    print("\nCatboost prediction results (first 10 rows):\n",
-          cb_prediction[0:10])
-    print("\ndaal4py prediction results (first 10 rows):\n",
-          daal_prediction[0:10])
+    (
+        cb_prediction,
+        cb_errors_count,
+        daal_prediction,
+        daal_errors_count,
+        y_test,
+    ) = main()
+    print("\nCatboost prediction results (first 10 rows):\n", cb_prediction[0:10])
+    print("\ndaal4py prediction results (first 10 rows):\n", daal_prediction[0:10])
     print("\nGround truth (first 10 rows):\n", y_test[0:10])
 
     print("Catboost errors count:", cb_errors_count)
-    print("Catboost accuracy score:",
-          1 - cb_errors_count / cb_prediction.shape[0])
+    print("Catboost accuracy score:", 1 - cb_errors_count / cb_prediction.shape[0])
 
     print("\ndaal4py errors count:", daal_errors_count)
-    print("daal4py accuracy score:",
-          1 - daal_errors_count / daal_prediction.shape[0])
+    print("daal4py accuracy score:", 1 - daal_errors_count / daal_prediction.shape[0])
     print("\nAll looks good!")

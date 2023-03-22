@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py Linear Regression example for shared memory systems
 
@@ -27,18 +27,22 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
         return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
 
+
 try:
     from dpctx import device_context, device_type
+
     with device_context(device_type.gpu, 0):
         gpu_available = True
 except:
     try:
         from daal4py.oneapi import sycl_context
+
         with sycl_context('gpu'):
             gpu_available = True
     except:
@@ -61,12 +65,14 @@ def compute(train_indep_data, train_dep_data, test_indep_data):
 def to_numpy(data):
     try:
         from pandas import DataFrame
+
         if isinstance(data, DataFrame):
             return np.ascontiguousarray(data.values)
     except ImportError:
         pass
     try:
         from scipy.sparse import csr_matrix
+
         if isinstance(data, csr_matrix):
             return data.toarray()
     except ImportError:
@@ -87,8 +93,9 @@ def main(readcsv=read_csv, method='defaultDense'):
     test_dep_data = readcsv(testfile, range(10, 12), t=np.float32)
 
     # Using of the classic way (computations on CPU)
-    result_classic, train_result = \
-        compute(train_indep_data, train_dep_data, test_indep_data)
+    result_classic, train_result = compute(
+        train_indep_data, train_dep_data, test_indep_data
+    )
 
     train_indep_data = to_numpy(train_indep_data)
     train_dep_data = to_numpy(train_dep_data)
@@ -102,6 +109,7 @@ def main(readcsv=read_csv, method='defaultDense'):
 
         def cpu_context():
             return device_context(device_type.cpu, 0)
+
     except:
         from daal4py.oneapi import sycl_context
 
@@ -117,8 +125,9 @@ def main(readcsv=read_csv, method='defaultDense'):
             sycl_train_indep_data = sycl_buffer(train_indep_data)
             sycl_train_dep_data = sycl_buffer(train_dep_data)
             sycl_test_indep_data = sycl_buffer(test_indep_data)
-            result_gpu, _ = compute(sycl_train_indep_data, sycl_train_dep_data,
-                                    sycl_test_indep_data)
+            result_gpu, _ = compute(
+                sycl_train_indep_data, sycl_train_dep_data, sycl_test_indep_data
+            )
         assert np.allclose(result_classic.prediction, result_gpu.prediction, atol=1e-1)
 
     # It is possible to specify to make the computations on CPU
@@ -126,12 +135,15 @@ def main(readcsv=read_csv, method='defaultDense'):
         sycl_train_indep_data = sycl_buffer(train_indep_data)
         sycl_train_dep_data = sycl_buffer(train_dep_data)
         sycl_test_indep_data = sycl_buffer(test_indep_data)
-        result_cpu, _ = compute(sycl_train_indep_data, sycl_train_dep_data,
-                                sycl_test_indep_data)
+        result_cpu, _ = compute(
+            sycl_train_indep_data, sycl_train_dep_data, sycl_test_indep_data
+        )
 
     # The prediction result provides prediction
-    assert result_classic.prediction.shape == (test_dep_data.shape[0],
-                                               test_dep_data.shape[1])
+    assert result_classic.prediction.shape == (
+        test_dep_data.shape[0],
+        test_dep_data.shape[1],
+    )
 
     assert np.allclose(result_classic.prediction, result_cpu.prediction)
 
@@ -143,7 +155,7 @@ if __name__ == "__main__":
     print("\nLinear Regression coefficients:\n", train_result.model.Beta)
     print(
         "\nLinear Regression prediction results: (first 10 rows):\n",
-        predict_result.prediction[0:10]
+        predict_result.prediction[0:10],
     )
     print("\nGround truth (first 10 rows):\n", test_dep_data[0:10])
     print('All looks good!')

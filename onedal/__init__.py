@@ -21,12 +21,12 @@ if "Windows" in platform.system():
     import os
     import sys
     import site
+
     path_to_env = site.getsitepackages()[0]
     path_to_libs = os.path.join(path_to_env, "Library", "bin")
     if sys.version_info.minor >= 8:
         if 'DALROOT' in os.environ:
-            dal_root_redist = os.path.join(
-                os.environ['DALROOT'], "redist", "intel64")
+            dal_root_redist = os.path.join(os.environ['DALROOT'], "redist", "intel64")
             if os.path.exists(dal_root_redist):
                 os.add_dll_directory(dal_root_redist)
         os.add_dll_directory(path_to_libs)
@@ -34,9 +34,11 @@ if "Windows" in platform.system():
 
 try:
     import onedal._onedal_py_dpc as _backend
+
     _is_dpc_backend = True
 except ImportError:
     import onedal._onedal_py_host as _backend
+
     _is_dpc_backend = False
 
 
@@ -49,4 +51,8 @@ if daal_check_version((2023, 'P', 100)):
     __all__ += ['basic_statistics', 'linear_model']
 
     if _is_dpc_backend:
-        __all__ += ['spmd.basic_statistics', 'spmd.decomposition', 'spmd.linear_model',]
+        __all__ += [
+            'spmd.basic_statistics',
+            'spmd.decomposition',
+            'spmd.linear_model',
+        ]

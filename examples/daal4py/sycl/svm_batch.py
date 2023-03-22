@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py SVM example for shared memory systems
 
@@ -27,18 +27,22 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
         return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
 
+
 try:
     from dpctx import device_context, device_type
+
     with device_context(device_type.gpu, 0):
         gpu_available = True
 except:
     try:
         from daal4py.oneapi import sycl_context
+
         with sycl_context('gpu'):
             gpu_available = True
     except:
@@ -58,7 +62,7 @@ def compute(train_indep_data, train_dep_data, test_indep_data, method='defaultDe
         C=1.0,
         accuracyThreshold=1e-3,
         tau=1e-8,
-        cacheSize=600000000
+        cacheSize=600000000,
     )
 
     train_result = train_algo.compute(train_indep_data, train_dep_data)
@@ -75,12 +79,14 @@ def compute(train_indep_data, train_dep_data, test_indep_data, method='defaultDe
 def to_numpy(data):
     try:
         from pandas import DataFrame
+
         if isinstance(data, DataFrame):
             return np.ascontiguousarray(data.values)
     except ImportError:
         pass
     try:
         from scipy.sparse import csr_matrix
+
         if isinstance(data, csr_matrix):
             return data.toarray()
     except ImportError:
@@ -97,10 +103,13 @@ def main(readcsv=read_csv):
     train_data = readcsv(train_file, range(nFeatures), t=np.float32)
     train_labels = readcsv(train_file, range(nFeatures, nFeatures + 1), t=np.float32)
     predict_data = readcsv(predict_file, range(nFeatures), t=np.float32)
-    predict_labels = readcsv(predict_file, range(nFeatures, nFeatures + 1), t=np.float32)
+    predict_labels = readcsv(
+        predict_file, range(nFeatures, nFeatures + 1), t=np.float32
+    )
 
-    predict_result_classic, decision_function_classic = \
-        compute(train_data, train_labels, predict_data, 'boser')
+    predict_result_classic, decision_function_classic = compute(
+        train_data, train_labels, predict_data, 'boser'
+    )
 
     train_data = to_numpy(train_data)
     train_labels = to_numpy(train_labels)
@@ -114,6 +123,7 @@ def main(readcsv=read_csv):
 
         def cpu_context():
             return device_context(device_type.cpu, 0)
+
     except:
         from daal4py.oneapi import sycl_context
 
@@ -130,16 +140,18 @@ def main(readcsv=read_csv):
             sycl_train_labels = sycl_buffer(train_labels)
             sycl_predict_data = sycl_buffer(predict_data)
 
-            predict_result_gpu, decision_function_gpu = \
-                compute(sycl_train_data, sycl_train_labels, sycl_predict_data, 'thunder')
+            predict_result_gpu, decision_function_gpu = compute(
+                sycl_train_data, sycl_train_labels, sycl_predict_data, 'thunder'
+            )
             # assert np.allclose(predict_result_gpu, predict_result_classic)
 
     with cpu_context():
         sycl_train_data = sycl_buffer(train_data)
         sycl_predict_data = sycl_buffer(predict_data)
 
-        predict_result_cpu, decision_function_cpu = \
-            compute(sycl_train_data, train_labels, sycl_predict_data, 'thunder')
+        predict_result_cpu, decision_function_cpu = compute(
+            sycl_train_data, train_labels, sycl_predict_data, 'thunder'
+        )
         assert np.allclose(predict_result_cpu, predict_result_classic)
 
     return predict_labels, predict_result_classic, decision_function_classic
@@ -150,11 +162,11 @@ if __name__ == "__main__":
     np.set_printoptions(precision=0)
     print(
         "\nSVM classification decision function (first 10 observations):\n",
-        decision_function[0:10]
+        decision_function[0:10],
     )
     print(
         "\nSVM classification predict result (first 10 observations):\n",
-        predict_result[0:10]
+        predict_result[0:10],
     )
     print("\nGround truth (first 10 observations):\n", predict_labels[0:10])
     print('All looks good!')

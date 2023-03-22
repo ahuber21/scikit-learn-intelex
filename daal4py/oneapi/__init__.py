@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import platform
+
 if "Windows" in platform.system():
     import os
     import sys
@@ -28,8 +29,9 @@ if "Windows" in platform.system():
     if sys.version_info.minor >= 8:
         if 'DPCPPROOT' in os.environ:
             dpcpp_rt_root_bin = os.path.join(os.environ['DPCPPROOT'], "windows", "bin")
-            dpcpp_rt_root_redist = os.path.join(os.environ['DPCPPROOT'], "windows",
-                                                "redist", "intel64_win", "compiler")
+            dpcpp_rt_root_redist = os.path.join(
+                os.environ['DPCPPROOT'], "windows", "redist", "intel64_win", "compiler"
+            )
             if os.path.exists(dpcpp_rt_root_bin):
                 os.add_dll_directory(dpcpp_rt_root_bin)
             if os.path.exists(dpcpp_rt_root_redist):
@@ -46,12 +48,13 @@ try:
         _get_sycl_ctxt,
         _get_device_name_sycl_ctxt,
         _get_sycl_ctxt_params,
-        _get_in_sycl_ctxt
+        _get_in_sycl_ctxt,
     )
 except ModuleNotFoundError:
     raise
 except ImportError:
     import daal4py
+
     version = daal4py._get__version__()[1:-1].split(', ')
     major_version, minor_version = version[0], version[1]
     raise ImportError(

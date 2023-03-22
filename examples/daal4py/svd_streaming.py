@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py SVD example for streaming on shared memory systems
 
@@ -24,8 +24,10 @@ try:
     import pandas
 
     def read_csv(f, c, s=0, n=None, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',',
-                               header=None, skiprows=s, nrows=n, dtype=t)
+        return pandas.read_csv(
+            f, usecols=c, delimiter=',', header=None, skiprows=s, nrows=n, dtype=t
+        )
+
 except:
     # fall back to numpy genfromtxt
     def read_csv(f, c, s=0, n=np.iinfo(np.int64).max):
@@ -61,7 +63,6 @@ if __name__ == "__main__":
     print("\nSingular values:\n", result.singularValues)
     print("\nRight orthogonal matrix V:\n", result.rightSingularMatrix)
     print(
-        "\nLeft orthogonal matrix U (first 10 rows):\n",
-        result.leftSingularMatrix[0:10]
+        "\nLeft orthogonal matrix U (first 10 rows):\n", result.leftSingularMatrix[0:10]
     )
     print('All looks good!')

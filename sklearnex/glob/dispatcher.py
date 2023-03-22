@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
+
 
 def get_patch_str(name=None, verbose=True):
     return f"""try:
@@ -36,14 +37,16 @@ except ImportError:
 def patch_sklearn_global(name=None, verbose=True):
     import os
     import re
+
     try:
         import sklearn
     except ImportError:
         raise ImportError("Scikit-learn could not be imported. Nothing to patch\n")
 
     init_file_path = sklearn.__file__
-    distributor_file_path = os.path.join(os.path.dirname(init_file_path),
-                                         "_distributor_init.py")
+    distributor_file_path = os.path.join(
+        os.path.dirname(init_file_path), "_distributor_init.py"
+    )
 
     with open(distributor_file_path, 'r', encoding='utf-8') as distributor_file:
         lines = distributor_file.read()
@@ -52,22 +55,26 @@ def patch_sklearn_global(name=None, verbose=True):
 
     with open(distributor_file_path, 'w', encoding='utf-8') as distributor_file:
         distributor_file.write(lines + "\n" + get_patch_str(name, verbose) + "\n")
-        print("Scikit-learn was successfully globally patched"
-              " by Intel(R) Extension for Scikit-learn")
+        print(
+            "Scikit-learn was successfully globally patched"
+            " by Intel(R) Extension for Scikit-learn"
+        )
         return
 
 
 def unpatch_sklearn_global():
     import os
     import re
+
     try:
         import sklearn
     except ImportError:
         raise ImportError("Scikit-learn could not be imported. Nothing to unpatch\n")
 
     init_file_path = sklearn.__file__
-    distributor_file_path = os.path.join(os.path.dirname(init_file_path),
-                                         "_distributor_init.py")
+    distributor_file_path = os.path.join(
+        os.path.dirname(init_file_path), "_distributor_init.py"
+    )
 
     with open(distributor_file_path, 'r', encoding='utf-8') as distributor_file:
         lines = distributor_file.read()

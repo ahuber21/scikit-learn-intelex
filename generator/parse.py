@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 ###############################################################################
 ###############################################################################
@@ -86,28 +86,32 @@ import re
 ###############################################################################
 class cpp_class(object):
     """A C++ class representation"""
+
     def __init__(self, n, tpl, parent=None, partial=False, iface='interface1'):
-        self.name = n             # name of the class
-        self.template_args = tpl  # list of template arguments as [name, values, default]
+        self.name = n  # name of the class
+        self.template_args = (
+            tpl  # list of template arguments as [name, values, default]
+        )
         self.members = OrderedDict()  # dictionary mapping member names to their types
         self.sets = OrderedDict()  # dictionary mapping set enum type to input type
         self.arg_sets = OrderedDict()
         # dictionary mapping set enum type to input type and argument
         self.arg_gets = OrderedDict()
         # dictionary mapping set enum type to input type and argument
-        self.setgets = []         # set and get methods, formatted for %rename
-        self.gets = {}            # getXXX methods and return type
-        self.templates = []       # template member functions
-        self.partial = partial    # True if this represents a (partial) spezialization
-        self.parent = parent      # list of parent classes
-        self.result = None        # Result type (if Batch, Online or Disributed)
-        self.typedefs = {}        # Typedefs
+        self.setgets = []  # set and get methods, formatted for %rename
+        self.gets = {}  # getXXX methods and return type
+        self.templates = []  # template member functions
+        self.partial = partial  # True if this represents a (partial) spezialization
+        self.parent = parent  # list of parent classes
+        self.result = None  # Result type (if Batch, Online or Disributed)
+        self.typedefs = {}  # Typedefs
         self.iface = iface
         assert not partial or tpl
 
     def plus_ns(self):
         self.name = '{}::{}'.format(self.iface, self.name)
         return self
+
 
 ###############################################################################
 
@@ -122,13 +126,16 @@ doc_state = enum(none=0, single=1, multi=2, template=3)
 
 class comment_parser(object):
     """parse documentation in comments"""
+
     def parse(self, elem, ctxt):
         # delete comments, after which there is code in one line
-        line = re.sub(r'\/\*(.*?)\*\/', '', elem) \
-            if re.match(r'.*\*/(.+)', elem) else elem
+        line = (
+            re.sub(r'\/\*(.*?)\*\/', '', elem) if re.match(r'.*\*/(.+)', elem) else elem
+        )
 
-        assert not re.match(r'.*\*/(.+)', line), \
-               "Found the code after closed comment in the same line"
+        assert not re.match(
+            r'.*\*/(.+)', line
+        ), "Found the code after closed comment in the same line"
 
         # delete '%', it marks non-key words in oneDAL Doxygen documentation
         line = line.replace('%', '')
@@ -207,6 +214,7 @@ class comment_parser(object):
 ###############################################################################
 class ns_parser(object):
     """parse namespace declaration"""
+
     def parse(self, elem, ctxt):
         m = re.match(r'namespace +(\w+)(.*)', elem)
         if m and (not m.group(2) or '{' not in m.group(2)):
@@ -218,6 +226,7 @@ class ns_parser(object):
 ###############################################################################
 class eos_parser(object):
     """detect end of struct/class/enum '};'"""
+
     def parse(self, elem, ctxt):
         m = re.match(r'^}\s*;\s*$', elem)
         if m:
@@ -232,6 +241,7 @@ class eos_parser(object):
 ###############################################################################
 class include_parser(object):
     """parse #include"""
+
     def parse(self, elem, ctxt):
         mi = re.match(r'#include\s+[<\"](algorithms/.+?h)[>\"]', elem)
         if mi:
@@ -243,12 +253,14 @@ class include_parser(object):
 ###############################################################################
 class typedef_parser(object):
     """Parse a typedef"""
+
     def parse(self, elem, ctxt):
         m = re.match(r'\s*typedef(\s+(struct|typename))?\s+(.+)\s+(\w+).*', elem)
         if m:
             if ctxt.curr_class:
-                ctxt.gdict['classes'][ctxt.curr_class].typedefs[m.group(4).strip()] = \
-                    m.group(3).strip()
+                ctxt.gdict['classes'][ctxt.curr_class].typedefs[
+                    m.group(4).strip()
+                ] = m.group(3).strip()
             else:
                 ctxt.gdict['typedefs'][m.group(4).strip()] = m.group(3).strip()
             return True
@@ -258,6 +270,7 @@ class typedef_parser(object):
 ###############################################################################
 class enum_parser(object):
     """Parse an enum"""
+
     def parse(self, elem, ctxt):
         me = re.match(r'\s*enum +(\w+)\s*', elem)
         if me:
@@ -271,14 +284,18 @@ class enum_parser(object):
             if me:
                 ctxt.enum = False
                 return True
-            regex = r'^\s*(\w+)(?:\s*=\s*((\(int\))?\w(\w|:|\s|\+)*))?' + \
-                    r'(\s*,)?\s*((/\*|//).*)?$'
+            regex = (
+                r'^\s*(\w+)(?:\s*=\s*((\(int\))?\w(\w|:|\s|\+)*))?'
+                + r'(\s*,)?\s*((/\*|//).*)?$'
+            )
             me = re.match(regex, elem)
             if me and not me.group(1).startswith('last'):
                 # save the destination for documentation
                 ctxt.doc_lambda = lambda: ctxt.gdict['enums'][ctxt.enum][me.group(1)]
-                ctxt.gdict['enums'][ctxt.enum][me.group(1)] = \
-                    [me.group(2) if me.group(2) else '', ctxt.doc]
+                ctxt.gdict['enums'][ctxt.enum][me.group(1)] = [
+                    me.group(2) if me.group(2) else '',
+                    ctxt.doc,
+                ]
                 return True
         return False
 
@@ -286,6 +303,7 @@ class enum_parser(object):
 ###############################################################################
 class access_parser(object):
     """Parse access specifiers"""
+
     def parse(self, elem, ctxt):
         if ctxt.curr_class:
             am = re.match(r'\s*(public|private|protected)\s*:\s*', elem)
@@ -297,6 +315,7 @@ class access_parser(object):
 ###############################################################################
 class step_parser(object):
     """Look for distributed steps"""
+
     def parse(self, elem, ctxt):
         m = re.match(r'.*[<, ](step\d+(Master|Local))[>, ].*', elem)
         if m:
@@ -307,6 +326,7 @@ class step_parser(object):
 ###############################################################################
 class setget_parser(object):
     """Parse a set/get methods"""
+
     def parse(self, elem, ctxt):
         if ctxt.curr_class and ctxt.access:
             mgs = re.match(r'\s*using .+::(get|set);', elem)
@@ -323,46 +343,62 @@ class setget_parser(object):
                 # map input-enum to object-type and optional arg
                 if mgs.group(4) == 'get':  # a getter
                     name = mgs.group(6).strip()
-                    if (',' in mgs.group(3)):
+                    if ',' in mgs.group(3):
                         arg = mgs.group(3).strip(')').split(',')[1].strip().split(' ')
-                        ctxt.gdict['classes'][ctxt.curr_class].arg_gets[name] = \
-                            (mgs.group(2).strip(), arg)
+                        ctxt.gdict['classes'][ctxt.curr_class].arg_gets[name] = (
+                            mgs.group(2).strip(),
+                            arg,
+                        )
                     else:
-                        ctxt.gdict['classes'][ctxt.curr_class].gets[name] = \
-                            mgs.group(2).strip()
+                        ctxt.gdict['classes'][ctxt.curr_class].gets[name] = mgs.group(
+                            2
+                        ).strip()
                 else:  # a setter
                     args = mgs.group(3).split('{')[0].strip(')').strip().split(',')
                     name = mgs.group(6).strip()
                     typ = args[-1].replace('const', '').strip().split(' ')[0].strip()
                     if len(args) > 2:
                         val = args[1].strip().split(' ')
-                        ctxt.gdict['classes'][ctxt.curr_class].arg_sets[name] = (typ, val)
+                        ctxt.gdict['classes'][ctxt.curr_class].arg_sets[name] = (
+                            typ,
+                            val,
+                        )
                     else:
                         ctxt.gdict['classes'][ctxt.curr_class].sets[name] = typ
                 return True
-            regex = r'\s*(?:(?:virtual|DAAL_EXPORT)\s*)?((\w|:|<|>)+)' + \
-                    r'([*&]\s+|\s+[&*]|\s+)(get\w+)\(\s*\)'
+            regex = (
+                r'\s*(?:(?:virtual|DAAL_EXPORT)\s*)?((\w|:|<|>)+)'
+                + r'([*&]\s+|\s+[&*]|\s+)(get\w+)\(\s*\)'
+            )
             mgs = re.match(regex, elem)
             if mgs:
                 name = mgs.group(4)
                 if name not in ['getSerializationTag']:
                     if ctxt.template and name.startswith('get'):
-                        assert len(ctxt.template) == 1 and \
-                               ctxt.template[0][1] == 'fptypes'
-                        ctxt.gdict['classes'][ctxt.curr_class].gets[name] = \
-                            ('double', '<double>')
+                        assert (
+                            len(ctxt.template) == 1 and ctxt.template[0][1] == 'fptypes'
+                        )
+                        ctxt.gdict['classes'][ctxt.curr_class].gets[name] = (
+                            'double',
+                            '<double>',
+                        )
                         return False
                     ctxt.gdict['classes'][ctxt.curr_class].gets[name] = mgs.group(1)
                     return True
             # some get-methods accept an argument!
             # We support only a single argument for now,
             # and only simple types like int, size_t etc, no refs, no pointers
-            regex = r'\s*(?:virtual\s*)?((\w|:|<|>)+)([*&]\s+|\s+[&*]|\s+)' + \
-                    r'(get\w+)\(\s*((?:\w|_)+)\s+((?:\w|_)+)\s*\)'
+            regex = (
+                r'\s*(?:virtual\s*)?((\w|:|<|>)+)([*&]\s+|\s+[&*]|\s+)'
+                + r'(get\w+)\(\s*((?:\w|_)+)\s+((?:\w|_)+)\s*\)'
+            )
             mgs = re.match(regex, elem)
             if mgs and mgs.group(4) not in ['getResult', 'getInput']:
-                ctxt.gdict['classes'][ctxt.curr_class].gets[mgs.group(4)] = \
-                    (mgs.group(1), mgs.group(5), mgs.group(6))
+                ctxt.gdict['classes'][ctxt.curr_class].gets[mgs.group(4)] = (
+                    mgs.group(1),
+                    mgs.group(5),
+                    mgs.group(6),
+                )
                 return True
         return False
 
@@ -370,11 +406,13 @@ class setget_parser(object):
 ###############################################################################
 class result_parser(object):
     """Look for result type"""
+
     def parse(self, elem, ctxt):
-        if ctxt.curr_class and ctxt.access and any(x in ctxt.curr_class
-                                                   for x in ['Batch',
-                                                             'Online',
-                                                             'Distributed']):
+        if (
+            ctxt.curr_class
+            and ctxt.access
+            and any(x in ctxt.curr_class for x in ['Batch', 'Online', 'Distributed'])
+        ):
             regex = r'\s*(?:(?:virtual|const)\s+)?((\w|::|< *| *>)+)\s+(getResult\w*).+'
             m = re.match(regex, elem)
             if m and not m.group(3).endswith('Impl') and 'return' not in m.group(1):
@@ -385,10 +423,13 @@ class result_parser(object):
 ###############################################################################
 class member_parser(object):
     """Parse class members"""
+
     def parse(self, elem, ctxt):
         if ctxt.curr_class and ctxt.access:
-            regex = r'\s*((?:[\w:_]|< ?| ?>| ?, ?)+)(?<!return|delete)' + \
-                    r'\s+[\*&]?\s*([\w_]+)\s*;'
+            regex = (
+                r'\s*((?:[\w:_]|< ?| ?>| ?, ?)+)(?<!return|delete)'
+                + r'\s+[\*&]?\s*([\w_]+)\s*;'
+            )
             mm = re.match(regex, elem)
             if mm:
                 if mm.group(2) not in ctxt.gdict['classes'][ctxt.curr_class].members:
@@ -396,8 +437,10 @@ class member_parser(object):
                     ctxt.doc_lambda = lambda: ctxt.gdict['classes'][
                         ctxt.curr_class
                     ].members[mm.group(2)]
-                    ctxt.gdict['classes'][ctxt.curr_class].members[mm.group(2)] = \
-                        [mm.group(1), ctxt.doc]
+                    ctxt.gdict['classes'][ctxt.curr_class].members[mm.group(2)] = [
+                        mm.group(1),
+                        ctxt.doc,
+                    ]
                 return True
         return False
 
@@ -405,11 +448,14 @@ class member_parser(object):
 ###############################################################################
 class class_template_parser(object):
     """Parse a template statement"""
+
     def parse(self, elem, ctxt):
         # not a namespace, no enum Method, let's see if it's a template statement
         # this is checking if we have explicit template instantiation here,
         # which we will simply ignore
-        mt = re.match(r'\s*template\s+(class|struct)\s+([\w_]+\s*)+(<[\w_ ,:]+>);', elem)
+        mt = re.match(
+            r'\s*template\s+(class|struct)\s+([\w_]+\s*)+(<[\w_ ,:]+>);', elem
+        )
         if mt:
             return True
         # this is checking if we have a template specialization here,
@@ -436,29 +482,41 @@ class class_template_parser(object):
                 tmpltmp = None
                 mtm = re.match(r'.*?(\w*Method) +(\w+?)( *= *(\w+))?[ >]*$', ta)
                 if mtm and 'CompressionMethod' not in elem:
-                    tmpltmp = [mtm.group(2),
-                               mtm.group(1),
-                               mtm.group(4) if mtm.group(4) else '', doc]
+                    tmpltmp = [
+                        mtm.group(2),
+                        mtm.group(1),
+                        mtm.group(4) if mtm.group(4) else '',
+                        doc,
+                    ]
                     ctxt.gdict['need_methods'] = True
                 else:
                     mtt = re.match(r'.*typename \w*?FPType( *= *(\w+))?[ >]*$', ta)
                     if mtt:
-                        tmpltmp = ['fptype',
-                                   'fptypes',
-                                   mtt.group(2) if mtt.group(2) else '', doc]
+                        tmpltmp = [
+                            'fptype',
+                            'fptypes',
+                            mtt.group(2) if mtt.group(2) else '',
+                            doc,
+                        ]
                     else:
                         mtt = re.match(r'.*ComputeStep \w+?( *= *(\w+))?[ >]*$', ta)
                         if mtt:
-                            tmpltmp = ['step',
-                                       'steps',
-                                       mtt.group(2) if mtt.group(2) else '', doc]
+                            tmpltmp = [
+                                'step',
+                                'steps',
+                                mtt.group(2) if mtt.group(2) else '',
+                                doc,
+                            ]
                 if not tmpltmp:
                     tatmp = ta.split('=')
                     tatmp2 = tatmp[0].split()
                     if len(tatmp2) > 1:
-                        tmpltmp = [tatmp2[1].strip('<> '),
-                                   tatmp2[0].strip('<> '),
-                                   tatmp[-1].strip('<> ') if len(tatmp) > 1 else '', doc]
+                        tmpltmp = [
+                            tatmp2[1].strip('<> '),
+                            tatmp2[0].strip('<> '),
+                            tatmp[-1].strip('<> ') if len(tatmp) > 1 else '',
+                            doc,
+                        ]
                     else:
                         tmpltmp = [ta, '', '', doc]
                 tmplargs.append(tmpltmp)
@@ -466,11 +524,14 @@ class class_template_parser(object):
         # we don't have a 'else' (e.g. if not a template)
         # here since we could have template one-liners
         # is it a class/struct?
-        regex = r'(?:^\s*|.*?\s+)(class|struct)\s+(DAAL_EXPORT\s+)?(\w+)\s*' + \
-                r'(<[^>]+>)?(\s*:\s*((public|private|protected)\s+(.*)))?({|$|:|;)'
+        regex = (
+            r'(?:^\s*|.*?\s+)(class|struct)\s+(DAAL_EXPORT\s+)?(\w+)\s*'
+            + r'(<[^>]+>)?(\s*:\s*((public|private|protected)\s+(.*)))?({|$|:|;)'
+        )
         m = re.match(regex, elem)
-        m2 = re.match(r'\s*(class|struct)\s+\w+;',
-                      elem)  # forward declarations can be ignored
+        m2 = re.match(
+            r'\s*(class|struct)\s+\w+;', elem
+        )  # forward declarations can be ignored
         if m and not m2:
             if m.group(3) in ctxt.ignores:
                 pass
@@ -483,18 +544,28 @@ class class_template_parser(object):
                 if m.group(4):
                     # template specialization
                     targs = m.group(4).split(',')
-                    targs = [a.strip('<> ').replace('algorithmFPType', 'fptype')
-                             for a in targs]
+                    targs = [
+                        a.strip('<> ').replace('algorithmFPType', 'fptype')
+                        for a in targs
+                    ]
                     # if not any(ta[0] in a.lower() for ta in ctxt.template)]
                     ctxt.curr_class += '<' + ', '.join(targs) + '>'
                     # print('Found specialization ' + ctxt.curr_class + \
                     # '\n  File "' + ctxt.header+'", line '+str(ctxt.n))
-                    cls = cpp_class(ctxt.curr_class, ctxt.template,
-                                    parent=parents, partial=True,
-                                    iface=ctxt.gdict['ns'][-1])
+                    cls = cpp_class(
+                        ctxt.curr_class,
+                        ctxt.template,
+                        parent=parents,
+                        partial=True,
+                        iface=ctxt.gdict['ns'][-1],
+                    )
                 else:
-                    cls = cpp_class(ctxt.curr_class, ctxt.template,
-                                    parent=parents, iface=ctxt.gdict['ns'][-1])
+                    cls = cpp_class(
+                        ctxt.curr_class,
+                        ctxt.template,
+                        parent=parents,
+                        iface=ctxt.gdict['ns'][-1],
+                    )
                 if ctxt.curr_class in ctxt.gdict['classes']:
                     curr_class = ctxt.gdict['classes'][ctxt.curr_class]
                     if curr_class.iface < ctxt.gdict['ns'][-1]:
@@ -505,18 +576,20 @@ class class_template_parser(object):
                     ctxt.gdict['classes'][old_cls.name] = old_cls
                 else:
                     ctxt.gdict['classes'][ctxt.curr_class] = cls
-                #elif ctxt.template:
+                # elif ctxt.template:
                 #        ctxt.gdict['error_template_string'] += \
                 #        '$FNAME:' + str(ctxt.n) + \
                 #        ': Warning: Expected a template specialization for class ' + \
                 #        ctxt.curr_class + '\n'
                 if ctxt.template:
                     ctxt.template = False
-                ctxt.access = (m.group(1) != 'class')
+                ctxt.access = m.group(1) != 'class'
         elif ctxt.template:
             # we only look for member functions if it's a template
-            regex = r'\s*((static|const|inline|DAAL_EXPORT)\s+)*' + \
-                    r'(([:\*&\w<>]| >)+\s+)?[&\*]?(\w+)\s*\(.*'
+            regex = (
+                r'\s*((static|const|inline|DAAL_EXPORT)\s+)*'
+                + r'(([:\*&\w<>]| >)+\s+)?[&\*]?(\w+)\s*\(.*'
+            )
             m = re.match(regex, elem)
             if m and ctxt.access:
                 if m.group(5) not in ctxt.ignores:
@@ -525,13 +598,22 @@ class class_template_parser(object):
                     )
                     ctxt.template = False
                     return True
-                #error_template_string += fname + ':\n\tignoring ' + m.group(5)
-            elif ctxt.access and not mt and not m and \
-                    not any(s in elem for s in ctxt.ignores):
+                # error_template_string += fname + ':\n\tignoring ' + m.group(5)
+            elif (
+                ctxt.access
+                and not mt
+                and not m
+                and not any(s in elem for s in ctxt.ignores)
+            ):
                 # not a class but a non-mapped template
-                ctxt.gdict['error_template_string'] += \
-                    '$FNAME:' + str(ctxt.n) + \
-                    ': Warning:\n\t' + ctxt.template + '\n\t' + elem
+                ctxt.gdict['error_template_string'] += (
+                    '$FNAME:'
+                    + str(ctxt.n)
+                    + ': Warning:\n\t'
+                    + ctxt.template
+                    + '\n\t'
+                    + elem
+                )
         # the else case means we have a template-statement,
         # class, method to follow next line
         if not mt:
@@ -539,14 +621,16 @@ class class_template_parser(object):
             ctxt.template = False
             mt = re.match(r'template[^<]*<', elem)
             if mt:
-                ctxt.gdict['error_template_string'] += \
+                ctxt.gdict['error_template_string'] += (
                     '$FNAME:' + str(ctxt.n) + ': Warning: ' + elem
+                )
         return False
 
 
 ###############################################################################
 class pcontext(object):
     """Parsing context to keep state between lines"""
+
     def __init__(self, gdict, ignores, header):
         self.gdict = gdict
         self.ignores = ignores
@@ -580,10 +664,20 @@ def parse_header(header, ignores):
         }
     )
     ctxt = pcontext(gdict, ignores, header.name)
-    parsers = [comment_parser(), ns_parser(), include_parser(),
-               eos_parser(), typedef_parser(), enum_parser(),
-               access_parser(), step_parser(), setget_parser(),
-               result_parser(), member_parser(), class_template_parser()]
+    parsers = [
+        comment_parser(),
+        ns_parser(),
+        include_parser(),
+        eos_parser(),
+        typedef_parser(),
+        enum_parser(),
+        access_parser(),
+        step_parser(),
+        setget_parser(),
+        result_parser(),
+        member_parser(),
+        class_template_parser(),
+    ]
 
     # go line by line
     ctxt.n = 1

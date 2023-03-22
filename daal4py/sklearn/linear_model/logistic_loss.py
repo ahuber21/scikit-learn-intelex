@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import numpy as np
 
 import daal4py
-from .._utils import (make2d, getFPType)
+from .._utils import make2d, getFPType
 
 
 def _resultsToCompute_string(value=True, gradient=True, hessian=False):
@@ -32,9 +32,18 @@ def _resultsToCompute_string(value=True, gradient=True, hessian=False):
     return '|'.join(results_needed)
 
 
-def _daal4py_logistic_loss_extra_args(nClasses_unused, beta, X, y,
-                                      l1=0.0, l2=0.0, fit_intercept=True,
-                                      value=True, gradient=True, hessian=False):
+def _daal4py_logistic_loss_extra_args(
+    nClasses_unused,
+    beta,
+    X,
+    y,
+    l1=0.0,
+    l2=0.0,
+    fit_intercept=True,
+    value=True,
+    gradient=True,
+    hessian=False,
+):
     X = make2d(X)
     nSamples, nFeatures = X.shape
 
@@ -43,26 +52,35 @@ def _daal4py_logistic_loss_extra_args(nClasses_unused, beta, X, y,
     n = X.shape[0]
 
     results_to_compute = _resultsToCompute_string(
-        value=value, gradient=gradient, hessian=hessian)
+        value=value, gradient=gradient, hessian=hessian
+    )
 
-    objective_function_algorithm_instance = \
-        daal4py.optimization_solver_logistic_loss(
-            numberOfTerms=n,
-            fptype=getFPType(X),
-            method='defaultDense',
-            interceptFlag=fit_intercept,
-            penaltyL1=l1 / n,
-            penaltyL2=l2 / n,
-            resultsToCompute=results_to_compute
-        )
+    objective_function_algorithm_instance = daal4py.optimization_solver_logistic_loss(
+        numberOfTerms=n,
+        fptype=getFPType(X),
+        method='defaultDense',
+        interceptFlag=fit_intercept,
+        penaltyL1=l1 / n,
+        penaltyL2=l2 / n,
+        resultsToCompute=results_to_compute,
+    )
     objective_function_algorithm_instance.setup(X, y, beta)
 
     return (objective_function_algorithm_instance, X, y, n)
 
 
-def _daal4py_cross_entropy_loss_extra_args(nClasses, beta, X, y,
-                                           l1=0.0, l2=0.0, fit_intercept=True,
-                                           value=True, gradient=True, hessian=False):
+def _daal4py_cross_entropy_loss_extra_args(
+    nClasses,
+    beta,
+    X,
+    y,
+    l1=0.0,
+    l2=0.0,
+    fit_intercept=True,
+    value=True,
+    gradient=True,
+    hessian=False,
+):
     X = make2d(X)
     nSamples, nFeatures = X.shape
     y = make2d(y)
@@ -70,9 +88,10 @@ def _daal4py_cross_entropy_loss_extra_args(nClasses, beta, X, y,
     n = X.shape[0]
 
     results_to_compute = _resultsToCompute_string(
-        value=value, gradient=gradient, hessian=hessian)
+        value=value, gradient=gradient, hessian=hessian
+    )
 
-    objective_function_algorithm_instance = \
+    objective_function_algorithm_instance = (
         daal4py.optimization_solver_cross_entropy_loss(
             nClasses=nClasses,
             numberOfTerms=n,
@@ -81,8 +100,9 @@ def _daal4py_cross_entropy_loss_extra_args(nClasses, beta, X, y,
             interceptFlag=fit_intercept,
             penaltyL1=l1 / n,
             penaltyL2=l2 / n,
-            resultsToCompute=results_to_compute
+            resultsToCompute=results_to_compute,
         )
+    )
     objective_function_algorithm_instance.setup(X, y, beta)
 
     return (objective_function_algorithm_instance, X, y, n)
@@ -150,6 +170,7 @@ def _daal4py_grad_hess_(beta, objF_instance, X, y, n, l2):
             res[1:] = np.dot(pp0, X)
             res[1:] += (2 * l2) * v[1:]
             return res
+
     else:
         # dealing with multi-class logistic regression
         beta__ = beta_.reshape((-1, 1 + X.shape[1]))  # (nClasses, nSamples)

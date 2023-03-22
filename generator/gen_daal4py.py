@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 ###############################################################################
 # Top level code for generating code for building daal4py
@@ -29,9 +29,21 @@ import shutil
 from os.path import join as jp
 from collections import defaultdict, OrderedDict
 from .parse import parse_header, parse_version
-from .wrappers import (required, ignore, defaults, has_dist, ifaces,
-                       no_warn, no_constructor, add_setup, add_get_result,
-                       enum_maps, enum_params, wrap_algo, result_to_compute)
+from .wrappers import (
+    required,
+    ignore,
+    defaults,
+    has_dist,
+    ifaces,
+    no_warn,
+    no_constructor,
+    add_setup,
+    add_get_result,
+    enum_maps,
+    enum_params,
+    wrap_algo,
+    result_to_compute,
+)
 from .wrapper_gen import wrapper_gen
 from .format import mk_var
 from shutil import copytree, rmtree
@@ -70,7 +82,9 @@ def cleanup_ns(fname, ns):
     # Multiple namespaces will leave 'interface' in the hierachy
     # we cannot handle these cases
     if 'interface' in nsn:
-        print(fname + ":0: Warning: Multiple namespaces found in " + fname + '. Ignored.')
+        print(
+            fname + ":0: Warning: Multiple namespaces found in " + fname + '. Ignored.'
+        )
         return False
     return nsn
 
@@ -93,6 +107,7 @@ def get_parent(ns):
 ###############################################################################
 class namespace(object):
     """Holds all extracted data of a namespace"""
+
     def __init__(self, name):
         self.classes = {}
         self.enums = {}
@@ -107,8 +122,9 @@ class namespace(object):
 
 ###############################################################################
 def ignored(ns, a=None):
-    return ns in ignore and \
-        ((a is not None and a in ignore[ns]) or (a is None and not ignore[ns]))
+    return ns in ignore and (
+        (a is not None and a in ignore[ns]) or (a is None and not ignore[ns])
+    )
 
 
 ###############################################################################
@@ -117,32 +133,59 @@ class cython_interface(object):
     """collecting and generating data for code generation"""
 
     # classes/functions we generally ignore
-    ignores = ['AlgorithmContainerIface', 'AnalysisContainerIface',
-               'PredictionContainerIface', 'TrainingContainerIface',
-               'DistributedPredictionContainerIface', 'BatchContainerIface',
-               'OnlineContainerIface', 'DistributedContainerIface',
-               'BatchContainer', 'OnlineContainer', 'DistributedContainer',
-               'serializeImpl', 'deserializeImpl', 'serialImpl',
-               'getEpsilonVal', 'getMinVal', 'getMaxVal', 'getPMMLNumType',
-               'getInternalNumType', 'getIndexNumType',
-               'allocateNumericTableImpl', 'allocateImpl', 'allocate', 'initialize',
-               'setPartialResultStorage', 'addPartialResultStorage']
+    ignores = [
+        'AlgorithmContainerIface',
+        'AnalysisContainerIface',
+        'PredictionContainerIface',
+        'TrainingContainerIface',
+        'DistributedPredictionContainerIface',
+        'BatchContainerIface',
+        'OnlineContainerIface',
+        'DistributedContainerIface',
+        'BatchContainer',
+        'OnlineContainer',
+        'DistributedContainer',
+        'serializeImpl',
+        'deserializeImpl',
+        'serialImpl',
+        'getEpsilonVal',
+        'getMinVal',
+        'getMaxVal',
+        'getPMMLNumType',
+        'getInternalNumType',
+        'getIndexNumType',
+        'allocateNumericTableImpl',
+        'allocateImpl',
+        'allocate',
+        'initialize',
+        'setPartialResultStorage',
+        'addPartialResultStorage',
+    ]
 
     # files we ignore/skip
-    ignore_files = ['daal_shared_ptr.h', 'daal.h', 'daal_sycl.h', 'daal_win.h',
-                    'algorithm_base_mode_batch.h', 'algorithm_base.h', 'algorithm.h',
-                    'ridge_regression_types.h', 'kdtree_knn_classification_types.h',
-                    'multinomial_naive_bayes_types.h', 'daal_kernel_defines.h',
-                    'linear_regression_types.h']
+    ignore_files = [
+        'daal_shared_ptr.h',
+        'daal.h',
+        'daal_sycl.h',
+        'daal_win.h',
+        'algorithm_base_mode_batch.h',
+        'algorithm_base.h',
+        'algorithm.h',
+        'ridge_regression_types.h',
+        'kdtree_knn_classification_types.h',
+        'multinomial_naive_bayes_types.h',
+        'daal_kernel_defines.h',
+        'linear_regression_types.h',
+    ]
 
     done = []
 
-###############################################################################
+    ###############################################################################
     def __init__(self, include_root):
         self.include_root = include_root
         self.namespace_dict = defaultdict(namespace)
 
-###############################################################################
+    ###############################################################################
     def read(self):
         """
         Walk through each directory in the root dir and read in C++ headers.
@@ -154,12 +197,15 @@ class cython_interface(object):
         These objects carry all information as extracted by parse.py.
         """
         print('reading headers from ' + self.include_root)
-        for (dirpath, dirnames, filenames) in os.walk(self.include_root):
+        for dirpath, dirnames, filenames in os.walk(self.include_root):
             for filename in filenames:
-                if filename.endswith('.h') and \
-                        'neural_networks' not in dirpath and \
-                        not any(filename.endswith(x)
-                                for x in cython_interface.ignore_files):
+                if (
+                    filename.endswith('.h')
+                    and 'neural_networks' not in dirpath
+                    and not any(
+                        filename.endswith(x) for x in cython_interface.ignore_files
+                    )
+                ):
                     fname = jp(dirpath, filename)
                     with open(fname, "r") as header:
                         parsed_data = parse_header(header, cython_interface.ignores)
@@ -174,23 +220,26 @@ class cython_interface(object):
                             self.namespace_dict[pns] = namespace(pns)
                         if ns != 'daal':
                             self.namespace_dict[pns].children.add(ns)
-                        self.namespace_dict[ns].includes = \
-                            self.namespace_dict[ns].includes.union(
-                                parsed_data['includes'])
-                        self.namespace_dict[ns].steps = \
-                            self.namespace_dict[ns].steps.union(parsed_data['steps'])
+                        self.namespace_dict[ns].includes = self.namespace_dict[
+                            ns
+                        ].includes.union(parsed_data['includes'])
+                        self.namespace_dict[ns].steps = self.namespace_dict[
+                            ns
+                        ].steps.union(parsed_data['steps'])
                         # we support multiple interface* namespaces for class defs
                         for c in parsed_data['classes']:
                             if 'interface' not in c:
-                                self.namespace_dict[ns].classes[c] = \
-                                    parsed_data['classes'][c]
+                                self.namespace_dict[ns].classes[c] = parsed_data[
+                                    'classes'
+                                ][c]
                             else:
                                 tmp = splitns(c)
                                 subns = '{}::{}'.format(ns, tmp[0])
                                 if subns not in self.namespace_dict:
                                     self.namespace_dict[subns] = namespace(subns)
-                                self.namespace_dict[subns].classes[tmp[1]] = \
-                                    parsed_data['classes'][c]
+                                self.namespace_dict[subns].classes[
+                                    tmp[1]
+                                ] = parsed_data['classes'][c]
                                 self.namespace_dict[subns].classes[tmp[1]].name = tmp[1]
 
                         self.namespace_dict[ns].enums.update(parsed_data['enums'])
@@ -207,9 +256,9 @@ class cython_interface(object):
             self.version = (int(v[0]), int(v[1]), int(v[2]), str(v[3]))
             print('Found oneDAL version {}.{}.{}.{}'.format(*self.version))
 
-###############################################################################
-# Postprocessing starts here
-###############################################################################
+    ###############################################################################
+    # Postprocessing starts here
+    ###############################################################################
     def get_ns(self, ns, c_, attrs=['classes', 'enums', 'typedefs']):
         """
         Find class c starting in namespace ns.
@@ -228,15 +277,16 @@ class cython_interface(object):
         if c.startswith('daal::'):
             c = c[6:]
         tmp = splitns(c)
-        cns = ('::' + tmp[0])  # the namespace-part of our class
+        cns = '::' + tmp[0]  # the namespace-part of our class
         cname = tmp[-1]  # class name (stripped off namespace)
         currns = ns + cns  # current namespace in which we look for c
         done = False
         while currns and not done:
             # if in the outmost level we only have cns, which starts with '::'
             tmpns = currns.strip(':')
-            if tmpns in self.namespace_dict and \
-                    any(cname in getattr(self.namespace_dict[tmpns], a) for a in attrs):
+            if tmpns in self.namespace_dict and any(
+                cname in getattr(self.namespace_dict[tmpns], a) for a in attrs
+            ):
                 return tmpns
             if ns == 'daal':
                 done = True
@@ -248,7 +298,7 @@ class cython_interface(object):
                 currns = ns + cns
         return None
 
-###############################################################################
+    ###############################################################################
     def get_all_attrs(self, ns, cls, attr, ons=None):
         """
         Return an ordered dict, combining the 'attr' dicts of
@@ -280,11 +330,16 @@ class cython_interface(object):
             sanep = parent.split()[-1].replace('daal::', '')
             parentclass = splitns(sanep)[1]
             pns = self.get_ns(ns, sanep)
-            if pns is not None and 'interface' not in parent and ns == pns and \
-                    self.namespace_dict[ns].classes[
-                        cls
-                    ].iface != self.namespace_dict[pns].classes[parentclass].iface:
-                sanep = '{}::{}'.format(self.namespace_dict[ns].classes[cls].iface, sanep)
+            if (
+                pns is not None
+                and 'interface' not in parent
+                and ns == pns
+                and self.namespace_dict[ns].classes[cls].iface
+                != self.namespace_dict[pns].classes[parentclass].iface
+            ):
+                sanep = '{}::{}'.format(
+                    self.namespace_dict[ns].classes[cls].iface, sanep
+                )
                 pns = self.get_ns(ns, sanep)
             if pns is not None:
                 pms = self.get_all_attrs(pns, parentclass, attr, ons)
@@ -294,7 +349,7 @@ class cython_interface(object):
                         pmembers[x] = pms[x]
         return pmembers
 
-###############################################################################
+    ###############################################################################
     def to_lltype(self, p, t):
         """
         return low level (C++ type). Usually the same as input.
@@ -306,7 +361,7 @@ class cython_interface(object):
             return 'ResultToComputeId'
         return t
 
-###############################################################################
+    ###############################################################################
     def to_hltype(self, ns, t):
         """
         Return triplet (type, {'stdtype'|'enum'|'class'|'?'}, namespace)
@@ -320,7 +375,12 @@ class cython_interface(object):
         oneDAL C++ API finds through "using".
         """
         tns, tname = splitns(t)
-        if t in ['double', 'float', 'int', 'size_t', ]:
+        if t in [
+            'double',
+            'float',
+            'int',
+            'size_t',
+        ]:
             return (t, 'stdtype', '')
         if t in ['bool']:
             return ('bool', 'stdtype', '')
@@ -332,22 +392,26 @@ class cython_interface(object):
         if t.endswith('ResultPtr'):
             thens = self.get_ns(ns, t, attrs=['typedefs'])
             return ('daal::' + thens + '::ResultPtr', 'class', tns)
-        if t in ['data_management::NumericTablePtr'] or \
-                any(t == x[0] for x in ifaces.values()):
+        if t in ['data_management::NumericTablePtr'] or any(
+            t == x[0] for x in ifaces.values()
+        ):
             return ('daal::' + t, 'class', tns)
         if t.endswith('KeyValueDataCollectionPtr'):
             return ('dict_NumericTablePtr', 'class', '')
         if t.endswith('DataCollectionPtr'):
             return ('list_NumericTablePtr', 'class', '')
-        if 'Batch' in self.namespace_dict[ns].classes and \
-                t in self.namespace_dict[ns].classes['Batch'].typedefs:
+        if (
+            'Batch' in self.namespace_dict[ns].classes
+            and t in self.namespace_dict[ns].classes['Batch'].typedefs
+        ):
             tns, tname = splitns(self.namespace_dict[ns].classes['Batch'].typedefs[t])
             return (self.namespace_dict[ns].classes['Batch'].typedefs[t], 'class', tns)
         if 'services::SharedPtr' in t:
             no_spt = re.sub(r'.*services::SharedPtr<(.*)>.*', r'\1', t).strip()
             no_spt_ns = self.get_ns(ns, no_spt)
-            tt = 'daal::services::SharedPtr<daal::{}::{}>'.format(no_spt_ns,
-                                                                  splitns(no_spt)[1])
+            tt = 'daal::services::SharedPtr<daal::{}::{}>'.format(
+                no_spt_ns, splitns(no_spt)[1]
+            )
         else:
             tt = re.sub(r'(?<!daal::)algorithms::', r'daal::algorithms::', t)
         if any(tt == x[0] for x in ifaces.values()):
@@ -356,8 +420,11 @@ class cython_interface(object):
         if tns:
             tt = tns + '::' + tname
             if tt == t:
-                return ('std::string &', 'enum', tns) \
-                    if tname in self.namespace_dict[tns].enums else (tname, 'class', tns)
+                return (
+                    ('std::string &', 'enum', tns)
+                    if tname in self.namespace_dict[tns].enums
+                    else (tname, 'class', tns)
+                )
             return self.to_hltype(ns, tt)
         usings = ['algorithms::optimization_solver']
         if not any(t.startswith(x) for x in usings):
@@ -367,7 +434,7 @@ class cython_interface(object):
                     return r
         return None if '::' in t else (t, '??', '??')
 
-###############################################################################
+    ###############################################################################
     def get_values(self, ns, n):
         """
         Return available values for given enum or special "group".
@@ -379,14 +446,17 @@ class cython_interface(object):
             nn = splitns(n)[1]
             if nn in self.namespace_dict[nns].enums:
                 return [
-                    re.sub(r'(?<!daal::)algorithms::',
-                           r'daal::algorithms::', nns + '::' + x)
+                    re.sub(
+                        r'(?<!daal::)algorithms::',
+                        r'daal::algorithms::',
+                        nns + '::' + x,
+                    )
                     for x in self.namespace_dict[nns].enums[nn]
                 ]
             return ['unknown_' + nns + '_class_' + n]
         return ['unknown_' + n]
 
-###############################################################################
+    ###############################################################################
     def get_tmplarg(self, ns, n):
         """
         Return template argument specifier: "typename" or actual type.
@@ -397,12 +467,13 @@ class cython_interface(object):
         if nns:
             nn = splitns(n)[1]
             if nn in self.namespace_dict[nns].enums:
-                return re.sub(r'(?<!daal::)algorithms::',
-                              r'daal::algorithms::', nns + '::' + nn)
+                return re.sub(
+                    r'(?<!daal::)algorithms::', r'daal::algorithms::', nns + '::' + nn
+                )
             return 'unknown_' + nns + '_class_' + n
         return 'unknown_' + n
 
-###############################################################################
+    ###############################################################################
     def get_class_for_typedef(self, ns, cls, td):
         """
         Find the Result type for given algorithm in the C++ class and namespace hierachy.
@@ -414,8 +485,9 @@ class cython_interface(object):
         if td not in self.namespace_dict[ns].classes[cls].typedefs:
             # Note: we assume there are no typedefs *Type outside classes
             for parent in self.namespace_dict[ns].classes[cls].parent:
-                res = self.get_class_for_typedef(self.get_ns(ns, parent),
-                                                 splitns(parent)[1], td)
+                res = self.get_class_for_typedef(
+                    self.get_ns(ns, parent), splitns(parent)[1], td
+                )
                 if res:
                     return res
             return None
@@ -426,12 +498,14 @@ class cython_interface(object):
         if res.endswith('Type'):
             # Note: we assume there are no typedefs *Type outside classes
             assert res.endswith(td)
-            ret = self.get_class_for_typedef(self.get_ns(ns, tmp[0]),
-                                             splitns(tmp[0])[1], tmp[1])
+            ret = self.get_class_for_typedef(
+                self.get_ns(ns, tmp[0]), splitns(tmp[0])[1], tmp[1]
+            )
             if not ret and '<' in tmp[0]:
                 n = tmp[0].split('<', 1)[0]
-                ret = self.get_class_for_typedef(self.get_ns(ns, n),
-                                                 splitns(n)[1], tmp[1])
+                ret = self.get_class_for_typedef(
+                    self.get_ns(ns, n), splitns(n)[1], tmp[1]
+                )
         else:
             ret = tmp
         if ret and ret[1] not in self.namespace_dict[ret[0]].classes and '<' in ret[1]:
@@ -445,7 +519,7 @@ class cython_interface(object):
             # ret = (self.get_ns(ns, res.split('<')[0]), tmp[1])
         return ret
 
-###############################################################################
+    ###############################################################################
     def get_expand_attrs(self, ns, cls, attr):
         """
         Find enum type for attributes in "attr" dict of class "cls" and returns
@@ -474,13 +548,23 @@ class cython_interface(object):
                         if not any(e in x for x in explist) and not ignored(ins, e):
                             if type(attrs[i]) in [list, tuple]:
                                 explist.append(
-                                    (ins, e, hlt[0], attrs[i][1],
-                                     self.namespace_dict[ins].enums[inp][e][1])
+                                    (
+                                        ins,
+                                        e,
+                                        hlt[0],
+                                        attrs[i][1],
+                                        self.namespace_dict[ins].enums[inp][e][1],
+                                    )
                                 )
                             else:
                                 explist.append(
-                                    (ins, e, hlt[0], None,
-                                     self.namespace_dict[ins].enums[inp][e][1])
+                                    (
+                                        ins,
+                                        e,
+                                        hlt[0],
+                                        None,
+                                        self.namespace_dict[ins].enums[inp][e][1],
+                                    )
                                 )
                 else:
                     print("// Warning: ignoring " + ns + " " + str(hlt))
@@ -493,7 +577,7 @@ class cython_interface(object):
                 ignlist.append((ins, i))
         return (explist, ignlist)
 
-###############################################################################
+    ###############################################################################
     def prepare_resultmaps(self, ns):
         """
         Prepare info about typedefs for Result type of given namespace.
@@ -528,7 +612,7 @@ class cython_interface(object):
             print('// Warning: no result found for ' + ns)
         return jparams
 
-###############################################################################
+    ###############################################################################
     def prepare_modelmaps(self, ns, mname='Model'):
         """
         Return string from typemap_wrapper_template for given Model.
@@ -561,20 +645,29 @@ class cython_interface(object):
                     else:
                         rtyp = huhu[g]
                         sfx = ''
-                    if not any(rtyp.endswith(x) for x in ['SerializationTag', ]):
+                    if not any(
+                        rtyp.endswith(x)
+                        for x in [
+                            'SerializationTag',
+                        ]
+                    ):
                         gn = splitns(g)[1].replace('get', '')
                         if not any(gn == x[1] for x in jparams['named_gets']):
-                            typ = re.sub(r'(?<!daal::)data_management',
-                                         r'daal::data_management', rtyp)
+                            typ = re.sub(
+                                r'(?<!daal::)data_management',
+                                r'daal::data_management',
+                                rtyp,
+                            )
                             jparams['named_gets'].append((typ, gn, sfx))
         return jparams
 
-###############################################################################
+    ###############################################################################
     def expand_typedefs(self, ns):
         """
         We expand all typedefs in classes/namespaces without recursing
         to outer scopes or namespaces.
         """
+
         def expand_td(typedefs):
             done = 1
             while done != 0:
@@ -589,15 +682,24 @@ class cython_interface(object):
         for c in self.namespace_dict[ns].classes:
             expand_td(self.namespace_dict[ns].classes[c].typedefs)
 
-###############################################################################
+    ###############################################################################
     def order_iargs(self, tmp_input_args):
         """
         We have to put the intput args into the "right" order.
         , e.g. start with data then model, then whatever else
         """
-        ordered = ['data', 'model', 'labels', 'dependentVariable', 'dependentVariables',
-                   'tableToFill', 'dataForPruning', 'dependentVariablesForPruning',
-                   'labelsForPruning', 'inputArgument']
+        ordered = [
+            'data',
+            'model',
+            'labels',
+            'dependentVariable',
+            'dependentVariables',
+            'tableToFill',
+            'dataForPruning',
+            'dependentVariablesForPruning',
+            'labelsForPruning',
+            'inputArgument',
+        ]
         input_args = []
         for arg in ordered:
             for i in tmp_input_args:
@@ -608,7 +710,7 @@ class cython_interface(object):
                 input_args.append(i[1])
         return input_args
 
-###############################################################################
+    ###############################################################################
     def get_template_specializations(self, ns, cls):
         res = []
         pat = cls + '<'
@@ -617,13 +719,14 @@ class cython_interface(object):
                 res.append((ns, self.namespace_dict[ns].classes[c]))
         return res
 
-###############################################################################
+    ###############################################################################
     def get_all_parameter_classes(self, ns):
         res = []
         for c in self.namespace_dict[ns].classes:
-            if any(re.match(r'{}(<.+>)?$'.format(x), c) for x in ['Batch',
-                                                                  'Online',
-                                                                  'Distributed']):
+            if any(
+                re.match(r'{}(<.+>)?$'.format(x), c)
+                for x in ['Batch', 'Online', 'Distributed']
+            ):
                 p = self.get_class_for_typedef(ns, c, 'ParameterType')
                 if p and p not in res:
                     res.append((p[0], self.namespace_dict[p[0]].classes[p[1]]))
@@ -632,7 +735,7 @@ class cython_interface(object):
                         res += t
         return res
 
-###############################################################################
+    ###############################################################################
     def prepare_hlwrapper(self, ns, mode, func, no_dist, no_stream):
         """
         Prepare data structures for generating high level wrappers.
@@ -660,11 +763,15 @@ class cython_interface(object):
 
         Next we extract type-map (native_type) information for Model and Result types.
         """
-        if mode in self.namespace_dict[ns].classes and \
-                self.namespace_dict[ns].classes[mode].template_args:
-            ins = splitns(
-                self.namespace_dict[ns].classes[mode].typedefs['InputType']
-            )[0] if 'InputType' in self.namespace_dict[ns].classes[mode].typedefs else ns
+        if (
+            mode in self.namespace_dict[ns].classes
+            and self.namespace_dict[ns].classes[mode].template_args
+        ):
+            ins = (
+                splitns(self.namespace_dict[ns].classes[mode].typedefs['InputType'])[0]
+                if 'InputType' in self.namespace_dict[ns].classes[mode].typedefs
+                else ns
+            )
             jparams = {
                 'ns': ns,
                 'algo': func,
@@ -681,23 +788,39 @@ class cython_interface(object):
             }
             # at this point required parameters need to be
             # explictly/manually provided in wrappers.required
-            params_req = [
-                mk_var(x[0], x[1], algo=func) for x in required[ns]
-            ] if ns in required else []
+            params_req = (
+                [mk_var(x[0], x[1], algo=func) for x in required[ns]]
+                if ns in required
+                else []
+            )
             if self.namespace_dict[ns].classes[mode].template_args:
                 jparams['params_templ'] = {
-                    'template_decl': OrderedDict([
-                        (t[0], {
-                            'template_decl': self.get_tmplarg(ns, t[1]),
-                            'values': self.get_values(ns, t[1]),
-                            'default': t[2].replace('DAAL_ALGORITHM_FP_TYPE', 'double')
-                        }) for t in self.namespace_dict[ns].classes[mode].template_args]),
+                    'template_decl': OrderedDict(
+                        [
+                            (
+                                t[0],
+                                {
+                                    'template_decl': self.get_tmplarg(ns, t[1]),
+                                    'values': self.get_values(ns, t[1]),
+                                    'default': t[2].replace(
+                                        'DAAL_ALGORITHM_FP_TYPE', 'double'
+                                    ),
+                                },
+                            )
+                            for t in self.namespace_dict[ns].classes[mode].template_args
+                        ]
+                    ),
                     'template_args': [
                         mk_var(
-                            t[0], 'std::string&', 'const',
+                            t[0],
+                            'std::string&',
+                            'const',
                             t[2].replace('DAAL_ALGORITHM_FP_TYPE', 'double'),
-                            algo=func, doc=t[3]
-                        ) for t in self.namespace_dict[ns].classes[mode].template_args]
+                            algo=func,
+                            doc=t[3],
+                        )
+                        for t in self.namespace_dict[ns].classes[mode].template_args
+                    ],
                 }
 
             # A parameter can be a specialized template. Sigh.
@@ -732,10 +855,12 @@ class cython_interface(object):
                         for x in p[1].template_args:
                             nm = nm.replace(x[0], x[0] + '_')
                 if nm not in opt_params:
-                    opt_params[nm] = \
-                        ([[x[0] + '_', x[1], x[2]] for x in p[1].template_args]
-                            if p[1].template_args
-                            else False, [splitns(x)[1] for x in parms])
+                    opt_params[nm] = (
+                        [[x[0] + '_', x[1], x[2]] for x in p[1].template_args]
+                        if p[1].template_args
+                        else False,
+                        [splitns(x)[1] for x in parms],
+                    )
                 for a in parms:
                     if a not in all_params:
                         all_params[a] = parms[a]
@@ -758,7 +883,11 @@ class cython_interface(object):
 
             for p in all_params:
                 pns, tmp = splitns(p)
-                if tmp is not None and not tmp.startswith('_') and not ignored(pns, tmp):
+                if (
+                    tmp is not None
+                    and not tmp.startswith('_')
+                    and not ignored(pns, tmp)
+                ):
                     llt = self.to_lltype(p, all_params[p][0])
                     hlt = self.to_hltype(pns, llt)
                     if hlt and hlt[1] in ['stdtype', 'enum', 'class']:
@@ -766,26 +895,33 @@ class cython_interface(object):
                         if hlt_type == 'enum':
                             thetype = hlt_ns + '::' + llt.rsplit('::', 1)[-1]
                             if ns in result_to_compute.keys():
-                                if result_to_compute[ns].rsplit(
-                                    '::', 1
-                                )[-1] in self.namespace_dict[
-                                        get_parent(ns)].enums.keys():
+                                if (
+                                    result_to_compute[ns].rsplit('::', 1)[-1]
+                                    in self.namespace_dict[get_parent(ns)].enums.keys()
+                                ):
                                     thetype = result_to_compute[ns]
                         else:
-                            thetype = (hlt if hlt else all_params[p])
+                            thetype = hlt if hlt else all_params[p]
                         if thetype is not None:
-                            thetype = re.sub(r'(?<!daal::)algorithms::',
-                                             r'daal::algorithms::', thetype)
+                            thetype = re.sub(
+                                r'(?<!daal::)algorithms::',
+                                r'daal::algorithms::',
+                                thetype,
+                            )
                             doc = all_params[p][1]
                             if any(tmp == x.name for x in params_req):
                                 v = mk_var(tmp, thetype, 'const', algo=func, doc=doc)
                                 jparams['params_req'].append(v)
                             else:
                                 prm = tmp
-                                dflt = defaults[pns][prm] \
-                                    if pns in defaults and prm in defaults[pns] else True
-                                v = mk_var(prm, thetype, 'const',
-                                           dflt, algo=func, doc=doc)
+                                dflt = (
+                                    defaults[pns][prm]
+                                    if pns in defaults and prm in defaults[pns]
+                                    else True
+                                )
+                                v = mk_var(
+                                    prm, thetype, 'const', dflt, algo=func, doc=doc
+                                )
                                 jparams['params_opt'].append(v)
                         else:
                             print(
@@ -833,11 +969,21 @@ class cython_interface(object):
                             # iname in ['data', 'labels',\
                             #           'dependentVariable', 'tableToFill']:
                             itype = 'data_or_file &'
-                        ins = re.sub(r'(?<!daal::)algorithms::',
-                                     r'daal::algorithms::', ins)
-                        tmp_input_args.insert(i, mk_var(ins + '::' + iname, itype,
-                                                        'const', dflt, inpt=True,
-                                                        algo=func, doc=doc))
+                        ins = re.sub(
+                            r'(?<!daal::)algorithms::', r'daal::algorithms::', ins
+                        )
+                        tmp_input_args.insert(
+                            i,
+                            mk_var(
+                                ins + '::' + iname,
+                                itype,
+                                'const',
+                                dflt,
+                                inpt=True,
+                                algo=func,
+                                doc=doc,
+                            ),
+                        )
             else:
                 print('// Warning: no input type found for ' + ns)
 
@@ -870,16 +1016,23 @@ class cython_interface(object):
         }
         if not no_dist and ns in has_dist:
             retjp['dist'] = has_dist[ns]
-            retjp['distributed'] = mk_var('distributed', 'bool',
-                                          dflt=True, algo=func,
-                                          doc='enable distributed computation (SPMD)')
+            retjp['distributed'] = mk_var(
+                'distributed',
+                'bool',
+                dflt=True,
+                algo=func,
+                doc='enable distributed computation (SPMD)',
+            )
         else:
             retjp['distributed'] = mk_var()
-        if not no_stream and 'Online' in self.namespace_dict[ns].classes and \
-                not ns.endswith('pca'):
-            retjp['streaming'] = mk_var('streaming', 'bool',
-                                        dflt=True, algo=func,
-                                        doc='enable streaming')
+        if (
+            not no_stream
+            and 'Online' in self.namespace_dict[ns].classes
+            and not ns.endswith('pca')
+        ):
+            retjp['streaming'] = mk_var(
+                'streaming', 'bool', dflt=True, algo=func, doc='enable streaming'
+            )
         else:
             retjp['streaming'] = mk_var()
         return {ns + '::' + mode: retjp}
@@ -965,24 +1118,32 @@ class cython_interface(object):
                     func = '_'.join(nn[1:])
                 else:
                     func = '_'.join(nn)
-                algoconfig.update(self.prepare_hlwrapper(ns,
-                                                         'Batch',
-                                                         func,
-                                                         no_dist,
-                                                         no_stream))
+                algoconfig.update(
+                    self.prepare_hlwrapper(ns, 'Batch', func, no_dist, no_stream)
+                )
 
         self.prepare_model_hierachy(algoconfig)
 
         # and now we can finally generate the code
         wg = wrapper_gen(algoconfig, {cpp2hl(i): ifaces[i] for i in ifaces})
-        cpp_map, cpp_begin, cpp_end, pyx_map, pyx_begin, pyx_end = \
-            '', '', '#define NO_IMPORT_ARRAY\n#include "daal4py_cpp.h"\n', '', '', ''
+        cpp_map, cpp_begin, cpp_end, pyx_map, pyx_begin, pyx_end = (
+            '',
+            '',
+            '#define NO_IMPORT_ARRAY\n#include "daal4py_cpp.h"\n',
+            '',
+            '',
+            '',
+        )
 
         for ns in algos:
-            if ns.startswith('algorithms::') and \
-               not ns.startswith('algorithms::neural_networks') and \
-                    self.namespace_dict[ns].enums:
-                cpp_begin += 'static str2i_map_t s2e_' + ns.replace('::', '_') + ' =\n{\n'
+            if (
+                ns.startswith('algorithms::')
+                and not ns.startswith('algorithms::neural_networks')
+                and self.namespace_dict[ns].enums
+            ):
+                cpp_begin += (
+                    'static str2i_map_t s2e_' + ns.replace('::', '_') + ' =\n{\n'
+                )
                 for e in self.namespace_dict[ns].enums:
                     for v in self.namespace_dict[ns].enums[e]:
                         vv = ns + '::' + v
@@ -995,8 +1156,13 @@ class cython_interface(object):
                 for e in self.namespace_dict[ns].enums:
                     enm = '::'.join([ns, e])
                     if enm in enum_maps:
-                        cpp_begin += 'static i2str_map_t e2s_' + \
-                            ns.replace('::', '_') + '_' + enum_maps[enm] + ' =\n{\n'
+                        cpp_begin += (
+                            'static i2str_map_t e2s_'
+                            + ns.replace('::', '_')
+                            + '_'
+                            + enum_maps[enm]
+                            + ' =\n{\n'
+                        )
                         for v in self.namespace_dict[ns].enums[e]:
                             vv = ns + '::' + v
                             cpp_begin += ' ' * 4 + '{daal::' + vv + ', "' + v + '"},\n'
@@ -1017,14 +1183,20 @@ class cython_interface(object):
 
         hds = wg.gen_headers()
         fts = wg.gen_footers(
-            no_dist, no_stream, algos, version,
-            [x for x in has_dist if has_dist[x]["pattern"] == "dist_custom"]
+            no_dist,
+            no_stream,
+            algos,
+            version,
+            [x for x in has_dist if has_dist[x]["pattern"] == "dist_custom"],
         )
         pyx_end += fts[1]
 
         # Finally combine the different sections and return the 3 strings
-        return (hds[0] + cpp_map + cpp_begin + fts[2] + '\n#endif',
-                cpp_end, hds[1] + pyx_map + pyx_begin + pyx_end)
+        return (
+            hds[0] + cpp_map + cpp_begin + fts[2] + '\n#endif',
+            cpp_end,
+            hds[1] + pyx_map + pyx_begin + pyx_end,
+        )
 
 
 ###############################################################################
@@ -1032,21 +1204,26 @@ class cython_interface(object):
 ###############################################################################
 ###############################################################################
 
-def gen_daal4py(daalroot, outdir, version, warn_all=False,
-                no_dist=False, no_stream=False):
+
+def gen_daal4py(
+    daalroot, outdir, version, warn_all=False, no_dist=False, no_stream=False
+):
     global no_warn
     if warn_all:
         no_warn = {}
     orig_path = jp(daalroot, 'include')
-    assert os.path.isfile(jp(orig_path, 'algorithms', 'algorithm.h')) and \
-           os.path.isfile(jp(orig_path, 'algorithms', 'model.h')), \
-           "Path/$DAALROOT '" + orig_path + \
-           "' doesn't seem host oneDAL headers. Please provide correct daalroot."
+    assert os.path.isfile(
+        jp(orig_path, 'algorithms', 'algorithm.h')
+    ) and os.path.isfile(jp(orig_path, 'algorithms', 'model.h')), (
+        "Path/$DAALROOT '"
+        + orig_path
+        + "' doesn't seem host oneDAL headers. Please provide correct daalroot."
+    )
     head_path = jp("build", "include")
     algo_path = jp(head_path, "algorithms")
     rmtree(head_path, ignore_errors=True)
     copytree(orig_path, head_path)
-    for (dirpath, dirnames, filenames) in os.walk(algo_path):
+    for dirpath, dirnames, filenames in os.walk(algo_path):
         for filename in filenames:
             call([shutil.which("clang-format"), "-i", jp(dirpath, filename)])
     iface = cython_interface(algo_path)
@@ -1066,14 +1243,20 @@ def gen_daal4py(daalroot, outdir, version, warn_all=False,
     pyx_gbt_generators = ''
     pyx_log_reg_model_builder = ''
     pyx_gettree = ''
-    if 'algorithms::gbt::classification' in iface.namespace_dict and 'ModelBuilder' in \
-            iface.namespace_dict['algorithms::gbt::classification'].classes:
+    if (
+        'algorithms::gbt::classification' in iface.namespace_dict
+        and 'ModelBuilder'
+        in iface.namespace_dict['algorithms::gbt::classification'].classes
+    ):
         with open(jp('src', 'gbt_model_builder.pyx'), 'r') as f:
             pyx_gbt_model_builder = f.read()
         with open(jp('src', 'gbt_convertors.pyx'), 'r') as f:
             pyx_gbt_generators = f.read()
-    if 'algorithms::logistic_regression' in iface.namespace_dict and 'ModelBuilder' in \
-            iface.namespace_dict['algorithms::logistic_regression'].classes:
+    if (
+        'algorithms::logistic_regression' in iface.namespace_dict
+        and 'ModelBuilder'
+        in iface.namespace_dict['algorithms::logistic_regression'].classes
+    ):
         with open(jp('src', 'log_reg_model_builder.pyx'), 'r') as f:
             pyx_log_reg_model_builder = f.read()
     if 'algorithms::tree_utils' in iface.namespace_dict:

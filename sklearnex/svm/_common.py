@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 from abc import ABC
 import numpy as np
@@ -59,7 +59,9 @@ class BaseSVC(ABC):
         if not all(np.in1d(classes, le.classes_)):
             raise ValueError("classes should have valid labels that are in y")
 
-        recip_freq = len(y_) / (len(le.classes_) * np.bincount(y_ind).astype(np.float64))
+        recip_freq = len(y_) / (
+            len(le.classes_) * np.bincount(y_ind).astype(np.float64)
+        )
         return recip_freq[le.transform(classes)]
 
     def _fit_proba(self, X, y, sample_weight=None, queue=None):
@@ -79,21 +81,22 @@ class BaseSVC(ABC):
                 n_splits = 5
                 n_jobs = n_splits if queue is None or queue.sycl_device.is_cpu else 1
                 cv = StratifiedKFold(
-                    n_splits=n_splits,
-                    shuffle=True,
-                    random_state=self.random_state)
+                    n_splits=n_splits, shuffle=True, random_state=self.random_state
+                )
                 if sklearn_check_version("0.24"):
                     self.clf_prob = CalibratedClassifierCV(
-                        clf_base, ensemble=False, cv=cv, method='sigmoid',
-                        n_jobs=n_jobs)
+                        clf_base, ensemble=False, cv=cv, method='sigmoid', n_jobs=n_jobs
+                    )
                 else:
                     self.clf_prob = CalibratedClassifierCV(
-                        clf_base, cv=cv, method='sigmoid')
+                        clf_base, cv=cv, method='sigmoid'
+                    )
                 self.clf_prob.fit(X, y, sample_weight)
             except ValueError:
                 clf_base = clf_base.fit(X, y, sample_weight)
                 self.clf_prob = CalibratedClassifierCV(
-                    clf_base, cv="prefit", method='sigmoid')
+                    clf_base, cv="prefit", method='sigmoid'
+                )
                 self.clf_prob.fit(X, y, sample_weight)
 
     def _save_attributes(self):
@@ -128,7 +131,7 @@ class BaseSVC(ABC):
 
         if sklearn_check_version("1.1"):
             length = int(len(self.classes_) * (len(self.classes_) - 1) / 2)
-            self.n_iter_ = np.full((length, ), self._onedal_estimator.n_iter_)
+            self.n_iter_ = np.full((length,), self._onedal_estimator.n_iter_)
 
 
 class BaseSVR(ABC):

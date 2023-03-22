@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py AdaGrad (Adaptive Subgradient Method) example for shared memory systems
 # using Mean Squared Error objective function
@@ -26,6 +26,7 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
@@ -46,11 +47,13 @@ def main(readcsv=read_csv, method='defaultDense'):
     # configure an AdaGrad object
     lr = np.array([[1.0]], dtype=np.double)
     niters = 1000
-    sgd_algo = d4p.optimization_solver_adagrad(mse_algo,
-                                               learningRate=lr,
-                                               accuracyThreshold=0.0000001,
-                                               nIterations=niters,
-                                               batchSize=1)
+    sgd_algo = d4p.optimization_solver_adagrad(
+        mse_algo,
+        learningRate=lr,
+        accuracyThreshold=0.0000001,
+        nIterations=niters,
+        batchSize=1,
+    )
 
     # finally do the computation
     inp = np.array([[8], [2], [1], [4]], dtype=np.double)

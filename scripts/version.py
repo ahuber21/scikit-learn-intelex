@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import re
 from os.path import join as jp
@@ -43,13 +43,18 @@ def get_onedal_version(dal_root, version_type='release'):
         if version_type == 'release':
             version = find_defines(
                 ['__INTEL_DAAL__', '__INTEL_DAAL_MINOR__', '__INTEL_DAAL_UPDATE__'],
-                header)
-            version = int(version['__INTEL_DAAL__']) * 10000 + \
-                int(version['__INTEL_DAAL_MINOR__']) * 100 + \
-                int(version['__INTEL_DAAL_UPDATE__'])
+                header,
+            )
+            version = (
+                int(version['__INTEL_DAAL__']) * 10000
+                + int(version['__INTEL_DAAL_MINOR__']) * 100
+                + int(version['__INTEL_DAAL_UPDATE__'])
+            )
         elif version_type == 'binary':
             version = find_defines(
-                ['__INTEL_DAAL_MAJOR_BINARY__', '__INTEL_DAAL_MINOR_BINARY__'], header)
-            version = int(version['__INTEL_DAAL_MAJOR_BINARY__']), \
-                int(version['__INTEL_DAAL_MINOR_BINARY__'])
+                ['__INTEL_DAAL_MAJOR_BINARY__', '__INTEL_DAAL_MINOR_BINARY__'], header
+            )
+            version = int(version['__INTEL_DAAL_MAJOR_BINARY__']), int(
+                version['__INTEL_DAAL_MINOR_BINARY__']
+            )
     return version

@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import numbers
 import numpy as np
@@ -23,8 +23,12 @@ from sklearn.linear_model._ridge import Ridge as Ridge_original
 
 import daal4py
 from .._utils import (
-    make2d, getFPType, get_patch_message, sklearn_check_version,
-    PatchingConditionsChain)
+    make2d,
+    getFPType,
+    get_patch_message,
+    sklearn_check_version,
+    PatchingConditionsChain,
+)
 from .._device_offload import support_usm_ndarray
 import logging
 
@@ -44,14 +48,15 @@ def _daal4py_fit(self, X, y_):
     if ridge_params.size != 1 and ridge_params.size != y.shape[1]:
         raise ValueError(
             "Number of targets and number of penalties do not correspond: "
-            f"{ridge_params.size} != {y.shape[1]}")
+            f"{ridge_params.size} != {y.shape[1]}"
+        )
     ridge_params = ridge_params.reshape((1, -1))
 
     ridge_alg = daal4py.ridge_regression_training(
         fptype=_fptype,
         method='defaultDense',
         interceptFlag=(self.fit_intercept is True),
-        ridgeParameters=ridge_params
+        ridgeParameters=ridge_params,
     )
     try:
         ridge_res = ridge_alg.compute(X, y)
@@ -77,8 +82,7 @@ def _daal4py_predict(self, X):
     _fptype = getFPType(self.coef_)
 
     ridge_palg = daal4py.ridge_regression_prediction(
-        fptype=_fptype,
-        method='defaultDense'
+        fptype=_fptype, method='defaultDense'
     )
     if self.n_features_in_ != X.shape[1]:
         raise ValueError(
@@ -114,9 +118,7 @@ def _fit_ridge(self, X, y, sample_weight=None):
     """
     if sklearn_check_version('1.0') and not sklearn_check_version('1.2'):
         self._normalize = _deprecate_normalize(
-            self.normalize,
-            default=False,
-            estimator_name=self.__class__.__name__
+            self.normalize, default=False, estimator_name=self.__class__.__name__
         )
     if sklearn_check_version('1.0'):
         self._check_feature_names(X, reset=True)
@@ -137,28 +139,44 @@ def _fit_ridge(self, X, y, sample_weight=None):
                 include_boundaries="left",
             )
 
-    X, y = check_X_y(X, y, ['csr', 'csc', 'coo'], dtype=[np.float64, np.float32],
-                     multi_output=True, y_numeric=True)
+    X, y = check_X_y(
+        X,
+        y,
+        ['csr', 'csc', 'coo'],
+        dtype=[np.float64, np.float32],
+        multi_output=True,
+        y_numeric=True,
+    )
     self.n_features_in_ = X.shape[1]
     self.sample_weight_ = sample_weight
     self.fit_shape_good_for_daal_ = True if X.shape[0] >= X.shape[1] else False
 
-    _patching_status = PatchingConditionsChain(
-        "sklearn.linear_model.Ridge.fit")
-    _dal_ready = _patching_status.and_conditions([
-        (self.solver == 'auto',
-            f"'{self.solver}' solver is not supported. "
-            "Only 'auto' solver is supported."),
-        (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
-        (self.fit_shape_good_for_daal_,
-            "The shape of X does not satisfy oneDAL requirements: "
-            "number of features > number of samples."),
-        (X.dtype == np.float64 or X.dtype == np.float32,
-            f"'{X.dtype}' X data type is not supported. "
-            "Only np.float32 and np.float64 are supported."),
-        (sample_weight is None, "Sample weights are not supported."),
-        (not (hasattr(self, 'positive') and self.positive),
-            "Forced positive coefficients are not supported.")])
+    _patching_status = PatchingConditionsChain("sklearn.linear_model.Ridge.fit")
+    _dal_ready = _patching_status.and_conditions(
+        [
+            (
+                self.solver == 'auto',
+                f"'{self.solver}' solver is not supported. "
+                "Only 'auto' solver is supported.",
+            ),
+            (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
+            (
+                self.fit_shape_good_for_daal_,
+                "The shape of X does not satisfy oneDAL requirements: "
+                "number of features > number of samples.",
+            ),
+            (
+                X.dtype == np.float64 or X.dtype == np.float32,
+                f"'{X.dtype}' X data type is not supported. "
+                "Only np.float32 and np.float64 are supported.",
+            ),
+            (sample_weight is None, "Sample weights are not supported."),
+            (
+                not (hasattr(self, 'positive') and self.positive),
+                "Forced positive coefficients are not supported.",
+            ),
+        ]
+    )
     _patching_status.write_log()
 
     if not _dal_ready:
@@ -169,7 +187,8 @@ def _fit_ridge(self, X, y, sample_weight=None):
     res = _daal4py_fit(self, X, y)
     if res is None:
         logging.info(
-            "sklearn.linear_model.Ridge.fit: " + get_patch_message("sklearn_after_daal"))
+            "sklearn.linear_model.Ridge.fit: " + get_patch_message("sklearn_after_daal")
+        )
         if hasattr(self, 'daal_model_'):
             del self.daal_model_
         return super(Ridge, self).fit(X, y, sample_weight=sample_weight)
@@ -193,26 +212,38 @@ def _predict_ridge(self, X):
         self._check_feature_names(X, reset=False)
 
     X = check_array(
-        X, accept_sparse=['csr', 'csc', 'coo'], dtype=[np.float64, np.float32])
-    good_shape_for_daal = \
+        X, accept_sparse=['csr', 'csc', 'coo'], dtype=[np.float64, np.float32]
+    )
+    good_shape_for_daal = (
         True if X.ndim <= 1 else True if X.shape[0] >= X.shape[1] else False
+    )
 
-    _patching_status = PatchingConditionsChain(
-        "sklearn.linear_model.Ridge.predict")
-    _dal_ready = _patching_status.and_conditions([
-        (self.solver == 'auto',
-            f"'{self.solver}' solver is not supported. "
-            "Only 'auto' solver is supported."),
-        (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
-        (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
-        (good_shape_for_daal,
-            "The shape of X does not satisfy oneDAL requirements: "
-            "number of features > number of samples."),
-        (X.dtype == np.float64 or X.dtype == np.float32,
-            f"'{X.dtype}' X data type is not supported. "
-            "Only np.float32 and np.float64 are supported."),
-        (not hasattr(self, 'sample_weight_') or self.sample_weight_ is None,
-            "Sample weights are not supported.")])
+    _patching_status = PatchingConditionsChain("sklearn.linear_model.Ridge.predict")
+    _dal_ready = _patching_status.and_conditions(
+        [
+            (
+                self.solver == 'auto',
+                f"'{self.solver}' solver is not supported. "
+                "Only 'auto' solver is supported.",
+            ),
+            (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
+            (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
+            (
+                good_shape_for_daal,
+                "The shape of X does not satisfy oneDAL requirements: "
+                "number of features > number of samples.",
+            ),
+            (
+                X.dtype == np.float64 or X.dtype == np.float32,
+                f"'{X.dtype}' X data type is not supported. "
+                "Only np.float32 and np.float64 are supported.",
+            ),
+            (
+                not hasattr(self, 'sample_weight_') or self.sample_weight_ is None,
+                "Sample weights are not supported.",
+            ),
+        ]
+    )
     _patching_status.write_log()
 
     if not _dal_ready:
@@ -245,7 +276,9 @@ class Ridge(Ridge_original, _BaseRidge):
             self.solver = solver
             self.positive = positive
             self.random_state = random_state
+
     elif sklearn_check_version('1.0'):
+
         def __init__(
             self,
             alpha=1.0,
@@ -267,7 +300,9 @@ class Ridge(Ridge_original, _BaseRidge):
             self.solver = solver
             self.positive = positive
             self.random_state = random_state
+
     else:
+
         def __init__(
             self,
             alpha=1.0,

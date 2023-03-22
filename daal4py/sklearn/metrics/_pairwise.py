@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 import numpy as np
 from functools import partial
@@ -24,18 +24,21 @@ from sklearn.utils._joblib import effective_n_jobs
 from sklearn.utils.validation import check_non_negative
 import warnings
 from sklearn.exceptions import DataConversionWarning
+
 try:
     from sklearn.metrics.pairwise import _precompute_metric_params
 except ImportError:
+
     def _precompute_metric_params(*args, **kwrds):
         return dict()
+
 
 from scipy.sparse import issparse
 from scipy.spatial import distance
 
 import daal4py
 from daal4py.sklearn.utils.validation import _daal_check_array
-from .._utils import (getFPType, PatchingConditionsChain)
+from .._utils import getFPType, PatchingConditionsChain
 from .._device_offload import support_usm_ndarray
 
 
@@ -54,8 +57,9 @@ def _daal4py_correlation_distance_dense(X):
 
 
 @support_usm_ndarray(freefunc=True)
-def daal_pairwise_distances(X, Y=None, metric="euclidean", n_jobs=None,
-                            force_all_finite=True, **kwds):
+def daal_pairwise_distances(
+    X, Y=None, metric="euclidean", n_jobs=None, force_all_finite=True, **kwds
+):
     """ Compute the distance matrix from a vector array X and optional Y.
 
     This method takes either a vector array or a distance matrix, and returns
@@ -154,24 +158,36 @@ def daal_pairwise_distances(X, Y=None, metric="euclidean", n_jobs=None,
     paired_distances : Computes the distances between corresponding
                        elements of two arrays
     """
-    if metric not in _VALID_METRICS and not callable(metric) and metric != "precomputed":
-        raise ValueError("Unknown metric %s. Valid metrics are %s, or 'precomputed', "
-                         "or a callable" % (metric, _VALID_METRICS))
+    if (
+        metric not in _VALID_METRICS
+        and not callable(metric)
+        and metric != "precomputed"
+    ):
+        raise ValueError(
+            "Unknown metric %s. Valid metrics are %s, or 'precomputed', "
+            "or a callable" % (metric, _VALID_METRICS)
+        )
 
-    X = _daal_check_array(X, accept_sparse=['csr', 'csc', 'coo'],
-                          force_all_finite=force_all_finite)
+    X = _daal_check_array(
+        X, accept_sparse=['csr', 'csc', 'coo'], force_all_finite=force_all_finite
+    )
 
-    _patching_status = PatchingConditionsChain(
-        "sklearn.metrics.pairwise_distances")
-    _dal_ready = _patching_status.and_conditions([
-        (metric == 'cosine' or metric == 'correlation',
-            f"'{metric}' metric is not supported. "
-            "Only 'cosine' and 'correlation' metrics are supported."),
-        (Y is None, "Second feature array is not supported."),
-        (not issparse(X), "X is sparse. Sparse input is not supported."),
-        (X.dtype == np.float64,
-            f"{X.dtype} X data type is not supported. Only np.float64 is supported.")
-    ])
+    _patching_status = PatchingConditionsChain("sklearn.metrics.pairwise_distances")
+    _dal_ready = _patching_status.and_conditions(
+        [
+            (
+                metric == 'cosine' or metric == 'correlation',
+                f"'{metric}' metric is not supported. "
+                "Only 'cosine' and 'correlation' metrics are supported.",
+            ),
+            (Y is None, "Second feature array is not supported."),
+            (not issparse(X), "X is sparse. Sparse input is not supported."),
+            (
+                X.dtype == np.float64,
+                f"{X.dtype} X data type is not supported. Only np.float64 is supported.",
+            ),
+        ]
+    )
     _patching_status.write_log()
     if _dal_ready:
         if metric == 'cosine':
@@ -180,21 +196,24 @@ def daal_pairwise_distances(X, Y=None, metric="euclidean", n_jobs=None,
             return _daal4py_correlation_distance_dense(X)
         raise ValueError(f"'{metric}' distance is wrong for daal4py.")
     if metric == "precomputed":
-        X, _ = check_pairwise_arrays(X, Y, precomputed=True,
-                                     force_all_finite=force_all_finite)
-        whom = ("`pairwise_distances`. Precomputed distance "
-                " need to have non-negative values.")
+        X, _ = check_pairwise_arrays(
+            X, Y, precomputed=True, force_all_finite=force_all_finite
+        )
+        whom = (
+            "`pairwise_distances`. Precomputed distance "
+            " need to have non-negative values."
+        )
         check_non_negative(X, whom=whom)
         return X
     if metric in PAIRWISE_DISTANCE_FUNCTIONS:
         func = PAIRWISE_DISTANCE_FUNCTIONS[metric]
     elif callable(metric):
-        func = partial(_pairwise_callable, metric=metric,
-                       force_all_finite=force_all_finite, **kwds)
+        func = partial(
+            _pairwise_callable, metric=metric, force_all_finite=force_all_finite, **kwds
+        )
     else:
         if issparse(X) or issparse(Y):
-            raise TypeError("scipy distance metrics do not"
-                            " support sparse matrices.")
+            raise TypeError("scipy distance metrics do not" " support sparse matrices.")
 
         dtype = bool if metric in PAIRWISE_BOOLEAN_FUNCTIONS else None
 
@@ -202,16 +221,16 @@ def daal_pairwise_distances(X, Y=None, metric="euclidean", n_jobs=None,
             msg = "Data was converted to boolean for metric %s" % metric
             warnings.warn(msg, DataConversionWarning)
 
-        X, Y = check_pairwise_arrays(X, Y, dtype=dtype,
-                                     force_all_finite=force_all_finite)
+        X, Y = check_pairwise_arrays(
+            X, Y, dtype=dtype, force_all_finite=force_all_finite
+        )
 
         # precompute data-derived metric params
         params = _precompute_metric_params(X, Y, metric=metric, **kwds)
         kwds.update(**params)
 
         if effective_n_jobs(n_jobs) == 1 and X is Y:
-            return distance.squareform(distance.pdist(X, metric=metric,
-                                                      **kwds))
+            return distance.squareform(distance.pdist(X, metric=metric, **kwds))
         func = partial(distance.cdist, metric=metric, **kwds)
 
     return _parallel_pairwise(X, Y, func, n_jobs, **kwds)

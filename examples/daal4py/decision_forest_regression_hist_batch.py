@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py Decision Forest Regression example of Hist method for shared memory systems
 
@@ -24,7 +24,10 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=np.float32)
+        return pandas.read_csv(
+            f, usecols=c, delimiter=',', header=None, dtype=np.float32
+        )
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
@@ -44,7 +47,7 @@ def main(readcsv=read_csv, method='hist'):
         varImportance='MDA_Raw',
         bootstrap=True,
         engine=d4p.engines_mt2203(seed=777),
-        resultsToCompute='computeOutOfBagError|computeOutOfBagErrorPerObservation'
+        resultsToCompute='computeOutOfBagError|computeOutOfBagErrorPerObservation',
     )
 
     # Read data. Let's have 13 independent,
@@ -76,7 +79,7 @@ if __name__ == "__main__":
     print("\nOOB error:\n", train_result.outOfBagError)
     print(
         "\nDecision forest prediction results (first 10 rows):\n",
-        predict_result.prediction[0:10]
+        predict_result.prediction[0:10],
     )
     print("\nGround truth (first 10 rows):\n", ptdata[0:10])
     print('All looks good!')

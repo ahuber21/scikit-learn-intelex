@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py Decision Forest Classification example for shared memory systems
 
@@ -27,18 +27,22 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except Exception:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
         return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2, dtype=t)
 
+
 try:
     from dpctx import device_context, device_type
+
     with device_context(device_type.gpu, 0):
         gpu_available = True
 except Exception:
     try:
         from daal4py.oneapi import sycl_context
+
         with sycl_context('gpu'):
             gpu_available = True
     except Exception:
@@ -58,7 +62,7 @@ def compute(train_data, train_labels, predict_data, method='defaultDense'):
         varImportance='MDI',
         bootstrap=True,
         resultsToCompute='computeOutOfBagError',
-        method=method
+        method=method,
     )
     # Training result provides (depending on parameters) model,
     # outOfBagError, outOfBagErrorPerObservation and/or variableImportance
@@ -69,7 +73,7 @@ def compute(train_data, train_labels, predict_data, method='defaultDense'):
         nClasses=5,
         fptype='float',
         resultsToEvaluate="computeClassLabels|computeClassProbabilities",
-        votingMethod="unweighted"
+        votingMethod="unweighted",
     )
 
     predict_result = predict_algo.compute(predict_data, train_result.model)
@@ -81,11 +85,13 @@ def compute(train_data, train_labels, predict_data, method='defaultDense'):
 def to_numpy(data):
     try:
         from pandas import DataFrame
+
         if isinstance(data, DataFrame):
             return np.ascontiguousarray(data.values)
     except Exception:
         try:
             from scipy.sparse import csr_matrix
+
             if isinstance(data, csr_matrix):
                 return data.toarray()
         except Exception:
@@ -105,11 +111,14 @@ def main(readcsv=read_csv, method='defaultDense'):
     train_labels = readcsv(train_file, range(nFeatures, nFeatures + 1), t=np.float32)
     # Read test data (with same #features)
     predict_data = readcsv(predict_file, range(nFeatures), t=np.float32)
-    predict_labels = readcsv(predict_file, range(nFeatures, nFeatures + 1), t=np.float32)
+    predict_labels = readcsv(
+        predict_file, range(nFeatures, nFeatures + 1), t=np.float32
+    )
 
     # Using of the classic way (computations on CPU)
-    train_result, predict_result = compute(train_data, train_labels,
-                                           predict_data, "defaultDense")
+    train_result, predict_result = compute(
+        train_data, train_labels, predict_data, "defaultDense"
+    )
     assert predict_result.prediction.shape == (predict_labels.shape[0], 1)
     assert (np.mean(predict_result.prediction != predict_labels) < 0.03).any()
 
@@ -122,6 +131,7 @@ def main(readcsv=read_csv, method='defaultDense'):
 
         def gpu_context():
             return device_context(device_type.gpu, 0)
+
     except:
         from daal4py.oneapi import sycl_context
 
@@ -134,8 +144,9 @@ def main(readcsv=read_csv, method='defaultDense'):
             sycl_train_data = sycl_buffer(train_data)
             sycl_train_labels = sycl_buffer(train_labels)
             sycl_predict_data = sycl_buffer(predict_data)
-            train_result, predict_result = compute(sycl_train_data, sycl_train_labels,
-                                                   sycl_predict_data, 'hist')
+            train_result, predict_result = compute(
+                sycl_train_data, sycl_train_labels, sycl_predict_data, 'hist'
+            )
             assert predict_result.prediction.shape == (predict_labels.shape[0], 1)
             assert (np.mean(predict_result.prediction != predict_labels) < 0.03).any()
 
@@ -148,11 +159,11 @@ if __name__ == "__main__":
     print("\nOOB error:\n", train_result.outOfBagError)
     print(
         "\nDecision forest prediction results (first 10 rows):\n",
-        predict_result.prediction[0:10]
+        predict_result.prediction[0:10],
     )
     print(
         "\nDecision forest probabilities results (first 10 rows):\n",
-        predict_result.probabilities[0:10]
+        predict_result.probabilities[0:10],
     )
     print("\nGround truth (first 10 rows):\n", plabels[0:10])
     print('All looks good!')

@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py DBSCAN example for shared memory systems
 
@@ -25,6 +25,7 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
@@ -44,7 +45,7 @@ def main(readcsv=read_csv, method='defaultDense'):
     algo = d4p.dbscan(
         minObservations=minObservations,
         epsilon=epsilon,
-        resultsToCompute='computeCoreIndices|computeCoreObservations'
+        resultsToCompute='computeCoreIndices|computeCoreObservations',
     )
     # and compute
     result = algo.compute(data)

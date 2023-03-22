@@ -1,4 +1,4 @@
-#===============================================================================
+# ===============================================================================
 # Copyright 2014 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
+# ===============================================================================
 
 # daal4py Naive Bayes Classification example for distributed memory systems; SPMD mode
 # run like this:
@@ -42,8 +42,9 @@ if __name__ == "__main__":
     if d4p.my_procid() == 0:
         palgo = d4p.multinomial_naive_bayes_prediction(20)
         # read test data (with same #features)
-        pdata = loadtxt("./data/batch/naivebayes_test_dense.csv",
-                        delimiter=',', usecols=range(20))
+        pdata = loadtxt(
+            "./data/batch/naivebayes_test_dense.csv", delimiter=',', usecols=range(20)
+        )
         # now predict using the model from the training above
         presult = palgo.compute(pdata, tresult.model)
 
