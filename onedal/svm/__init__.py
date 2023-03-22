@@ -16,4 +16,4 @@
 
 from .svm import SVC, SVR, NuSVC, NuSVR, SVMtype
 
-__all__ = ['SVC', 'SVR', 'NuSVC', 'NuSVR', 'SVMtype']
+__all__ = ["SVC", "SVR", "NuSVC", "NuSVR", "SVMtype"]

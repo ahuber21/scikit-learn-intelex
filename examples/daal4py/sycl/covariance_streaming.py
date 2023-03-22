@@ -24,7 +24,7 @@ from daal4py.oneapi import sycl_buffer
 # let's use a generator for getting stream from file (defined in stream.py)
 import sys
 
-sys.path.insert(0, '..')
+sys.path.insert(0, "..")
 from stream import read_next
 
 try:
@@ -36,7 +36,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -61,12 +61,12 @@ def to_numpy(data):
     return data
 
 
-def main(readcsv=None, method='defaultDense'):
-    infile = os.path.join('..', 'data', 'batch', 'covcormoments_dense.csv')
+def main(readcsv=None, method="defaultDense"):
+    infile = os.path.join("..", "data", "batch", "covcormoments_dense.csv")
 
     # Using of the classic way (computations on CPU)
     # configure a covariance object
-    algo = d4p.covariance(streaming=True, fptype='float')
+    algo = d4p.covariance(streaming=True, fptype="float")
     # get the generator (defined in stream.py)...
     rn = read_next(infile, 112, readcsv)
     # ... and iterate through chunks/stream
@@ -88,16 +88,16 @@ def main(readcsv=None, method='defaultDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
         with gpu_context():
             # configure a covariance object
-            algo = d4p.covariance(streaming=True, fptype='float')
+            algo = d4p.covariance(streaming=True, fptype="float")
             # get the generator (defined in stream.py)...
             rn = read_next(infile, 112, readcsv)
             # ... and iterate through chunks/stream
@@ -113,7 +113,7 @@ def main(readcsv=None, method='defaultDense'):
     # It is possible to specify to make the computations on CPU
     with cpu_context():
         # configure a covariance object
-        algo = d4p.covariance(streaming=True, fptype='float')
+        algo = d4p.covariance(streaming=True, fptype="float")
         # get the generator (defined in stream.py)...
         rn = read_next(infile, 112, readcsv)
         # ... and iterate through chunks/stream
@@ -136,4 +136,4 @@ if __name__ == "__main__":
     res = main()
     print("Covariance matrix:\n", res.covariance)
     print("Mean vector:\n", res.mean)
-    print('All looks good!')
+    print("All looks good!")

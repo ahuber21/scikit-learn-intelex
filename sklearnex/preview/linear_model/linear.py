@@ -17,7 +17,7 @@
 from daal4py.sklearn._utils import daal_check_version, sklearn_check_version
 import logging
 
-if daal_check_version((2023, 'P', 100)):
+if daal_check_version((2023, "P", 100)):
     import numpy as np
 
     from ._common import BaseLinearRegression
@@ -27,7 +27,7 @@ if daal_check_version((2023, 'P', 100)):
     from daal4py.sklearn._utils import get_dtype, make2d
     from sklearn.linear_model import LinearRegression as sklearn_LinearRegression
 
-    if sklearn_check_version('1.0') and not sklearn_check_version('1.2'):
+    if sklearn_check_version("1.0") and not sklearn_check_version("1.2"):
         from sklearn.linear_model._base import _deprecate_normalize
 
     from sklearn.utils.validation import _deprecate_positional_args, check_X_y
@@ -41,7 +41,7 @@ if daal_check_version((2023, 'P', 100)):
         __doc__ = sklearn_LinearRegression.__doc__
         intercept_, coef_ = None, None
 
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             _parameter_constraints: dict = {
                 **sklearn_LinearRegression._parameter_constraints
             }
@@ -60,12 +60,12 @@ if daal_check_version((2023, 'P', 100)):
                     positive=positive,
                 )
 
-        elif sklearn_check_version('0.24'):
+        elif sklearn_check_version("0.24"):
 
             def __init__(
                 self,
                 fit_intercept=True,
-                normalize='deprecated' if sklearn_check_version('1.0') else False,
+                normalize="deprecated" if sklearn_check_version("1.0") else False,
                 copy_X=True,
                 n_jobs=None,
                 positive=False,
@@ -112,17 +112,17 @@ if daal_check_version((2023, 'P', 100)):
             self : object
                 Fitted Estimator.
             """
-            if sklearn_check_version('1.0'):
+            if sklearn_check_version("1.0"):
                 self._check_feature_names(X, reset=True)
             if sklearn_check_version("1.2"):
                 self._validate_params()
 
             dispatch(
                 self,
-                'linear_model.LinearRegression.fit',
+                "linear_model.LinearRegression.fit",
                 {
-                    'onedal': self.__class__._onedal_fit,
-                    'sklearn': sklearn_LinearRegression.fit,
+                    "onedal": self.__class__._onedal_fit,
+                    "sklearn": sklearn_LinearRegression.fit,
                 },
                 X,
                 y,
@@ -147,10 +147,10 @@ if daal_check_version((2023, 'P', 100)):
                 self._check_feature_names(X, reset=False)
             return dispatch(
                 self,
-                'linear_model.LinearRegression.predict',
+                "linear_model.LinearRegression.predict",
                 {
-                    'onedal': self.__class__._onedal_predict,
-                    'sklearn': sklearn_LinearRegression.predict,
+                    "onedal": self.__class__._onedal_predict,
+                    "sklearn": sklearn_LinearRegression.predict,
                 },
                 X,
             )
@@ -159,7 +159,7 @@ if daal_check_version((2023, 'P', 100)):
             X = X_in if isinstance(X_in, np.ndarray) else np.asarray(X_in)
 
             dtype = X.dtype
-            if 'complex' in str(type(dtype)):
+            if "complex" in str(type(dtype)):
                 return False
 
             try:
@@ -169,7 +169,7 @@ if daal_check_version((2023, 'P', 100)):
             return True
 
         def _onedal_fit_supported(self, method_name, *data):
-            assert method_name == 'linear_model.LinearRegression.fit'
+            assert method_name == "linear_model.LinearRegression.fit"
 
             assert len(data) == 3
             X, y, sample_weight = data
@@ -181,13 +181,13 @@ if daal_check_version((2023, 'P', 100)):
                 return False
 
             if (
-                hasattr(self, 'normalize')
+                hasattr(self, "normalize")
                 and self.normalize
-                and self.normalize != 'deprecated'
+                and self.normalize != "deprecated"
             ):
                 return False
 
-            if hasattr(self, 'positive') and self.positive:
+            if hasattr(self, "positive") and self.positive:
                 return False
 
             n_samples, n_features = _get_2d_shape(X, fallback_1d=True)
@@ -206,7 +206,7 @@ if daal_check_version((2023, 'P', 100)):
             return True
 
         def _onedal_predict_supported(self, method_name, *data):
-            assert method_name == 'linear_model.LinearRegression.predict'
+            assert method_name == "linear_model.LinearRegression.predict"
 
             assert len(data) == 1
 
@@ -220,7 +220,7 @@ if daal_check_version((2023, 'P', 100)):
             if self.fit_intercept and issparse(self.intercept_):
                 return False
 
-            if not hasattr(self, '_onedal_estimator'):
+            if not hasattr(self, "_onedal_estimator"):
                 return False
 
             if not self._test_type_and_finiteness(*data):
@@ -229,12 +229,12 @@ if daal_check_version((2023, 'P', 100)):
             return True
 
         def _onedal_supported(self, method_name, *data):
-            if method_name == 'linear_model.LinearRegression.fit':
+            if method_name == "linear_model.LinearRegression.fit":
                 return self._onedal_fit_supported(method_name, *data)
-            if method_name == 'linear_model.LinearRegression.predict':
+            if method_name == "linear_model.LinearRegression.predict":
                 return self._onedal_predict_supported(method_name, *data)
             raise RuntimeError(
-                f'Unknown method {method_name} in {self.__class__.__name__}'
+                f"Unknown method {method_name} in {self.__class__.__name__}"
             )
 
         def _onedal_gpu_supported(self, method_name, *data):
@@ -244,27 +244,27 @@ if daal_check_version((2023, 'P', 100)):
             return self._onedal_supported(method_name, *data)
 
         def _initialize_onedal_estimator(self):
-            onedal_params = {'fit_intercept': self.fit_intercept, 'copy_X': self.copy_X}
+            onedal_params = {"fit_intercept": self.fit_intercept, "copy_X": self.copy_X}
             self._onedal_estimator = onedal_LinearRegression(**onedal_params)
 
         def _onedal_fit(self, X, y, sample_weight, queue=None):
             assert sample_weight is None
 
             check_params = {
-                'X': X,
-                'y': y,
-                'dtype': [np.float64, np.float32],
-                'accept_sparse': ['csr', 'csc', 'coo'],
-                'y_numeric': True,
-                'multi_output': True,
-                'force_all_finite': False,
+                "X": X,
+                "y": y,
+                "dtype": [np.float64, np.float32],
+                "accept_sparse": ["csr", "csc", "coo"],
+                "y_numeric": True,
+                "multi_output": True,
+                "force_all_finite": False,
             }
-            if sklearn_check_version('1.2'):
+            if sklearn_check_version("1.2"):
                 X, y = self._validate_data(**check_params)
             else:
                 X, y = check_X_y(**check_params)
 
-            if sklearn_check_version('1.0') and not sklearn_check_version('1.2'):
+            if sklearn_check_version("1.0") and not sklearn_check_version("1.2"):
                 self._normalize = _deprecate_normalize(
                     self.normalize,
                     default=False,
@@ -278,7 +278,7 @@ if daal_check_version((2023, 'P', 100)):
 
         def _onedal_predict(self, X, queue=None):
             X = self._validate_data(X, accept_sparse=False, reset=False)
-            if not hasattr(self, '_onedal_estimator'):
+            if not hasattr(self, "_onedal_estimator"):
                 self._initialize_onedal_estimator()
                 self._onedal_estimator.coef_ = self.coef_
                 self._onedal_estimator.intercept_ = self.intercept_
@@ -289,6 +289,6 @@ else:
     from daal4py.sklearn.linear_model import LinearRegression
 
     logging.warning(
-        'Preview LinearRegression requires oneDAL version >= 2023.1 '
-        'but it was not found'
+        "Preview LinearRegression requires oneDAL version >= 2023.1 "
+        "but it was not found"
     )

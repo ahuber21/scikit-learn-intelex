@@ -39,7 +39,7 @@ import daal4py
 from .._utils import getFPType, sklearn_check_version, PatchingConditionsChain
 from .._device_offload import support_usm_ndarray
 
-if sklearn_check_version('1.1'):
+if sklearn_check_version("1.1"):
     from sklearn.utils.validation import _check_sample_weight, _is_arraylike_not_scalar
 
 
@@ -78,8 +78,8 @@ def _daal4py_compute_starting_centroids(
     is_sparse = sp.isspmatrix(X)
 
     deterministic = False
-    if is_string(cluster_centers_0, 'k-means++'):
-        _seed = random_state.randint(np.iinfo('i').max)
+    if is_string(cluster_centers_0, "k-means++"):
+        _seed = random_state.randint(np.iinfo("i").max)
         plus_plus_method = "plusPlusCSR" if is_sparse else "plusPlusDense"
         daal_engine = daal4py.engines_mt19937(
             fptype=X_fptype, method="defaultDense", seed=_seed
@@ -94,8 +94,8 @@ def _daal4py_compute_starting_centroids(
         )
         kmeans_init_res = kmeans_init.compute(X)
         centroids_ = kmeans_init_res.centroids
-    elif is_string(cluster_centers_0, 'random'):
-        _seed = random_state.randint(np.iinfo('i').max)
+    elif is_string(cluster_centers_0, "random"):
+        _seed = random_state.randint(np.iinfo("i").max)
         random_method = "randomCSR" if is_sparse else "randomDense"
         daal_engine = daal4py.engines_mt19937(
             seed=_seed, fptype=X_fptype, method="defaultDense"
@@ -108,7 +108,7 @@ def _daal4py_compute_starting_centroids(
         )
         kmeans_init_res = kmeans_init.compute(X)
         centroids_ = kmeans_init_res.centroids
-    elif hasattr(cluster_centers_0, '__array__'):
+    elif hasattr(cluster_centers_0, "__array__"):
         deterministic = True
         cc_arr = np.ascontiguousarray(cluster_centers_0, dtype=X.dtype)
         _validate_center_shape(X, nClusters, cc_arr)
@@ -118,7 +118,7 @@ def _daal4py_compute_starting_centroids(
         cc_arr = np.ascontiguousarray(cc_arr, dtype=X.dtype)
         _validate_center_shape(X, nClusters, cc_arr)
         centroids_ = cc_arr
-    elif is_string(cluster_centers_0, 'deterministic'):
+    elif is_string(cluster_centers_0, "deterministic"):
         deterministic = True
         default_method = "lloydCSR" if is_sparse else "defaultDense"
         kmeans_init = daal4py.kmeans_init(
@@ -158,7 +158,7 @@ def _daal4py_kmeans_compatibility(
 
 
 def _daal4py_k_means_predict(
-    X, nClusters, centroids, resultsToEvaluate='computeAssignments'
+    X, nClusters, centroids, resultsToEvaluate="computeAssignments"
 ):
     X_fptype = getFPType(X)
     is_sparse = sp.isspmatrix(X)
@@ -186,7 +186,7 @@ def _daal4py_k_means_fit(
         return isinstance(s, str) and s == target_str
 
     default_n_init = 10
-    if n_init in ['auto', 'warn']:
+    if n_init in ["auto", "warn"]:
         if n_init == "warn":
             warnings.warn(
                 "The default value of `n_init` will change from "
@@ -194,7 +194,7 @@ def _daal4py_k_means_fit(
                 " explicitly to suppress the warning",
                 FutureWarning,
             )
-        if is_string(cluster_centers_0, 'k-means++'):
+        if is_string(cluster_centers_0, "k-means++"):
             n_init = 1
         else:
             n_init = default_n_init
@@ -209,7 +209,7 @@ def _daal4py_k_means_fit(
         maxIterations=numIterations,
         accuracyThreshold=abs_tol,
         fptype=X_fptype,
-        resultsToEvaluate='computeCentroids',
+        resultsToEvaluate="computeCentroids",
         method=method,
     )
 
@@ -232,14 +232,14 @@ def _daal4py_k_means_fit(
             best_n_iter = int(res.nIterations[0, 0])
         if deterministic and n_init != 1:
             warnings.warn(
-                'Explicit initial center position passed: '
-                'performing only one init in k-means instead of n_init=%d' % n_init,
+                "Explicit initial center position passed: "
+                "performing only one init in k-means instead of n_init=%d" % n_init,
                 RuntimeWarning,
                 stacklevel=2,
             )
             break
 
-    flag_compute = 'computeAssignments|computeExactObjectiveFunction'
+    flag_compute = "computeAssignments|computeExactObjectiveFunction"
     best_labels, best_inertia = _daal4py_k_means_predict(
         X, nClusters, best_cluster_centers, flag_compute
     )
@@ -277,8 +277,8 @@ def _fit(self, X, y=None, sample_weight=None):
 
     """
     init = self.init
-    if sklearn_check_version('1.1'):
-        if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.1"):
+        if sklearn_check_version("1.2"):
             self._validate_params()
 
         X = self._validate_data(
@@ -290,7 +290,7 @@ def _fit(self, X, y=None, sample_weight=None):
             accept_large_sparse=False,
         )
 
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             self._check_params_vs_input(X)
         else:
             self._check_params(X)
@@ -305,16 +305,16 @@ def _fit(self, X, y=None, sample_weight=None):
             init = check_array(init, dtype=X.dtype, copy=True, order="C")
             self._validate_center_shape(X, init)
     else:
-        if hasattr(self, 'precompute_distances'):
-            if self.precompute_distances != 'deprecated':
-                if sklearn_check_version('0.24'):
+        if hasattr(self, "precompute_distances"):
+            if self.precompute_distances != "deprecated":
+                if sklearn_check_version("0.24"):
                     warnings.warn(
                         "'precompute_distances' was deprecated in version "
                         "0.23 and will be removed in 1.0 (renaming of 0.25)."
                         " It has no effect",
                         FutureWarning,
                     )
-                elif sklearn_check_version('0.23'):
+                elif sklearn_check_version("0.23"):
                     warnings.warn(
                         "'precompute_distances' was deprecated in version "
                         "0.23 and will be removed in 0.25. It has no "
@@ -323,15 +323,15 @@ def _fit(self, X, y=None, sample_weight=None):
                     )
 
         self._n_threads = None
-        if hasattr(self, 'n_jobs'):
-            if self.n_jobs != 'deprecated':
-                if sklearn_check_version('0.24'):
+        if hasattr(self, "n_jobs"):
+            if self.n_jobs != "deprecated":
+                if sklearn_check_version("0.24"):
                     warnings.warn(
                         "'n_jobs' was deprecated in version 0.23 and will be"
                         " removed in 1.0 (renaming of 0.25).",
                         FutureWarning,
                     )
-                elif sklearn_check_version('0.23'):
+                elif sklearn_check_version("0.23"):
                     warnings.warn(
                         "'n_jobs' was deprecated in version 0.23 and will be"
                         " removed in 0.25.",
@@ -351,7 +351,7 @@ def _fit(self, X, y=None, sample_weight=None):
             raise ValueError(f"max_iter should be > 0, got {self.max_iter} instead.")
 
         algorithm = self.algorithm
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             if algorithm == "elkan" and self.n_clusters == 1:
                 warnings.warn(
                     "algorithm='elkan' doesn't make sense for a single "
@@ -422,7 +422,7 @@ def _fit(self, X, y=None, sample_weight=None):
 
     _patching_status.write_log()
     if _dal_ready:
-        X = check_array(X, accept_sparse='csr', dtype=[np.float64, np.float32])
+        X = check_array(X, accept_sparse="csr", dtype=[np.float64, np.float32])
         self.n_features_in_ = X.shape[1]
         (
             self.cluster_centers_,
@@ -439,7 +439,7 @@ def _fit(self, X, y=None, sample_weight=None):
             self.verbose,
             random_state,
         )
-        if sklearn_check_version('1.1'):
+        if sklearn_check_version("1.1"):
             self._n_features_out = self.cluster_centers_.shape[0]
     else:
         super(KMeans, self).fit(X, y=y, sample_weight=sample_weight)
@@ -451,15 +451,15 @@ def _daal4py_check_test_data(self, X):
         self._check_feature_names(X, reset=False)
     X = check_array(
         X,
-        accept_sparse='csr',
+        accept_sparse="csr",
         dtype=[np.float64, np.float32],
         accept_large_sparse=False,
     )
     if self.n_features_in_ != X.shape[1]:
         raise ValueError(
             (
-                f'X has {X.shape[1]} features, '
-                f'but Kmeans is expecting {self.n_features_in_} features as input'
+                f"X has {X.shape[1]} features, "
+                f"but Kmeans is expecting {self.n_features_in_} features as input"
             )
         )
     return X
@@ -494,7 +494,7 @@ def _predict(self, X, sample_weight=None):
     _patching_status.and_conditions(
         [
             (sample_weight is None, "Sample weights are not supported."),
-            (hasattr(X, '__array__'), "X does not have '__array__' attribute."),
+            (hasattr(X, "__array__"), "X does not have '__array__' attribute."),
         ]
     )
     _dal_ready = _patching_status.or_conditions(
@@ -504,8 +504,8 @@ def _predict(self, X, sample_weight=None):
     _patching_status.write_log()
     if _dal_ready:
         return _daal4py_k_means_predict(X, self.n_clusters, self.cluster_centers_)[0]
-    if sklearn_check_version('1.2'):
-        if sklearn_check_version('1.3') and sample_weight is not None:
+    if sklearn_check_version("1.2"):
+        if sklearn_check_version("1.3") and sample_weight is not None:
             warnings.warn(
                 "'sample_weight' was deprecated in version 1.3 and "
                 "will be removed in 1.5.",
@@ -522,7 +522,7 @@ def _predict(self, X, sample_weight=None):
 class KMeans(KMeans_original):
     __doc__ = KMeans_original.__doc__
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**KMeans_original._parameter_constraints}
 
         @_deprecate_positional_args
@@ -530,14 +530,14 @@ class KMeans(KMeans_original):
             self,
             n_clusters=8,
             *,
-            init='k-means++',
-            n_init='auto' if sklearn_check_version('1.4') else 'warn',
+            init="k-means++",
+            n_init="auto" if sklearn_check_version("1.4") else "warn",
             max_iter=300,
             tol=1e-4,
             verbose=0,
             random_state=None,
             copy_x=True,
-            algorithm='lloyd',
+            algorithm="lloyd",
         ):
             super(KMeans, self).__init__(
                 n_clusters=n_clusters,
@@ -551,21 +551,21 @@ class KMeans(KMeans_original):
                 algorithm=algorithm,
             )
 
-    elif sklearn_check_version('1.0'):
+    elif sklearn_check_version("1.0"):
 
         @_deprecate_positional_args
         def __init__(
             self,
             n_clusters=8,
             *,
-            init='k-means++',
+            init="k-means++",
             n_init=10,
             max_iter=300,
             tol=1e-4,
             verbose=0,
             random_state=None,
             copy_x=True,
-            algorithm='auto',
+            algorithm="auto",
         ):
             super(KMeans, self).__init__(
                 n_clusters=n_clusters,
@@ -586,16 +586,16 @@ class KMeans(KMeans_original):
             self,
             n_clusters=8,
             *,
-            init='k-means++',
+            init="k-means++",
             n_init=10,
             max_iter=300,
             tol=1e-4,
-            precompute_distances='deprecated',
+            precompute_distances="deprecated",
             verbose=0,
             random_state=None,
             copy_x=True,
-            n_jobs='deprecated',
-            algorithm='auto',
+            n_jobs="deprecated",
+            algorithm="auto",
         ):
             super(KMeans, self).__init__(
                 n_clusters=n_clusters,

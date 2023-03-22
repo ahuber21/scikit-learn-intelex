@@ -46,11 +46,11 @@ except ImportError:
 
 
 def get_dtypes(data):
-    if hasattr(data, 'dtype'):
+    if hasattr(data, "dtype"):
         return [data.dtype]
-    if hasattr(data, 'dtypes'):
+    if hasattr(data, "dtypes"):
         return list(data.dtypes)
-    if hasattr(data, 'values'):
+    if hasattr(data, "values"):
         return [data.values.dtype]
     return None
 
@@ -60,26 +60,26 @@ def _daal_train_test_split(*arrays, **options):
     n_arrays = len(arrays)
     if n_arrays == 0:
         raise ValueError("At least one array required as input")
-    test_size = options.pop('test_size', None)
-    train_size = options.pop('train_size', None)
-    random_state = options.pop('random_state', None)
-    stratify = options.pop('stratify', None)
-    shuffle = options.pop('shuffle', True)
-    rng = options.pop('rng', 'OPTIMIZED_MT19937')
+    test_size = options.pop("test_size", None)
+    train_size = options.pop("train_size", None)
+    random_state = options.pop("random_state", None)
+    stratify = options.pop("stratify", None)
+    shuffle = options.pop("shuffle", True)
+    rng = options.pop("rng", "OPTIMIZED_MT19937")
 
     available_rngs = [
-        'default',
-        'MT19937',
-        'SFMT19937',
-        'MT2203',
-        'R250',
-        'WH',
-        'MCG31',
-        'MCG59',
-        'MRG32K3A',
-        'PHILOX4X32X10',
-        'NONDETERM',
-        'OPTIMIZED_MT19937',
+        "default",
+        "MT19937",
+        "SFMT19937",
+        "MT2203",
+        "R250",
+        "WH",
+        "MCG31",
+        "MCG59",
+        "MRG32K3A",
+        "PHILOX4X32X10",
+        "NONDETERM",
+        "OPTIMIZED_MT19937",
     ]
     if rng not in available_rngs:
         raise ValueError(
@@ -113,16 +113,16 @@ def _daal_train_test_split(*arrays, **options):
         else:
             if (
                 mkl_random_is_imported
-                and rng not in ['default', 'OPTIMIZED_MT19937']
+                and rng not in ["default", "OPTIMIZED_MT19937"]
                 and (isinstance(random_state, int) or random_state is None)
             ):
                 random_state = mkl_random.RandomState(random_state, rng)
                 indexes = random_state.permutation(n_samples)
                 test, train = indexes[:n_test], indexes[n_test : (n_test + n_train)]
             elif (
-                rng == 'OPTIMIZED_MT19937'
+                rng == "OPTIMIZED_MT19937"
                 and (isinstance(random_state, int) or random_state is None)
-                and platform.system() != 'Windows'
+                and platform.system() != "Windows"
             ):
                 indexes = np.empty(
                     shape=(n_samples,),
@@ -165,9 +165,9 @@ def _daal_train_test_split(*arrays, **options):
 
         # dimensions check
         _dal_ready = _patching_status.and_conditions(
-            [(hasattr(arr, 'ndim'), "The input does not have 'ndim' attribute.")]
+            [(hasattr(arr, "ndim"), "The input does not have 'ndim' attribute.")]
         )
-        if hasattr(arr, 'ndim'):
+        if hasattr(arr, "ndim"):
             _patching_status.and_conditions(
                 [(arr.ndim <= 2, "The input has more than 2 dimensions.")]
             )
@@ -180,7 +180,7 @@ def _daal_train_test_split(*arrays, **options):
         if dtypes is not None:
             incorrect_dtype = None
             for i, dtype in enumerate(dtypes):
-                if 'float' not in str(dtype) and 'int' not in str(dtype):
+                if "float" not in str(dtype) and "int" not in str(dtype):
                     incorrect_dtype = str(dtype)
                     break
             _dal_ready = _patching_status.and_conditions(
@@ -209,10 +209,10 @@ def _daal_train_test_split(*arrays, **options):
             if not isinstance(arr_copy, list):
                 arr_copy = arr_copy.reshape(
                     (arr_copy.shape[0], n_cols),
-                    order='A',
+                    order="A",
                 )
             if isinstance(arr_copy, np.ndarray):
-                order = 'C' if arr_copy.flags['C_CONTIGUOUS'] else 'F'
+                order = "C" if arr_copy.flags["C_CONTIGUOUS"] else "F"
                 train_arr = np.empty(
                     shape=(n_train, n_cols),
                     dtype=arr_copy.dtype,
@@ -235,7 +235,7 @@ def _daal_train_test_split(*arrays, **options):
                     np.empty(
                         shape=(n_train,),
                         dtype=el.dtype,
-                        order='C' if el.flags['C_CONTIGUOUS'] else 'F',
+                        order="C" if el.flags["C_CONTIGUOUS"] else "F",
                     )
                     for el in arr_copy
                 ]
@@ -243,7 +243,7 @@ def _daal_train_test_split(*arrays, **options):
                     np.empty(
                         shape=(n_test,),
                         dtype=el.dtype,
-                        order='C' if el.flags['C_CONTIGUOUS'] else 'F',
+                        order="C" if el.flags["C_CONTIGUOUS"] else "F",
                     )
                     for el in arr_copy
                 ]
@@ -253,7 +253,7 @@ def _daal_train_test_split(*arrays, **options):
                 train_arr = {col: train_arr[i] for i, col in enumerate(arr.columns)}
                 test_arr = {col: test_arr[i] for i, col in enumerate(arr.columns)}
             else:
-                raise ValueError('Array can\'t be converted to needed format')
+                raise ValueError("Array can't be converted to needed format")
 
             if pandas_is_imported:
                 if isinstance(arr, pd.core.frame.DataFrame):
@@ -268,15 +268,15 @@ def _daal_train_test_split(*arrays, **options):
                         train_arr, name=arr.name
                     ), pd.Series(test_arr, name=arr.name)
 
-            if hasattr(arr, 'index'):
+            if hasattr(arr, "index"):
                 train_arr.index = train
                 test_arr.index = test
 
-            if hasattr(arr, 'columns'):
+            if hasattr(arr, "columns"):
                 train_arr.columns = arr.columns
                 test_arr.columns = arr.columns
 
-            if hasattr(arr, 'name'):
+            if hasattr(arr, "name"):
                 train_arr.name = arr.name
                 test_arr.name = arr.name
 

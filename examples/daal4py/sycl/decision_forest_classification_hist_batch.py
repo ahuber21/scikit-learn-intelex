@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except Exception:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2, dtype=t)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2, dtype=t)
 
 
 try:
@@ -43,7 +43,7 @@ except Exception:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except Exception:
         gpu_available = False
@@ -54,17 +54,17 @@ def compute(train_data, train_labels, predict_data):
     # Configure a training object (5 classes)
     train_algo = d4p.decision_forest_classification_training(
         5,
-        fptype='float',
-        method='hist',
+        fptype="float",
+        method="hist",
         maxBins=256,
         minBinSize=1,
         nTrees=10,
         minObservationsInLeafNode=8,
         featuresPerNode=3,
         engine=d4p.engines_mt19937(seed=777),
-        varImportance='MDI',
+        varImportance="MDI",
         bootstrap=True,
-        resultsToCompute='computeOutOfBagError',
+        resultsToCompute="computeOutOfBagError",
     )
 
     # Training result provides (depending on parameters) model,
@@ -74,7 +74,7 @@ def compute(train_data, train_labels, predict_data):
     # now predict using the model from the training above
     predict_algo = d4p.decision_forest_classification_prediction(
         nClasses=5,
-        fptype='float',
+        fptype="float",
         resultsToEvaluate="computeClassLabels|computeClassProbabilities",
         votingMethod="unweighted",
     )
@@ -106,8 +106,8 @@ def to_numpy(data):
 def main(readcsv=read_csv):
     nFeatures = 3
     # input data file
-    train_file = os.path.join('..', 'data', 'batch', 'df_classification_train.csv')
-    predict_file = os.path.join('..', 'data', 'batch', 'df_classification_test.csv')
+    train_file = os.path.join("..", "data", "batch", "df_classification_train.csv")
+    predict_file = os.path.join("..", "data", "batch", "df_classification_test.csv")
 
     # Read train data. Let's use 3 features per observation
     train_data = readcsv(train_file, range(nFeatures), t=np.float32)
@@ -137,7 +137,7 @@ def main(readcsv=read_csv):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
@@ -167,4 +167,4 @@ if __name__ == "__main__":
         predict_result.probabilities[0:10],
     )
     print("\nGround truth (first 10 rows):\n", plabels[0:10])
-    print('All looks good!')
+    print("All looks good!")

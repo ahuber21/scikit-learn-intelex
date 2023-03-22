@@ -17,8 +17,8 @@
 from .validation import _daal_assert_all_finite
 
 __all__ = [
-    '_daal_assert_all_finite',
-    '_daal_check_array',
-    '_daal_check_X_y',
-    '_daal_validate_data',
+    "_daal_assert_all_finite",
+    "_daal_check_array",
+    "_daal_check_X_y",
+    "_daal_validate_data",
 ]

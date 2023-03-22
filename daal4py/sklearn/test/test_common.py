@@ -26,8 +26,8 @@ from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 
 
-def convert_data(data, class_name=np.array, order='C', dtype=np.float64):
-    if order == 'C':
+def convert_data(data, class_name=np.array, order="C", dtype=np.float64):
+    if order == "C":
         data = np.ascontiguousarray(data, dtype=dtype)
     else:
         data = np.asfortranarray(data, dtype=dtype)
@@ -47,16 +47,16 @@ def make_dataset(n_samples=256, n_features=5, n_classes=2, test_size=0.5, shuffl
 
 
 ESTIMATORS = {
-    'KNeighborsClassifier': KNeighborsClassifier(n_neighbors=10),
-    'DaalRandomForestClassifier': DaalRandomForestClassifier(
+    "KNeighborsClassifier": KNeighborsClassifier(n_neighbors=10),
+    "DaalRandomForestClassifier": DaalRandomForestClassifier(
         n_estimators=10, random_state=777
     ),
-    'DaalRandomForestRegressor': DaalRandomForestRegressor(
+    "DaalRandomForestRegressor": DaalRandomForestRegressor(
         n_estimators=10, random_state=777
     ),
 }
 
-ORDERS = ['C', 'F']
+ORDERS = ["C", "F"]
 DATA_FORMATS = [pd.DataFrame, np.array]
 
 
@@ -77,11 +77,11 @@ def check_data_formats_diff(name):
         for j, res in enumerate(alg_results[i]):
             assert (
                 res == alg_results[0][j]
-            ).mean() == 1, 'Results are different between formats: estimator=%s' % (
+            ).mean() == 1, "Results are different between formats: estimator=%s" % (
                 name
             )
 
 
-@pytest.mark.parametrize('name', ESTIMATORS)
+@pytest.mark.parametrize("name", ESTIMATORS)
 def test_data_formats_diff(name):
     check_data_formats_diff(name)

@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 try:
@@ -43,7 +43,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -51,7 +51,7 @@ except:
 
 # Commone code for both CPU and GPU computations
 def compute(data, method):
-    alg = d4p.low_order_moments(method=method, fptype='float')
+    alg = d4p.low_order_moments(method=method, fptype="float")
     return alg.compute(data)
 
 
@@ -76,7 +76,7 @@ def to_numpy(data):
 
 def main(readcsv=read_csv, method="defaultDense"):
     # read data from file
-    file = os.path.join('..', 'data', 'batch', 'covcormoments_dense.csv')
+    file = os.path.join("..", "data", "batch", "covcormoments_dense.csv")
     data = readcsv(file, range(10), t=np.float32)
 
     # Using of the classic way (computations on CPU)
@@ -97,10 +97,10 @@ def main(readcsv=read_csv, method="defaultDense"):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
@@ -108,16 +108,16 @@ def main(readcsv=read_csv, method="defaultDense"):
             sycl_data = sycl_buffer(data)
             result_gpu = compute(sycl_data, "defaultDense")
         for name in [
-            'minimum',
-            'maximum',
-            'sum',
-            'sumSquares',
-            'sumSquaresCentered',
-            'mean',
-            'secondOrderRawMoment',
-            'variance',
-            'standardDeviation',
-            'variation',
+            "minimum",
+            "maximum",
+            "sum",
+            "sumSquares",
+            "sumSquaresCentered",
+            "mean",
+            "secondOrderRawMoment",
+            "variance",
+            "standardDeviation",
+            "variation",
         ]:
             assert np.allclose(getattr(result_classic, name), getattr(result_gpu, name))
 
@@ -131,30 +131,30 @@ def main(readcsv=read_csv, method="defaultDense"):
     assert all(
         getattr(result_classic, name).shape == (1, data.shape[1])
         for name in [
-            'minimum',
-            'maximum',
-            'sum',
-            'sumSquares',
-            'sumSquaresCentered',
-            'mean',
-            'secondOrderRawMoment',
-            'variance',
-            'standardDeviation',
-            'variation',
+            "minimum",
+            "maximum",
+            "sum",
+            "sumSquares",
+            "sumSquaresCentered",
+            "mean",
+            "secondOrderRawMoment",
+            "variance",
+            "standardDeviation",
+            "variation",
         ]
     )
 
     for name in [
-        'minimum',
-        'maximum',
-        'sum',
-        'sumSquares',
-        'sumSquaresCentered',
-        'mean',
-        'secondOrderRawMoment',
-        'variance',
-        'standardDeviation',
-        'variation',
+        "minimum",
+        "maximum",
+        "sum",
+        "sumSquares",
+        "sumSquaresCentered",
+        "mean",
+        "secondOrderRawMoment",
+        "variance",
+        "standardDeviation",
+        "variation",
     ]:
         assert np.allclose(getattr(result_classic, name), getattr(result_cpu, name))
 
@@ -174,4 +174,4 @@ if __name__ == "__main__":
     print("\nVariance:\n", res.variance)
     print("\nStandard deviation:\n", res.standardDeviation)
     print("\nVariation:\n", res.variation)
-    print('All looks good!')
+    print("All looks good!")

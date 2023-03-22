@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
     # Read data. Let's have 10 independent,
     # and 2 dependent variables (for each observation)
-    indep_data = loadtxt(infile, delimiter=',', usecols=range(10))
-    dep_data = loadtxt(infile, delimiter=',', usecols=range(10, 12))
+    indep_data = loadtxt(infile, delimiter=",", usecols=range(10))
+    dep_data = loadtxt(infile, delimiter=",", usecols=range(10, 12))
     # Now train/compute, the result provides the model for prediction
     train_result = train_algo.compute(indep_data, dep_data)
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         # read test data (with same #features)
         pdata = loadtxt(
             "./data/distributed/linear_regression_test.csv",
-            delimiter=',',
+            delimiter=",",
             usecols=range(10),
         )
         # now predict using the model from the training above
@@ -60,5 +60,5 @@ if __name__ == "__main__":
         # The prediction result provides prediction
         assert predict_result.prediction.shape == (pdata.shape[0], dep_data.shape[1])
 
-    print('All looks good!')
+    print("All looks good!")
     d4p.daalfini()

@@ -25,7 +25,7 @@ try:
     import dpctl
     import dpctl.tensor as dpt
 
-    dpctl_available = dpctl.__version__ >= '0.14'
+    dpctl_available = dpctl.__version__ >= "0.14"
 except ImportError:
     dpctl_available = False
 

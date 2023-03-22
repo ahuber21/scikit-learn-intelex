@@ -27,14 +27,14 @@ if "Windows" in platform.system():
     path_to_libs = os.path.join(path_to_env, "Library", "bin")
     path_to_oneapi_backend = os.path.join(current_path, "oneapi")
     if sys.version_info.minor >= 8:
-        if 'DALROOT' in os.environ:
-            dal_root_redist = os.path.join(os.environ['DALROOT'], "redist", "intel64")
+        if "DALROOT" in os.environ:
+            dal_root_redist = os.path.join(os.environ["DALROOT"], "redist", "intel64")
             if os.path.exists(dal_root_redist):
                 os.add_dll_directory(dal_root_redist)
-                os.environ['PATH'] = dal_root_redist + os.pathsep + os.environ['PATH']
+                os.environ["PATH"] = dal_root_redist + os.pathsep + os.environ["PATH"]
         os.add_dll_directory(path_to_libs)
         os.add_dll_directory(path_to_oneapi_backend)
-    os.environ['PATH'] = path_to_libs + os.pathsep + os.environ['PATH']
+    os.environ["PATH"] = path_to_libs + os.pathsep + os.environ["PATH"]
 
 try:
     from daal4py._daal4py import *
@@ -46,10 +46,10 @@ try:
     )
 except ImportError as e:
     s = str(e)
-    if 'libfabric' in s:
+    if "libfabric" in s:
         raise ImportError(
-            s + '\n\nActivating your conda environment or sourcing mpivars.'
-            '[c]sh/psxevars.[c]sh may solve the issue.\n'
+            s + "\n\nActivating your conda environment or sourcing mpivars."
+            "[c]sh/psxevars.[c]sh may solve the issue.\n"
         )
 
     raise

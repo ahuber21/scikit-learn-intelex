@@ -59,32 +59,32 @@ def _daal4py_compute_starting_centroids(
         return isinstance(s, str) and s == target_str
 
     deterministic = False
-    if is_string(cluster_centers_0, 'k-means++'):
-        _seed = random_state.randint(np.iinfo('i').max)
+    if is_string(cluster_centers_0, "k-means++"):
+        _seed = random_state.randint(np.iinfo("i").max)
         daal_engine = daal4py.engines_mt19937(
-            fptype=X_fptype, method='defaultDense', seed=_seed
+            fptype=X_fptype, method="defaultDense", seed=_seed
         )
         _n_local_trials = 2 + int(np.log(nClusters))
         kmeans_init = daal4py.kmeans_init(
             nClusters,
             fptype=X_fptype,
             nTrials=_n_local_trials,
-            method='plusPlusDense',
+            method="plusPlusDense",
             engine=daal_engine,
         )
         kmeans_init_res = kmeans_init.compute(X)
         centroids_ = kmeans_init_res.centroids
-    elif is_string(cluster_centers_0, 'random'):
-        _seed = random_state.randint(np.iinfo('i').max)
+    elif is_string(cluster_centers_0, "random"):
+        _seed = random_state.randint(np.iinfo("i").max)
         daal_engine = daal4py.engines_mt19937(
-            seed=_seed, fptype=X_fptype, method='defaultDense'
+            seed=_seed, fptype=X_fptype, method="defaultDense"
         )
         kmeans_init = daal4py.kmeans_init(
-            nClusters, fptype=X_fptype, method='randomDense', engine=daal_engine
+            nClusters, fptype=X_fptype, method="randomDense", engine=daal_engine
         )
         kmeans_init_res = kmeans_init.compute(X)
         centroids_ = kmeans_init_res.centroids
-    elif hasattr(cluster_centers_0, '__array__'):
+    elif hasattr(cluster_centers_0, "__array__"):
         deterministic = True
         cc_arr = np.ascontiguousarray(cluster_centers_0, dtype=X.dtype)
         _validate_center_shape(X, nClusters, cc_arr)
@@ -94,10 +94,10 @@ def _daal4py_compute_starting_centroids(
         cc_arr = np.ascontiguousarray(cc_arr, dtype=X.dtype)
         _validate_center_shape(X, nClusters, cc_arr)
         centroids_ = cc_arr
-    elif is_string(cluster_centers_0, 'deterministic'):
+    elif is_string(cluster_centers_0, "deterministic"):
         deterministic = True
         kmeans_init = daal4py.kmeans_init(
-            nClusters, fptype=X_fptype, method='defaultDense'
+            nClusters, fptype=X_fptype, method="defaultDense"
         )
         kmeans_init_res = kmeans_init.compute(X)
         centroids_ = kmeans_init_res.centroids
@@ -119,7 +119,7 @@ def _daal4py_kmeans_compatibility(
     gamma=1.0,
 ):
     kmeans_algo = None
-    if daal_check_version(((2020, 'P', 2), (2021, 'B', 107))):
+    if daal_check_version(((2020, "P", 2), (2021, "B", 107))):
         kmeans_algo = daal4py.kmeans(
             nClusters=nClusters,
             maxIterations=maxIterations,
@@ -130,7 +130,7 @@ def _daal4py_kmeans_compatibility(
             gamma=gamma,
         )
     else:
-        assigFlag = 'computeAssignments' in resultsToEvaluate
+        assigFlag = "computeAssignments" in resultsToEvaluate
         kmeans_algo = daal4py.kmeans(
             nClusters=nClusters,
             maxIterations=maxIterations,
@@ -144,7 +144,7 @@ def _daal4py_kmeans_compatibility(
 
 
 def _daal4py_k_means_predict(
-    X, nClusters, centroids, resultsToEvaluate='computeAssignments'
+    X, nClusters, centroids, resultsToEvaluate="computeAssignments"
 ):
     X_fptype = getFPType(X)
     kmeans_algo = _daal4py_kmeans_compatibility(
@@ -152,7 +152,7 @@ def _daal4py_k_means_predict(
         maxIterations=0,
         fptype=X_fptype,
         resultsToEvaluate=resultsToEvaluate,
-        method='defaultDense',
+        method="defaultDense",
     )
 
     res = kmeans_algo.compute(X, centroids)
@@ -177,8 +177,8 @@ def _daal4py_k_means_fit(
         maxIterations=numIterations,
         accuracyThreshold=abs_tol,
         fptype=X_fptype,
-        resultsToEvaluate='computeCentroids',
-        method='defaultDense',
+        resultsToEvaluate="computeCentroids",
+        method="defaultDense",
     )
 
     for k in range(n_init):
@@ -197,14 +197,14 @@ def _daal4py_k_means_fit(
             best_n_iter = int(res.nIterations[0, 0])
         if deterministic and n_init != 1:
             warnings.warn(
-                'Explicit initial center position passed: '
-                'performing only one init in k-means instead of n_init=%d' % n_init,
+                "Explicit initial center position passed: "
+                "performing only one init in k-means instead of n_init=%d" % n_init,
                 RuntimeWarning,
                 stacklevel=2,
             )
             break
 
-    flag_compute = 'computeAssignments|computeExactObjectiveFunction'
+    flag_compute = "computeAssignments|computeExactObjectiveFunction"
     best_labels, best_inertia = _daal4py_k_means_predict(
         X, nClusters, best_cluster_centers, flag_compute
     )
@@ -239,11 +239,11 @@ def _fit(self, X, y=None, sample_weight=None):
 
     if self.max_iter <= 0:
         raise ValueError(
-            'Number of iterations should be a positive number,'
-            ' got %d instead' % self.max_iter
+            "Number of iterations should be a positive number,"
+            " got %d instead" % self.max_iter
         )
 
-    if self.precompute_distances == 'auto':
+    if self.precompute_distances == "auto":
         precompute_distances = False
     elif isinstance(self.precompute_distances, bool):
         precompute_distances = self.precompute_distances
@@ -310,7 +310,7 @@ def _fit(self, X, y=None, sample_weight=None):
     else:
         X = check_array(
             X,
-            accept_sparse='csr',
+            accept_sparse="csr",
             dtype=[np.float64, np.float32],
             order="C" if self.copy_x else None,
             copy=self.copy_x,
@@ -362,7 +362,7 @@ def _predict(self, X, sample_weight=None):
     _dal_ready = _patching_status.and_conditions(
         [
             (sample_weight is None, "Sample weights are not supported."),
-            (hasattr(X, '__array__'), "X does not have '__array__' attribute."),
+            (hasattr(X, "__array__"), "X does not have '__array__' attribute."),
         ]
     )
 
@@ -379,16 +379,16 @@ class KMeans(KMeans_original):
     def __init__(
         self,
         n_clusters=8,
-        init='k-means++',
+        init="k-means++",
         n_init=10,
         max_iter=300,
         tol=1e-4,
-        precompute_distances='auto',
+        precompute_distances="auto",
         verbose=0,
         random_state=None,
         copy_x=True,
         n_jobs=None,
-        algorithm='auto',
+        algorithm="auto",
     ):
         super(KMeans, self).__init__(
             n_clusters=n_clusters,

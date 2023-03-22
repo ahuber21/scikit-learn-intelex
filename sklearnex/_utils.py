@@ -27,7 +27,7 @@ def set_sklearn_ex_verbose():
         if logLevel is not None:
             logging.basicConfig(
                 stream=sys.stdout,
-                format='SKLEARNEX %(levelname)s: %(message)s',
+                format="SKLEARNEX %(levelname)s: %(message)s",
                 level=logLevel.upper(),
             )
     except Exception:
@@ -45,29 +45,29 @@ def get_patch_message(s, queue=None, cpu_fallback=False):
         message = "running accelerated version on "
         if queue is not None:
             if queue.sycl_device.is_gpu:
-                message += 'GPU'
+                message += "GPU"
             elif queue.sycl_device.is_cpu:
-                message += 'CPU'
+                message += "CPU"
             else:
-                raise RuntimeError('Unsupported device')
+                raise RuntimeError("Unsupported device")
 
-        elif 'daal4py.oneapi' in sys.modules:
+        elif "daal4py.oneapi" in sys.modules:
             from daal4py.oneapi import _get_device_name_sycl_ctxt
 
             dev = _get_device_name_sycl_ctxt()
-            if dev == 'cpu' or dev is None:
-                message += 'CPU'
-            elif dev == 'gpu':
+            if dev == "cpu" or dev is None:
+                message += "CPU"
+            elif dev == "gpu":
                 if cpu_fallback:
-                    message += 'CPU'
+                    message += "CPU"
                 else:
-                    message += 'GPU'
+                    message += "GPU"
             else:
                 raise ValueError(
                     f"Unexpected device name {dev}." " Supported types are cpu and gpu"
                 )
         else:
-            message += 'CPU'
+            message += "CPU"
 
     elif s == "sklearn":
         message = "fallback to original Scikit-learn"

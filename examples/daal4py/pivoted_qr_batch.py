@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c=None, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c=None, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='svdDense'):
+def main(readcsv=read_csv, method="svdDense"):
     infile = "./data/batch/qr.csv"
 
     # configure a pivoted QR object
@@ -54,4 +54,4 @@ if __name__ == "__main__":
     print("Orthogonal matrix Q (:10):\n", result.matrixQ[:10])
     print("Triangular matrix R:\n", result.matrixR)
     print("\nPermutation matrix P:\n", result.permutationMatrix)
-    print('All looks good!')
+    print("All looks good!")

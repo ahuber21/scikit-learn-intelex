@@ -46,9 +46,9 @@ if sklearn_check_version("0.22") and Version(sklearn_version) < Version("0.23"):
             self,
             n_neighbors=5,
             radius=1.0,
-            algorithm='auto',
+            algorithm="auto",
             leaf_size=30,
-            metric='minkowski',
+            metric="minkowski",
             p=2,
             metric_params=None,
             n_jobs=None,
@@ -67,7 +67,7 @@ if sklearn_check_version("0.22") and Version(sklearn_version) < Version("0.23"):
 else:
 
     class NearestNeighbors_(sklearn_NearestNeighbors):
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             _parameter_constraints: dict = {
                 **sklearn_NearestNeighbors._parameter_constraints
             }
@@ -78,9 +78,9 @@ else:
             *,
             n_neighbors=5,
             radius=1.0,
-            algorithm='auto',
+            algorithm="auto",
             leaf_size=30,
-            metric='minkowski',
+            metric="minkowski",
             p=2,
             metric_params=None,
             n_jobs=None,
@@ -98,7 +98,7 @@ else:
 
 
 class NearestNeighbors(NearestNeighbors_):
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**NearestNeighbors_._parameter_constraints}
 
     @_deprecate_positional_args
@@ -106,9 +106,9 @@ class NearestNeighbors(NearestNeighbors_):
         self,
         n_neighbors=5,
         radius=1.0,
-        algorithm='auto',
+        algorithm="auto",
         leaf_size=30,
-        metric='minkowski',
+        metric="minkowski",
         p=2,
         metric_params=None,
         n_jobs=None,
@@ -129,7 +129,7 @@ class NearestNeighbors(NearestNeighbors_):
             self._validate_params()
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=True)
-        if self.metric_params is not None and 'p' in self.metric_params:
+        if self.metric_params is not None and "p" in self.metric_params:
             if self.p is not None:
                 warnings.warn(
                     "Parameter p is found in metric_params. "
@@ -192,8 +192,8 @@ class NearestNeighbors(NearestNeighbors_):
             else:
                 self._fit_method = self.algorithm
 
-        if hasattr(self, '_onedal_estimator'):
-            delattr(self, '_onedal_estimator')
+        if hasattr(self, "_onedal_estimator"):
+            delattr(self, "_onedal_estimator")
         # To cover test case when we pass patched
         # estimator as an input for other estimator
         if isinstance(X, sklearn_NeighborsBase):
@@ -202,7 +202,7 @@ class NearestNeighbors(NearestNeighbors_):
             self._fit_method = X._fit_method
             self.n_samples_fit_ = X.n_samples_fit_
             self.n_features_in_ = X.n_features_in_
-            if hasattr(X, '_onedal_estimator'):
+            if hasattr(X, "_onedal_estimator"):
                 if self._fit_method == "ball_tree":
                     X._tree = BallTree(
                         X._fit_X,
@@ -225,23 +225,23 @@ class NearestNeighbors(NearestNeighbors_):
         elif isinstance(X, BallTree):
             self._fit_X = X.data
             self._tree = X
-            self._fit_method = 'ball_tree'
+            self._fit_method = "ball_tree"
             self.n_samples_fit_ = X.data.shape[0]
             self.n_features_in_ = X.data.shape[1]
 
         elif isinstance(X, KDTree):
             self._fit_X = X.data
             self._tree = X
-            self._fit_method = 'kd_tree'
+            self._fit_method = "kd_tree"
             self.n_samples_fit_ = X.data.shape[0]
             self.n_features_in_ = X.data.shape[1]
 
         dispatch(
             self,
-            'neighbors.NearestNeighbors.fit',
+            "neighbors.NearestNeighbors.fit",
             {
-                'onedal': self.__class__._onedal_fit,
-                'sklearn': sklearn_NearestNeighbors.fit,
+                "onedal": self.__class__._onedal_fit,
+                "sklearn": sklearn_NearestNeighbors.fit,
             },
             X,
             None,
@@ -255,10 +255,10 @@ class NearestNeighbors(NearestNeighbors_):
             self._check_feature_names(X, reset=False)
         return dispatch(
             self,
-            'neighbors.NearestNeighbors.kneighbors',
+            "neighbors.NearestNeighbors.kneighbors",
             {
-                'onedal': self.__class__._onedal_kneighbors,
-                'sklearn': sklearn_NearestNeighbors.kneighbors,
+                "onedal": self.__class__._onedal_kneighbors,
+                "sklearn": sklearn_NearestNeighbors.kneighbors,
             },
             X,
             n_neighbors,
@@ -269,16 +269,16 @@ class NearestNeighbors(NearestNeighbors_):
     def radius_neighbors(
         self, X=None, radius=None, return_distance=True, sort_results=False
     ):
-        _onedal_estimator = getattr(self, '_onedal_estimator', None)
+        _onedal_estimator = getattr(self, "_onedal_estimator", None)
 
         if (
             _onedal_estimator is not None
-            or getattr(self, '_tree', 0) is None
-            and self._fit_method == 'kd_tree'
+            or getattr(self, "_tree", 0) is None
+            and self._fit_method == "kd_tree"
         ):
             if sklearn_check_version("0.24"):
                 sklearn_NearestNeighbors.fit(
-                    self, self._fit_X, getattr(self, '_y', None)
+                    self, self._fit_X, getattr(self, "_y", None)
                 )
             else:
                 sklearn_NearestNeighbors.fit(self, self._fit_X)
@@ -301,18 +301,18 @@ class NearestNeighbors(NearestNeighbors_):
         if X_incorrect_type:
             return False
 
-        if self._fit_method in ['auto', 'ball_tree']:
+        if self._fit_method in ["auto", "ball_tree"]:
             condition = (
                 self.n_neighbors is not None
                 and self.n_neighbors >= self.n_samples_fit_ // 2
             )
             if self.n_features_in_ > 15 or condition:
-                result_method = 'brute'
+                result_method = "brute"
             else:
-                if self.effective_metric_ in ['euclidean']:
-                    result_method = 'kd_tree'
+                if self.effective_metric_ in ["euclidean"]:
+                    result_method = "kd_tree"
                 else:
-                    result_method = 'brute'
+                    result_method = "brute"
         else:
             result_method = self._fit_method
 
@@ -323,20 +323,20 @@ class NearestNeighbors(NearestNeighbors_):
             return False
 
         is_sparse = sp.isspmatrix(data[0])
-        is_valid_for_brute = result_method in ['brute'] and self.effective_metric_ in [
-            'manhattan',
-            'minkowski',
-            'euclidean',
-            'chebyshev',
-            'cosine',
+        is_valid_for_brute = result_method in ["brute"] and self.effective_metric_ in [
+            "manhattan",
+            "minkowski",
+            "euclidean",
+            "chebyshev",
+            "cosine",
         ]
         main_condition = is_valid_for_brute and not is_sparse
 
-        if method_name == 'neighbors.NearestNeighbors.fit':
+        if method_name == "neighbors.NearestNeighbors.fit":
             return main_condition
-        if method_name in ['neighbors.NearestNeighbors.kneighbors']:
-            return main_condition and hasattr(self, '_onedal_estimator')
-        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
+        if method_name in ["neighbors.NearestNeighbors.kneighbors"]:
+            return main_condition and hasattr(self, "_onedal_estimator")
+        raise RuntimeError(f"Unknown method {method_name} in {self.__class__.__name__}")
 
     def _onedal_cpu_supported(self, method_name, *data):
         X_incorrect_type = isinstance(
@@ -346,18 +346,18 @@ class NearestNeighbors(NearestNeighbors_):
         if X_incorrect_type:
             return False
 
-        if self._fit_method in ['auto', 'ball_tree']:
+        if self._fit_method in ["auto", "ball_tree"]:
             condition = (
                 self.n_neighbors is not None
                 and self.n_neighbors >= self.n_samples_fit_ // 2
             )
             if self.n_features_in_ > 15 or condition:
-                result_method = 'brute'
+                result_method = "brute"
             else:
-                if self.effective_metric_ in ['euclidean']:
-                    result_method = 'kd_tree'
+                if self.effective_metric_ in ["euclidean"]:
+                    result_method = "kd_tree"
                 else:
-                    result_method = 'brute'
+                    result_method = "brute"
         else:
             result_method = self._fit_method
 
@@ -369,29 +369,29 @@ class NearestNeighbors(NearestNeighbors_):
 
         is_sparse = sp.isspmatrix(data[0])
         is_valid_for_kd_tree = result_method in [
-            'kd_tree'
-        ] and self.effective_metric_ in ['euclidean']
-        is_valid_for_brute = result_method in ['brute'] and self.effective_metric_ in [
-            'manhattan',
-            'minkowski',
-            'euclidean',
-            'chebyshev',
-            'cosine',
+            "kd_tree"
+        ] and self.effective_metric_ in ["euclidean"]
+        is_valid_for_brute = result_method in ["brute"] and self.effective_metric_ in [
+            "manhattan",
+            "minkowski",
+            "euclidean",
+            "chebyshev",
+            "cosine",
         ]
         main_condition = (is_valid_for_kd_tree or is_valid_for_brute) and not is_sparse
 
-        if method_name == 'neighbors.NearestNeighbors.fit':
+        if method_name == "neighbors.NearestNeighbors.fit":
             return main_condition
-        if method_name in ['neighbors.NearestNeighbors.kneighbors']:
-            return main_condition and hasattr(self, '_onedal_estimator')
-        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
+        if method_name in ["neighbors.NearestNeighbors.kneighbors"]:
+            return main_condition and hasattr(self, "_onedal_estimator")
+        raise RuntimeError(f"Unknown method {method_name} in {self.__class__.__name__}")
 
     def _onedal_fit(self, X, y=None, queue=None):
         onedal_params = {
-            'n_neighbors': self.n_neighbors,
-            'algorithm': self.algorithm,
-            'metric': self.effective_metric_,
-            'p': self.p,
+            "n_neighbors": self.n_neighbors,
+            "algorithm": self.algorithm,
+            "metric": self.effective_metric_,
+            "p": self.p,
         }
 
         try:

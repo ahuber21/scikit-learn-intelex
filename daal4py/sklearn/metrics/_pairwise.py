@@ -44,14 +44,14 @@ from .._device_offload import support_usm_ndarray
 
 def _daal4py_cosine_distance_dense(X):
     X_fptype = getFPType(X)
-    alg = daal4py.cosine_distance(fptype=X_fptype, method='defaultDense')
+    alg = daal4py.cosine_distance(fptype=X_fptype, method="defaultDense")
     res = alg.compute(X)
     return res.cosineDistance
 
 
 def _daal4py_correlation_distance_dense(X):
     X_fptype = getFPType(X)
-    alg = daal4py.correlation_distance(fptype=X_fptype, method='defaultDense')
+    alg = daal4py.correlation_distance(fptype=X_fptype, method="defaultDense")
     res = alg.compute(X)
     return res.correlationDistance
 
@@ -169,14 +169,14 @@ def daal_pairwise_distances(
         )
 
     X = _daal_check_array(
-        X, accept_sparse=['csr', 'csc', 'coo'], force_all_finite=force_all_finite
+        X, accept_sparse=["csr", "csc", "coo"], force_all_finite=force_all_finite
     )
 
     _patching_status = PatchingConditionsChain("sklearn.metrics.pairwise_distances")
     _dal_ready = _patching_status.and_conditions(
         [
             (
-                metric == 'cosine' or metric == 'correlation',
+                metric == "cosine" or metric == "correlation",
                 f"'{metric}' metric is not supported. "
                 "Only 'cosine' and 'correlation' metrics are supported.",
             ),
@@ -190,9 +190,9 @@ def daal_pairwise_distances(
     )
     _patching_status.write_log()
     if _dal_ready:
-        if metric == 'cosine':
+        if metric == "cosine":
             return _daal4py_cosine_distance_dense(X)
-        if metric == 'correlation':
+        if metric == "correlation":
             return _daal4py_correlation_distance_dense(X)
         raise ValueError(f"'{metric}' distance is wrong for daal4py.")
     if metric == "precomputed":

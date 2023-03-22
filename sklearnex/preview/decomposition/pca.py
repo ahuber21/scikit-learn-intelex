@@ -29,9 +29,9 @@ from sklearn.utils.validation import check_array
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_is_fitted
 
-if sklearn_check_version('1.1') and not sklearn_check_version('1.2'):
+if sklearn_check_version("1.1") and not sklearn_check_version("1.2"):
     from sklearn.utils import check_scalar
-if sklearn_check_version('0.23'):
+if sklearn_check_version("0.23"):
     from sklearn.decomposition._pca import _infer_dimension
 else:
     from sklearn.decomposition._pca import _infer_dimension_
@@ -41,7 +41,7 @@ from sklearn.decomposition import PCA as sklearn_PCA
 
 
 class PCA(sklearn_PCA):
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**sklearn_PCA._parameter_constraints}
 
     def __init__(
@@ -88,9 +88,9 @@ class PCA(sklearn_PCA):
                 )
 
     def fit(self, X, y=None):
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             self._validate_params()
-        elif sklearn_check_version('1.1'):
+        elif sklearn_check_version("1.1"):
             check_scalar(
                 self.n_oversamples,
                 "n_oversamples",
@@ -107,7 +107,7 @@ class PCA(sklearn_PCA):
                 "TruncatedSVD for a possible alternative."
             )
 
-        if sklearn_check_version('0.23'):
+        if sklearn_check_version("0.23"):
             X = self._validate_data(
                 X, dtype=[np.float64, np.float32], ensure_2d=True, copy=False
             )
@@ -132,7 +132,7 @@ class PCA(sklearn_PCA):
         self._fit_svd_solver = self.svd_solver
         shape_good_for_daal = X.shape[1] / X.shape[0] < 2
         if self._fit_svd_solver == "auto":
-            if sklearn_check_version('1.1'):
+            if sklearn_check_version("1.1"):
                 if max(X.shape) <= 500 or n_components == "mle":
                     self._fit_svd_solver = "full"
                 elif 1 <= n_components < 0.8 * n_sf_min:
@@ -140,8 +140,8 @@ class PCA(sklearn_PCA):
                 else:
                     self._fit_svd_solver = "full"
             else:
-                if n_components == 'mle':
-                    self._fit_svd_solver = 'full'
+                if n_components == "mle":
+                    self._fit_svd_solver = "full"
                 else:
                     n, p, k = X.shape[0], X.shape[1], n_components
                     # check if sklearnex is faster than randomized sklearn
@@ -158,12 +158,12 @@ class PCA(sklearn_PCA):
                         n_components >= 1
                         and np.dot(regression_coefs[:, 0], regression_coefs[:, 1]) <= 0
                     ):
-                        self._fit_svd_solver = 'randomized'
+                        self._fit_svd_solver = "randomized"
                     else:
-                        self._fit_svd_solver = 'full'
+                        self._fit_svd_solver = "full"
 
-        if not shape_good_for_daal or self._fit_svd_solver != 'full':
-            if sklearn_check_version('0.23'):
+        if not shape_good_for_daal or self._fit_svd_solver != "full":
+            if sklearn_check_version("0.23"):
                 X = self._validate_data(X, copy=self.copy)
             else:
                 X = check_array(X, copy=self.copy)
@@ -172,10 +172,10 @@ class PCA(sklearn_PCA):
         if shape_good_for_daal and self._fit_svd_solver == "full":
             return dispatch(
                 self,
-                'decomposition.PCA.fit',
+                "decomposition.PCA.fit",
                 {
-                    'onedal': self.__class__._onedal_fit,
-                    'sklearn': sklearn_PCA._fit_full,
+                    "onedal": self.__class__._onedal_fit,
+                    "sklearn": sklearn_PCA._fit_full,
                 },
                 X,
             )
@@ -194,21 +194,21 @@ class PCA(sklearn_PCA):
             )
 
     def _onedal_gpu_supported(self, method_name, *data):
-        if method_name == 'decomposition.PCA.fit':
-            return self._fit_svd_solver == 'full'
-        elif method_name == 'decomposition.PCA.transform':
-            return hasattr(self, '_onedal_estimator')
-        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
+        if method_name == "decomposition.PCA.fit":
+            return self._fit_svd_solver == "full"
+        elif method_name == "decomposition.PCA.transform":
+            return hasattr(self, "_onedal_estimator")
+        raise RuntimeError(f"Unknown method {method_name} in {self.__class__.__name__}")
 
     def _onedal_cpu_supported(self, method_name, *data):
-        if method_name == 'decomposition.PCA.fit':
-            return self._fit_svd_solver == 'full'
-        elif method_name == 'decomposition.PCA.transform':
-            return hasattr(self, '_onedal_estimator')
-        raise RuntimeError(f'Unknown method {method_name} in {self.__class__.__name__}')
+        if method_name == "decomposition.PCA.fit":
+            return self._fit_svd_solver == "full"
+        elif method_name == "decomposition.PCA.transform":
+            return hasattr(self, "_onedal_estimator")
+        raise RuntimeError(f"Unknown method {method_name} in {self.__class__.__name__}")
 
     def _onedal_fit(self, X, y=None, queue=None):
-        if self.n_components == 'mle' or self.n_components is None:
+        if self.n_components == "mle" or self.n_components is None:
             onedal_n_components = min(X.shape)
         elif 0 < self.n_components < 1:
             onedal_n_components = min(X.shape)
@@ -216,9 +216,9 @@ class PCA(sklearn_PCA):
             onedal_n_components = self.n_components
 
         onedal_params = {
-            'n_components': onedal_n_components,
-            'is_deterministic': True,
-            'method': "precomputed",
+            "n_components": onedal_n_components,
+            "is_deterministic": True,
+            "method": "precomputed",
         }
         self._onedal_estimator = onedal_PCA(**onedal_params)
         self._onedal_estimator.fit(X, queue=queue)
@@ -255,10 +255,10 @@ class PCA(sklearn_PCA):
         X_centered = X - self.mean_
         return dispatch(
             self,
-            'decomposition.PCA.transform',
+            "decomposition.PCA.transform",
             {
-                'onedal': self.__class__._onedal_predict,
-                'sklearn': sklearn_PCA.transform,
+                "onedal": self.__class__._onedal_predict,
+                "sklearn": sklearn_PCA.transform,
             },
             X_centered,
         )
@@ -323,8 +323,8 @@ class PCA(sklearn_PCA):
 
         if self.n_components is None:
             self.n_components_ = self._onedal_estimator.n_components_
-        elif self.n_components == 'mle':
-            if sklearn_check_version('0.23'):
+        elif self.n_components == "mle":
+            if sklearn_check_version("0.23"):
                 self.n_components_ = _infer_dimension(
                     self.explained_variance_, self.n_samples_
                 )
@@ -335,7 +335,7 @@ class PCA(sklearn_PCA):
         elif 0 < self.n_components < 1.0:
             ratio_cumsum = stable_cumsum(self.explained_variance_ratio_)
             self.n_components_ = (
-                np.searchsorted(ratio_cumsum, self.n_components, side='right') + 1
+                np.searchsorted(ratio_cumsum, self.n_components, side="right") + 1
             )
         else:
             self.n_components_ = self._onedal_estimator.n_components_

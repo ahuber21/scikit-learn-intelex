@@ -33,7 +33,7 @@ def main():
     result1 = algo.compute(infile)
 
     # We can also load the data ourselfs and provide the numpy array
-    data = loadtxt(infile, delimiter=',')
+    data = loadtxt(infile, delimiter=",")
     result2 = algo.compute(data)
 
     # SVD result objects provide leftSingularMatrix,
@@ -62,5 +62,5 @@ if __name__ == "__main__":
             "but only his part of leftSingularMatrix:\n"
         )
         print(result)
-        print('All looks good!')
+        print("All looks good!")
     d4p.daalfini()

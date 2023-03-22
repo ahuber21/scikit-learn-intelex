@@ -24,9 +24,9 @@ def get_packages_with_tests(pkg_list):
     for package in pkg_list:
         new_pkg_list.append(package)
 
-        path = os.path.abspath('./' + package.replace('.', '/'))
-        if os.path.isdir(jp(path, 'tests')):
-            new_pkg_list.append(package + '.tests')
-        if os.path.isdir(jp(path, 'tests', 'utils')):
-            new_pkg_list.append(package + '.tests.utils')
+        path = os.path.abspath("./" + package.replace(".", "/"))
+        if os.path.isdir(jp(path, "tests")):
+            new_pkg_list.append(package + ".tests")
+        if os.path.isdir(jp(path, "tests", "utils")):
+            new_pkg_list.append(package + ".tests.utils")
     return new_pkg_list

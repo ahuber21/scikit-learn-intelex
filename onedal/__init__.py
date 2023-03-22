@@ -25,12 +25,12 @@ if "Windows" in platform.system():
     path_to_env = site.getsitepackages()[0]
     path_to_libs = os.path.join(path_to_env, "Library", "bin")
     if sys.version_info.minor >= 8:
-        if 'DALROOT' in os.environ:
-            dal_root_redist = os.path.join(os.environ['DALROOT'], "redist", "intel64")
+        if "DALROOT" in os.environ:
+            dal_root_redist = os.path.join(os.environ["DALROOT"], "redist", "intel64")
             if os.path.exists(dal_root_redist):
                 os.add_dll_directory(dal_root_redist)
         os.add_dll_directory(path_to_libs)
-    os.environ['PATH'] = path_to_libs + os.pathsep + os.environ['PATH']
+    os.environ["PATH"] = path_to_libs + os.pathsep + os.environ["PATH"]
 
 try:
     import onedal._onedal_py_dpc as _backend
@@ -42,17 +42,17 @@ except ImportError:
     _is_dpc_backend = False
 
 
-__all__ = ['decomposition', 'ensemble', 'neighbors', 'primitives', 'svm']
+__all__ = ["decomposition", "ensemble", "neighbors", "primitives", "svm"]
 
 if _is_dpc_backend:
-    __all__.append('spmd')
+    __all__.append("spmd")
 
-if daal_check_version((2023, 'P', 100)):
-    __all__ += ['basic_statistics', 'linear_model']
+if daal_check_version((2023, "P", 100)):
+    __all__ += ["basic_statistics", "linear_model"]
 
     if _is_dpc_backend:
         __all__ += [
-            'spmd.basic_statistics',
-            'spmd.decomposition',
-            'spmd.linear_model',
+            "spmd.basic_statistics",
+            "spmd.decomposition",
+            "spmd.linear_model",
         ]

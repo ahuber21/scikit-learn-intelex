@@ -36,7 +36,7 @@ except ImportError:
 class AdaBoostClassifier(BaseEstimator, ClassifierMixin):
     def __init__(
         self,
-        split_criterion='gini',
+        split_criterion="gini",
         max_tree_depth=1,
         min_observations_in_leaf_node=1,
         max_iterations=100,
@@ -51,7 +51,7 @@ class AdaBoostClassifier(BaseEstimator, ClassifierMixin):
         self.accuracy_threshold = accuracy_threshold
 
     def fit(self, X, y):
-        if self.split_criterion not in ('gini', 'infoGain'):
+        if self.split_criterion not in ("gini", "infoGain"):
             raise ValueError(
                 'Parameter "split_criterion" must be ' '"gini" or "infoGain".'
             )
@@ -60,7 +60,7 @@ class AdaBoostClassifier(BaseEstimator, ClassifierMixin):
             or self.max_tree_depth < 0
         ):
             raise ValueError(
-                'Parameter "max_tree_depth" must be ' 'positive integer value or zero.'
+                'Parameter "max_tree_depth" must be ' "positive integer value or zero."
             )
         if (
             not isinstance(self.min_observations_in_leaf_node, numbers.Integral)
@@ -68,18 +68,18 @@ class AdaBoostClassifier(BaseEstimator, ClassifierMixin):
         ):
             raise ValueError(
                 'Parameter "min_observations_in_leaf_node" must be '
-                'non-zero positive integer value.'
+                "non-zero positive integer value."
             )
         if (
             not isinstance(self.max_iterations, numbers.Integral)
             or self.max_iterations <= 0
         ):
             raise ValueError(
-                'Parameter "max_iterations" must be ' 'non-zero positive integer value.'
+                'Parameter "max_iterations" must be ' "non-zero positive integer value."
             )
         if self.learning_rate <= 0:
             raise ValueError(
-                'Parameter "learning_rate" must be ' 'non-zero positive value.'
+                'Parameter "learning_rate" must be ' "non-zero positive value."
             )
         # it is not clear why it is so but we will get error from
         # Intel(R) oneAPI Data Analytics
@@ -87,7 +87,7 @@ class AdaBoostClassifier(BaseEstimator, ClassifierMixin):
         if self.accuracy_threshold < 0 and self.accuracy_threshold >= 1:
             raise ValueError(
                 'Parameter "accuracy_threshold" must be '
-                'more or equal to 0 and less than 1.'
+                "more or equal to 0 and less than 1."
             )
 
         # Check that X and y have correct shape
@@ -124,7 +124,7 @@ class AdaBoostClassifier(BaseEstimator, ClassifierMixin):
             maxTreeDepth=self.max_tree_depth + 1,
             minObservationsInLeafNodes=self.min_observations_in_leaf_node,
             splitCriterion=self.split_criterion,
-            pruning='none',
+            pruning="none",
         )
 
         pr = d4p.decision_tree_classification_prediction(
@@ -154,18 +154,18 @@ class AdaBoostClassifier(BaseEstimator, ClassifierMixin):
         if Version(sklearn_version) >= Version("0.22"):
             check_is_fitted(self)
         else:
-            check_is_fitted(self, ['n_features_in_', 'n_classes_'])
+            check_is_fitted(self, ["n_features_in_", "n_classes_"])
 
         # Input validation
         X = check_array(X, dtype=[np.single, np.double])
         if X.shape[1] != self.n_features_in_:
-            raise ValueError('Shape of input is different from what was seen in `fit`')
+            raise ValueError("Shape of input is different from what was seen in `fit`")
 
         # Trivial case
         if self.n_classes_ == 1:
             return np.full(X.shape[0], self.classes_[0])
 
-        if not hasattr(self, 'daal_model_'):
+        if not hasattr(self, "daal_model_"):
             raise ValueError(
                 (
                     "The class {} instance does not have 'daal_model_' attribute set. "

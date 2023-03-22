@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     infile = "./data/batch/kmeans_dense.csv"
     nClusters = 20
     maxIter = 5
@@ -69,4 +69,4 @@ if __name__ == "__main__":
     print("\nFirst 10 cluster assignments:\n", result.assignments[0:10])
     print("\nFirst 10 dimensions of centroids:\n", result.centroids[:, 0:10])
     print("\nObjective function value:\n", result.objectiveFunction)
-    print('All looks good!')
+    print("All looks good!")

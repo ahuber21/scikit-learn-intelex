@@ -28,7 +28,7 @@ from onedal.svm import NuSVC as onedal_NuSVC
 class NuSVC(sklearn_NuSVC, BaseSVC):
     __doc__ = sklearn_NuSVC.__doc__
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**sklearn_NuSVC._parameter_constraints}
 
     @_deprecate_positional_args
@@ -36,9 +36,9 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
         self,
         *,
         nu=0.5,
-        kernel='rbf',
+        kernel="rbf",
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         shrinking=True,
         probability=False,
@@ -47,7 +47,7 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
         class_weight=None,
         verbose=False,
         max_iter=-1,
-        decision_function_shape='ovr',
+        decision_function_shape="ovr",
         break_ties=False,
         random_state=None
     ):
@@ -109,10 +109,10 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
             self._check_feature_names(X, reset=True)
         dispatch(
             self,
-            'svm.NuSVC.fit',
+            "svm.NuSVC.fit",
             {
-                'onedal': self.__class__._onedal_fit,
-                'sklearn': sklearn_NuSVC.fit,
+                "onedal": self.__class__._onedal_fit,
+                "sklearn": sklearn_NuSVC.fit,
             },
             X,
             y,
@@ -143,10 +143,10 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
             self._check_feature_names(X, reset=False)
         return dispatch(
             self,
-            'svm.NuSVC.predict',
+            "svm.NuSVC.predict",
             {
-                'onedal': self.__class__._onedal_predict,
-                'sklearn': sklearn_NuSVC.predict,
+                "onedal": self.__class__._onedal_predict,
+                "sklearn": sklearn_NuSVC.predict,
             },
             X,
         )
@@ -194,10 +194,10 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
 
         return dispatch(
             self,
-            'svm.NuSVC.predict_proba',
+            "svm.NuSVC.predict_proba",
             {
-                'onedal': self.__class__._onedal_predict_proba,
-                'sklearn': sklearn_pred_proba,
+                "onedal": self.__class__._onedal_predict_proba,
+                "sklearn": sklearn_pred_proba,
             },
             X,
         )
@@ -208,10 +208,10 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
             self._check_feature_names(X, reset=False)
         return dispatch(
             self,
-            'svm.NuSVC.decision_function',
+            "svm.NuSVC.decision_function",
             {
-                'onedal': self.__class__._onedal_decision_function,
-                'sklearn': sklearn_NuSVC.decision_function,
+                "onedal": self.__class__._onedal_decision_function,
+                "sklearn": sklearn_NuSVC.decision_function,
             },
             X,
         )
@@ -220,29 +220,29 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
         return False
 
     def _onedal_cpu_supported(self, method_name, *data):
-        if method_name == 'svm.NuSVC.fit':
-            return self.kernel in ['linear', 'rbf', 'poly', 'sigmoid']
+        if method_name == "svm.NuSVC.fit":
+            return self.kernel in ["linear", "rbf", "poly", "sigmoid"]
         if method_name in [
-            'svm.NuSVC.predict',
-            'svm.NuSVC.predict_proba',
-            'svm.NuSVC.decision_function',
+            "svm.NuSVC.predict",
+            "svm.NuSVC.predict_proba",
+            "svm.NuSVC.decision_function",
         ]:
-            return hasattr(self, '_onedal_estimator')
+            return hasattr(self, "_onedal_estimator")
 
     def _onedal_fit(self, X, y, sample_weight=None, queue=None):
         onedal_params = {
-            'nu': self.nu,
-            'kernel': self.kernel,
-            'degree': self.degree,
-            'gamma': self.gamma,
-            'coef0': self.coef0,
-            'tol': self.tol,
-            'shrinking': self.shrinking,
-            'cache_size': self.cache_size,
-            'max_iter': self.max_iter,
-            'class_weight': self.class_weight,
-            'break_ties': self.break_ties,
-            'decision_function_shape': self.decision_function_shape,
+            "nu": self.nu,
+            "kernel": self.kernel,
+            "degree": self.degree,
+            "gamma": self.gamma,
+            "coef0": self.coef0,
+            "tol": self.tol,
+            "shrinking": self.shrinking,
+            "cache_size": self.cache_size,
+            "max_iter": self.max_iter,
+            "class_weight": self.class_weight,
+            "break_ties": self.break_ties,
+            "decision_function_shape": self.decision_function_shape,
         }
 
         self._onedal_estimator = onedal_NuSVC(**onedal_params)
@@ -256,7 +256,7 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
         return self._onedal_estimator.predict(X, queue=queue)
 
     def _onedal_predict_proba(self, X, queue=None):
-        if getattr(self, 'clf_prob', None) is None:
+        if getattr(self, "clf_prob", None) is None:
             raise NotFittedError(
                 "predict_proba is not available when fitted with probability=False"
             )
@@ -265,7 +265,7 @@ class NuSVC(sklearn_NuSVC, BaseSVC):
         # We use stock metaestimators below, so the only way
         # to pass a queue is using config_context.
         cfg = get_config()
-        cfg['target_offload'] = queue
+        cfg["target_offload"] = queue
         with config_context(**cfg):
             return self.clf_prob.predict_proba(X)
 

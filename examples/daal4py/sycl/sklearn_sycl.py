@@ -48,7 +48,7 @@ except ImportError:
 gpu_available = False
 if not dpctl_available:
     try:
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except Exception:
         gpu_available = False
@@ -75,7 +75,7 @@ def k_means_random():
         [[1.0, 2.0], [1.0, 4.0], [1.0, 0.0], [10.0, 2.0], [10.0, 4.0], [10.0, 0.0]],
         dtype=np.float32,
     )
-    kmeans = KMeans(n_clusters=2, random_state=0, init='random').fit(X)
+    kmeans = KMeans(n_clusters=2, random_state=0, init="random").fit(X)
     print("kmeans.labels_")
     print(kmeans.labels_)
     print("kmeans.predict([[0, 0], [12, 3]])")
@@ -103,8 +103,8 @@ def linear_regression():
 def logistic_regression_lbfgs():
     print("LogisticRegression solver='lbfgs'")
     X, y = load_iris(return_X_y=True)
-    clf = LogisticRegression(random_state=0, solver='lbfgs').fit(
-        X.astype('float32'), y.astype('float32')
+    clf = LogisticRegression(random_state=0, solver="lbfgs").fit(
+        X.astype("float32"), y.astype("float32")
     )
     print("clf.predict(X[:2, :])")
     print(clf.predict(X[:2, :]))
@@ -117,8 +117,8 @@ def logistic_regression_lbfgs():
 def logistic_regression_newton():
     print("LogisticRegression solver='newton-cg'")
     X, y = load_iris(return_X_y=True)
-    clf = LogisticRegression(random_state=0, solver='newton-cg').fit(
-        X.astype('float32'), y.astype('float32')
+    clf = LogisticRegression(random_state=0, solver="newton-cg").fit(
+        X.astype("float32"), y.astype("float32")
     )
     print("clf.predict(X[:2, :])")
     print(clf.predict(X[:2, :]))
@@ -149,15 +149,15 @@ def get_context(device):
 
 def device_type_to_str(queue):
     if queue is None:
-        return 'cpu'
+        return "cpu"
 
     from dpctl import device_type
 
     if queue.sycl_device.device_type == device_type.cpu:
-        return 'cpu'
+        return "cpu"
     if queue.sycl_device.device_type == device_type.gpu:
-        return 'gpu'
-    return 'unknown'
+        return "gpu"
+    return "unknown"
 
 
 if __name__ == "__main__":
@@ -173,14 +173,14 @@ if __name__ == "__main__":
 
     if dpctl_available:
         devices.append(None)
-        devices.append(dpctl.SyclQueue('cpu'))
+        devices.append(dpctl.SyclQueue("cpu"))
         if dpctl.has_gpu_devices:
-            devices.append(dpctl.SyclQueue('gpu'))
+            devices.append(dpctl.SyclQueue("gpu"))
 
     else:
-        devices.append('cpu')
+        devices.append("cpu")
         if gpu_available:
-            devices.append('gpu')
+            devices.append("gpu")
 
     for device in devices:
         for e in examples:
@@ -193,4 +193,4 @@ if __name__ == "__main__":
                 e()
             print("*" * 80)
 
-    print('All looks good!')
+    print("All looks good!")

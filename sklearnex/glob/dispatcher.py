@@ -48,12 +48,12 @@ def patch_sklearn_global(name=None, verbose=True):
         os.path.dirname(init_file_path), "_distributor_init.py"
     )
 
-    with open(distributor_file_path, 'r', encoding='utf-8') as distributor_file:
+    with open(distributor_file_path, "r", encoding="utf-8") as distributor_file:
         lines = distributor_file.read()
         if re.search(get_patch_str_re(), lines):
-            lines = re.sub(get_patch_str_re(), '', lines)
+            lines = re.sub(get_patch_str_re(), "", lines)
 
-    with open(distributor_file_path, 'w', encoding='utf-8') as distributor_file:
+    with open(distributor_file_path, "w", encoding="utf-8") as distributor_file:
         distributor_file.write(lines + "\n" + get_patch_str(name, verbose) + "\n")
         print(
             "Scikit-learn was successfully globally patched"
@@ -76,13 +76,13 @@ def unpatch_sklearn_global():
         os.path.dirname(init_file_path), "_distributor_init.py"
     )
 
-    with open(distributor_file_path, 'r', encoding='utf-8') as distributor_file:
+    with open(distributor_file_path, "r", encoding="utf-8") as distributor_file:
         lines = distributor_file.read()
         if not re.search(get_patch_str_re(), lines):
             print("Nothing to unpatch: Scikit-learn is not patched\n")
             return
-        lines = re.sub(get_patch_str_re(), '', lines)
+        lines = re.sub(get_patch_str_re(), "", lines)
 
-    with open(distributor_file_path, 'w', encoding='utf-8') as distributor_file:
+    with open(distributor_file_path, "w", encoding="utf-8") as distributor_file:
         distributor_file.write(lines)
         print("Scikit-learn was successfully globally unpatched")

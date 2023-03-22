@@ -26,16 +26,16 @@ from onedal.svm import NuSVR as onedal_NuSVR
 class NuSVR(sklearn_NuSVR, BaseSVR):
     __doc__ = sklearn_NuSVR.__doc__
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**sklearn_NuSVR._parameter_constraints}
 
     @_deprecate_positional_args
     def __init__(
         self,
         *,
-        kernel='rbf',
+        kernel="rbf",
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         tol=1e-3,
         C=1.0,
@@ -99,10 +99,10 @@ class NuSVR(sklearn_NuSVR, BaseSVR):
             self._check_feature_names(X, reset=True)
         dispatch(
             self,
-            'svm.NuSVR.fit',
+            "svm.NuSVR.fit",
             {
-                'onedal': self.__class__._onedal_fit,
-                'sklearn': sklearn_NuSVR.fit,
+                "onedal": self.__class__._onedal_fit,
+                "sklearn": sklearn_NuSVR.fit,
             },
             X,
             y,
@@ -132,10 +132,10 @@ class NuSVR(sklearn_NuSVR, BaseSVR):
             self._check_feature_names(X, reset=False)
         return dispatch(
             self,
-            'svm.NuSVR.predict',
+            "svm.NuSVR.predict",
             {
-                'onedal': self.__class__._onedal_predict,
-                'sklearn': sklearn_NuSVR.predict,
+                "onedal": self.__class__._onedal_predict,
+                "sklearn": sklearn_NuSVR.predict,
             },
             X,
         )
@@ -144,23 +144,23 @@ class NuSVR(sklearn_NuSVR, BaseSVR):
         return False
 
     def _onedal_cpu_supported(self, method_name, *data):
-        if method_name == 'svm.NuSVR.fit':
-            return self.kernel in ['linear', 'rbf', 'poly', 'sigmoid']
-        if method_name == 'svm.NuSVR.predict':
-            return hasattr(self, '_onedal_estimator')
+        if method_name == "svm.NuSVR.fit":
+            return self.kernel in ["linear", "rbf", "poly", "sigmoid"]
+        if method_name == "svm.NuSVR.predict":
+            return hasattr(self, "_onedal_estimator")
 
     def _onedal_fit(self, X, y, sample_weight=None, queue=None):
         onedal_params = {
-            'C': self.C,
-            'nu': self.nu,
-            'kernel': self.kernel,
-            'degree': self.degree,
-            'gamma': self.gamma,
-            'coef0': self.coef0,
-            'tol': self.tol,
-            'shrinking': self.shrinking,
-            'cache_size': self.cache_size,
-            'max_iter': self.max_iter,
+            "C": self.C,
+            "nu": self.nu,
+            "kernel": self.kernel,
+            "degree": self.degree,
+            "gamma": self.gamma,
+            "coef0": self.coef0,
+            "tol": self.tol,
+            "shrinking": self.shrinking,
+            "cache_size": self.cache_size,
+            "max_iter": self.max_iter,
         }
 
         self._onedal_estimator = onedal_NuSVR(**onedal_params)

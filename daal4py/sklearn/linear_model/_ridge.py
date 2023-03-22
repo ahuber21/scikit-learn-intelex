@@ -32,9 +32,9 @@ from .._utils import (
 from .._device_offload import support_usm_ndarray
 import logging
 
-if sklearn_check_version('1.0') and not sklearn_check_version('1.2'):
+if sklearn_check_version("1.0") and not sklearn_check_version("1.2"):
     from sklearn.linear_model._base import _deprecate_normalize
-if sklearn_check_version('1.1') and not sklearn_check_version('1.2'):
+if sklearn_check_version("1.1") and not sklearn_check_version("1.2"):
     from sklearn.utils import check_scalar
 
 
@@ -54,7 +54,7 @@ def _daal4py_fit(self, X, y_):
 
     ridge_alg = daal4py.ridge_regression_training(
         fptype=_fptype,
-        method='defaultDense',
+        method="defaultDense",
         interceptFlag=(self.fit_intercept is True),
         ridgeParameters=ridge_params,
     )
@@ -67,8 +67,8 @@ def _daal4py_fit(self, X, y_):
     self.daal_model_ = ridge_model
     coefs = ridge_model.Beta
 
-    self.intercept_ = coefs[:, 0].copy(order='C')
-    self.coef_ = coefs[:, 1:].copy(order='C')
+    self.intercept_ = coefs[:, 0].copy(order="C")
+    self.coef_ = coefs[:, 1:].copy(order="C")
 
     if self.coef_.shape[0] == 1 and y_.ndim == 1:
         self.coef_ = np.ravel(self.coef_)
@@ -82,12 +82,12 @@ def _daal4py_predict(self, X):
     _fptype = getFPType(self.coef_)
 
     ridge_palg = daal4py.ridge_regression_prediction(
-        fptype=_fptype, method='defaultDense'
+        fptype=_fptype, method="defaultDense"
     )
     if self.n_features_in_ != X.shape[1]:
         raise ValueError(
-            f'X has {X.shape[1]} features, '
-            f'but Ridge is expecting {self.n_features_in_} features as input'
+            f"X has {X.shape[1]} features, "
+            f"but Ridge is expecting {self.n_features_in_} features as input"
         )
     ridge_res = ridge_palg.compute(X, self.daal_model_)
 
@@ -116,15 +116,15 @@ def _fit_ridge(self, X, y, sample_weight=None):
     -------
     self : returns an instance of self.
     """
-    if sklearn_check_version('1.0') and not sklearn_check_version('1.2'):
+    if sklearn_check_version("1.0") and not sklearn_check_version("1.2"):
         self._normalize = _deprecate_normalize(
             self.normalize, default=False, estimator_name=self.__class__.__name__
         )
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
         self._check_feature_names(X, reset=True)
     if sklearn_check_version("1.2"):
         self._validate_params()
-    elif sklearn_check_version('1.1'):
+    elif sklearn_check_version("1.1"):
         if self.max_iter is not None:
             self.max_iter = check_scalar(
                 self.max_iter, "max_iter", target_type=numbers.Integral, min_val=1
@@ -142,7 +142,7 @@ def _fit_ridge(self, X, y, sample_weight=None):
     X, y = check_X_y(
         X,
         y,
-        ['csr', 'csc', 'coo'],
+        ["csr", "csc", "coo"],
         dtype=[np.float64, np.float32],
         multi_output=True,
         y_numeric=True,
@@ -155,7 +155,7 @@ def _fit_ridge(self, X, y, sample_weight=None):
     _dal_ready = _patching_status.and_conditions(
         [
             (
-                self.solver == 'auto',
+                self.solver == "auto",
                 f"'{self.solver}' solver is not supported. "
                 "Only 'auto' solver is supported.",
             ),
@@ -172,7 +172,7 @@ def _fit_ridge(self, X, y, sample_weight=None):
             ),
             (sample_weight is None, "Sample weights are not supported."),
             (
-                not (hasattr(self, 'positive') and self.positive),
+                not (hasattr(self, "positive") and self.positive),
                 "Forced positive coefficients are not supported.",
             ),
         ]
@@ -180,7 +180,7 @@ def _fit_ridge(self, X, y, sample_weight=None):
     _patching_status.write_log()
 
     if not _dal_ready:
-        if hasattr(self, 'daal_model_'):
+        if hasattr(self, "daal_model_"):
             del self.daal_model_
         return super(Ridge, self).fit(X, y, sample_weight=sample_weight)
     self.n_iter_ = None
@@ -189,7 +189,7 @@ def _fit_ridge(self, X, y, sample_weight=None):
         logging.info(
             "sklearn.linear_model.Ridge.fit: " + get_patch_message("sklearn_after_daal")
         )
-        if hasattr(self, 'daal_model_'):
+        if hasattr(self, "daal_model_"):
             del self.daal_model_
         return super(Ridge, self).fit(X, y, sample_weight=sample_weight)
     return res
@@ -208,11 +208,11 @@ def _predict_ridge(self, X):
     C : array, shape = (n_samples,)
         Returns predicted values.
     """
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
         self._check_feature_names(X, reset=False)
 
     X = check_array(
-        X, accept_sparse=['csr', 'csc', 'coo'], dtype=[np.float64, np.float32]
+        X, accept_sparse=["csr", "csc", "coo"], dtype=[np.float64, np.float32]
     )
     good_shape_for_daal = (
         True if X.ndim <= 1 else True if X.shape[0] >= X.shape[1] else False
@@ -222,11 +222,11 @@ def _predict_ridge(self, X):
     _dal_ready = _patching_status.and_conditions(
         [
             (
-                self.solver == 'auto',
+                self.solver == "auto",
                 f"'{self.solver}' solver is not supported. "
                 "Only 'auto' solver is supported.",
             ),
-            (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
+            (hasattr(self, "daal_model_"), "oneDAL model was not trained."),
             (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
             (
                 good_shape_for_daal,
@@ -239,7 +239,7 @@ def _predict_ridge(self, X):
                 "Only np.float32 and np.float64 are supported.",
             ),
             (
-                not hasattr(self, 'sample_weight_') or self.sample_weight_ is None,
+                not hasattr(self, "sample_weight_") or self.sample_weight_ is None,
                 "Sample weights are not supported.",
             ),
         ]
@@ -254,7 +254,7 @@ def _predict_ridge(self, X):
 class Ridge(Ridge_original, _BaseRidge):
     __doc__ = Ridge_original.__doc__
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**Ridge_original._parameter_constraints}
 
         def __init__(
@@ -277,13 +277,13 @@ class Ridge(Ridge_original, _BaseRidge):
             self.positive = positive
             self.random_state = random_state
 
-    elif sklearn_check_version('1.0'):
+    elif sklearn_check_version("1.0"):
 
         def __init__(
             self,
             alpha=1.0,
             fit_intercept=True,
-            normalize='deprecated',
+            normalize="deprecated",
             copy_X=True,
             max_iter=None,
             tol=1e-3,

@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 try:
@@ -43,7 +43,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -54,12 +54,12 @@ def compute(data, nComponents):
     # configure a PCA object and perform PCA
     pca_algo = d4p.pca(
         isDeterministic=True,
-        fptype='float',
+        fptype="float",
         resultsToCompute="mean|variance|eigenvalue",
     )
     pca_res = pca_algo.compute(data)
     # Apply transform with whitening because means and eigenvalues are provided
-    pcatrans_algo = d4p.pca_transform(fptype='float', nComponents=nComponents)
+    pcatrans_algo = d4p.pca_transform(fptype="float", nComponents=nComponents)
     return pcatrans_algo.compute(data, pca_res.eigenvectors, pca_res.dataForTransform)
 
 
@@ -82,8 +82,8 @@ def to_numpy(data):
     return data
 
 
-def main(readcsv=read_csv, method='svdDense'):
-    dataFileName = os.path.join('..', 'data', 'batch', 'pca_transform.csv')
+def main(readcsv=read_csv, method="svdDense"):
+    dataFileName = os.path.join("..", "data", "batch", "pca_transform.csv")
     nComponents = 2
 
     # read data
@@ -106,10 +106,10 @@ def main(readcsv=read_csv, method='svdDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
@@ -133,4 +133,4 @@ if __name__ == "__main__":
     pcatrans_res = main()
     # print results of tranform
     print(pcatrans_res)
-    print('All looks good!')
+    print("All looks good!")

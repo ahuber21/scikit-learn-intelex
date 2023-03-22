@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 try:
@@ -43,7 +43,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -54,7 +54,7 @@ def compute(train_data, train_labels, predict_data, nClasses):
     # set parameters and train
     train_alg = d4p.logistic_regression_training(
         nClasses=nClasses,
-        fptype='float',
+        fptype="float",
         penaltyL1=0.1,
         penaltyL2=0.1,
         interceptFlag=True,
@@ -63,7 +63,7 @@ def compute(train_data, train_labels, predict_data, nClasses):
     # set parameters and compute predictions
     predict_alg = d4p.logistic_regression_prediction(
         nClasses=nClasses,
-        fptype='float',
+        fptype="float",
         resultsToEvaluate="computeClassLabels|computeClassProbabilities|"
         "computeClassLogProbabilities",
     )
@@ -89,17 +89,17 @@ def to_numpy(data):
     return data
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     nClasses = 5
     nFeatures = 6
 
     # read training data from file with 6 features per observation and 1 class label
-    trainfile = os.path.join('..', 'data', 'batch', 'logreg_train.csv')
+    trainfile = os.path.join("..", "data", "batch", "logreg_train.csv")
     train_data = readcsv(trainfile, range(nFeatures), t=np.float32)
     train_labels = readcsv(trainfile, range(nFeatures, nFeatures + 1), t=np.float32)
 
     # read testing data from file with 6 features per observation
-    testfile = os.path.join('..', 'data', 'batch', 'logreg_test.csv')
+    testfile = os.path.join("..", "data", "batch", "logreg_test.csv")
     predict_data = readcsv(testfile, range(nFeatures), t=np.float32)
 
     # Using of the classic way (computations on CPU)
@@ -124,10 +124,10 @@ def main(readcsv=read_csv, method='defaultDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
@@ -159,7 +159,7 @@ def main(readcsv=read_csv, method='defaultDense'):
     assert result_classic.probabilities.shape == (predict_data.shape[0], nClasses)
     assert result_classic.logProbabilities.shape == (predict_data.shape[0], nClasses)
     predict_labels = np.loadtxt(
-        testfile, usecols=range(nFeatures, nFeatures + 1), delimiter=',', ndmin=2
+        testfile, usecols=range(nFeatures, nFeatures + 1), delimiter=",", ndmin=2
     )
     assert (
         np.count_nonzero(result_classic.prediction - predict_labels)
@@ -190,4 +190,4 @@ if __name__ == "__main__":
         "\nLogistic regression prediction log probabilities (first 10 rows):\n",
         predict_result.logProbabilities[0:10],
     )
-    print('All looks good!')
+    print("All looks good!")

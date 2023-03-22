@@ -21,33 +21,33 @@ import pytest
 import os
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Script to run scikit-learn tests with device context manager'
+        description="Script to run scikit-learn tests with device context manager"
     )
     parser.add_argument(
-        '-q', '--quiet', help='make pytest less verbose', action='store_false'
+        "-q", "--quiet", help="make pytest less verbose", action="store_false"
     )
     parser.add_argument(
-        '-d', '--device', type=str, help='device name', choices=['cpu', 'gpu']
+        "-d", "--device", type=str, help="device name", choices=["cpu", "gpu"]
     )
     parser.add_argument(
-        '--deselect',
-        help='The list of deselect commands passed directly to pytest',
-        action='append',
+        "--deselect",
+        help="The list of deselect commands passed directly to pytest",
+        action="append",
         required=False,
     )
     parser.add_argument(
-        '--no-intel-optimized',
+        "--no-intel-optimized",
         default=False,
-        action='store_true',
-        help='Use Scikit-learn without Intel optimizations',
+        action="store_true",
+        help="Use Scikit-learn without Intel optimizations",
     )
-    parser.add_argument('--deselected_yml_file', action='append', type=str)
-    parser.add_argument('--absolute', action='store_true')
-    parser.add_argument('--reduced', action='store_true')
-    parser.add_argument('--public', action='store_true')
-    parser.add_argument('--gpu', action='store_true')
+    parser.add_argument("--deselected_yml_file", action="append", type=str)
+    parser.add_argument("--absolute", action="store_true")
+    parser.add_argument("--reduced", action="store_true")
+    parser.add_argument("--public", action="store_true")
+    parser.add_argument("--gpu", action="store_true")
     args = parser.parse_args()
 
     yml_deselected_tests = []
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     deselected_tests = []
     if args.deselect is not None:
         deselected_tests = [
-            element for test in args.deselect for element in ('--deselect', test)
+            element for test in args.deselect for element in ("--deselect", test)
         ]
 
     yml_deselected_tests = yml_deselected_tests + deselected_tests

@@ -16,4 +16,4 @@
 
 from .neighbors import KNeighborsClassifier, KNeighborsRegressor, NearestNeighbors
 
-__all__ = ['KNeighborsClassifier', 'KNeighborsRegressor', 'NearestNeighbors']
+__all__ = ["KNeighborsClassifier", "KNeighborsRegressor", "NearestNeighbors"]

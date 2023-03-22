@@ -53,5 +53,5 @@ if __name__ == "__main__":
         printTree(treeState.node_ar, treeState.value_ar)
     # Now let printTree traverse the TreeState
     printTree(treeState.node_ar, treeState.value_ar)
-    print('Traversed {} trees.'.format(train_result.model.NumberOfTrees))
-    print('All looks good!')
+    print("Traversed {} trees.".format(train_result.model.NumberOfTrees))
+    print("All looks good!")

@@ -16,4 +16,4 @@
 
 from .validation import assert_all_finite
 
-__all__ = ['assert_all_finite']
+__all__ = ["assert_all_finite"]

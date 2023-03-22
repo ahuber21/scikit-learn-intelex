@@ -20,7 +20,7 @@ import daal4py as d4p
 import numpy as np
 
 
-def main(readcsv=None, method='defaultDense'):
+def main(readcsv=None, method="defaultDense"):
     # Create algorithm
     algorithm = d4p.distributions_normal(engine=d4p.engines_mt19937(seed=777))
 

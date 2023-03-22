@@ -24,12 +24,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 def main(readcsv=read_csv, method="defaultDense"):
@@ -46,16 +46,16 @@ def main(readcsv=read_csv, method="defaultDense"):
     assert all(
         getattr(res, name).shape == (1, data.shape[1])
         for name in [
-            'minimum',
-            'maximum',
-            'sum',
-            'sumSquares',
-            'sumSquaresCentered',
-            'mean',
-            'secondOrderRawMoment',
-            'variance',
-            'standardDeviation',
-            'variation',
+            "minimum",
+            "maximum",
+            "sum",
+            "sumSquares",
+            "sumSquaresCentered",
+            "mean",
+            "secondOrderRawMoment",
+            "variance",
+            "standardDeviation",
+            "variation",
         ]
     )
 
@@ -75,4 +75,4 @@ if __name__ == "__main__":
     print("\nVariance:\n", res.variance)
     print("\nStandard deviation:\n", res.standardDeviation)
     print("\nVariation:\n", res.variation)
-    print('All looks good!')
+    print("All looks good!")

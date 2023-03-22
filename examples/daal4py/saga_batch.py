@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     infile = "./data/batch/XM.csv"
     # Read the data, let's have 3 independent variables
     data = readcsv(infile, range(1))
@@ -45,7 +45,7 @@ def main(readcsv=read_csv, method='defaultDense'):
         penaltyL1=0.3,
         penaltyL2=0,
         interceptFlag=True,
-        resultsToCompute='gradient',
+        resultsToCompute="gradient",
     )
     logloss_algo.setup(data, dep_data)
 
@@ -76,4 +76,4 @@ if __name__ == "__main__":
     res = main()
     print("\nMinimum:\n", res.minimum)
     print("\nNumber of iterations performed:\n", res.nIterations[0][0])
-    print('All looks good!')
+    print("All looks good!")

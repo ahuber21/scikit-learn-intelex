@@ -33,10 +33,10 @@ def _main():
     )
 
     parser.add_argument(
-        '-m', action='store_true', dest='module', help="Executes following as a module"
+        "-m", action="store_true", dest="module", help="Executes following as a module"
     )
-    parser.add_argument('name', help="Script or module name")
-    parser.add_argument('args', nargs=argparse.REMAINDER, help="Command line arguments")
+    parser.add_argument("name", help="Script or module name")
+    parser.add_argument("args", nargs=argparse.REMAINDER, help="Command line arguments")
     args = parser.parse_args()
 
     try:
@@ -47,12 +47,12 @@ def _main():
         print("Scikit-learn could not be imported. Nothing to patch")
 
     sys.argv = [args.name] + args.args
-    if '_' + args.name in globals():
-        return globals()['_' + args.name](*args.args)
+    if "_" + args.name in globals():
+        return globals()["_" + args.name](*args.args)
     import runpy
 
     runf = runpy.run_module if args.module else runpy.run_path
-    runf(args.name, run_name='__main__')
+    runf(args.name, run_name="__main__")
 
 
 sys.exit(_main())

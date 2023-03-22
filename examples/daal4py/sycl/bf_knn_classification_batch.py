@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 try:
@@ -43,7 +43,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -71,21 +71,21 @@ def to_numpy(data):
 # Common code for both CPU and GPU computations
 def compute(train_data, train_labels, predict_data, nClasses):
     # Create an algorithm object and call compute
-    train_algo = d4p.bf_knn_classification_training(nClasses=nClasses, fptype='float')
+    train_algo = d4p.bf_knn_classification_training(nClasses=nClasses, fptype="float")
     train_result = train_algo.compute(train_data, train_labels)
 
     # Create an algorithm object and call compute
     predict_algo = d4p.bf_knn_classification_prediction(
-        nClasses=nClasses, fptype='float'
+        nClasses=nClasses, fptype="float"
     )
     predict_result = predict_algo.compute(predict_data, train_result.model)
     return predict_result
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     # Input data set parameters
-    train_file = os.path.join('..', 'data', 'batch', 'k_nearest_neighbors_train.csv')
-    predict_file = os.path.join('..', 'data', 'batch', 'k_nearest_neighbors_test.csv')
+    train_file = os.path.join("..", "data", "batch", "k_nearest_neighbors_train.csv")
+    predict_file = os.path.join("..", "data", "batch", "k_nearest_neighbors_test.csv")
 
     # Read data. Let's use 5 features per observation
     nFeatures = 5
@@ -119,10 +119,10 @@ def main(readcsv=read_csv, method='defaultDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     if gpu_available:
         with gpu_context():

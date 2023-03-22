@@ -60,88 +60,88 @@ import warnings
 @lru_cache(maxsize=None)
 def _get_map_of_algorithms():
     mapping = {
-        'pca': [[(decomposition_module, 'PCA', PCA_daal4py), None]],
-        'kmeans': [[(cluster_module, 'KMeans', KMeans_daal4py), None]],
-        'dbscan': [[(cluster_module, 'DBSCAN', DBSCAN_daal4py), None]],
-        'distances': [[(metrics, 'pairwise_distances', daal_pairwise_distances), None]],
-        'linear': [
-            [(linear_model_module, 'LinearRegression', LinearRegression_daal4py), None]
+        "pca": [[(decomposition_module, "PCA", PCA_daal4py), None]],
+        "kmeans": [[(cluster_module, "KMeans", KMeans_daal4py), None]],
+        "dbscan": [[(cluster_module, "DBSCAN", DBSCAN_daal4py), None]],
+        "distances": [[(metrics, "pairwise_distances", daal_pairwise_distances), None]],
+        "linear": [
+            [(linear_model_module, "LinearRegression", LinearRegression_daal4py), None]
         ],
-        'ridge': [[(linear_model_module, 'Ridge', Ridge_daal4py), None]],
-        'elasticnet': [[(linear_model_module, 'ElasticNet', ElasticNet_daal4py), None]],
-        'lasso': [[(linear_model_module, 'Lasso', Lasso_daal4py), None]],
-        'svm': [[(svm_module, 'SVC', SVC_daal4py), None]],
-        'logistic': [
+        "ridge": [[(linear_model_module, "Ridge", Ridge_daal4py), None]],
+        "elasticnet": [[(linear_model_module, "ElasticNet", ElasticNet_daal4py), None]],
+        "lasso": [[(linear_model_module, "Lasso", Lasso_daal4py), None]],
+        "svm": [[(svm_module, "SVC", SVC_daal4py), None]],
+        "logistic": [
             [
                 (
                     logistic_module,
-                    '_logistic_regression_path',
+                    "_logistic_regression_path",
                     daal_optimized_logistic_path,
                 ),
                 None,
             ]
         ],
-        'log_reg': [
+        "log_reg": [
             [
-                (linear_model_module, 'LogisticRegression', LogisticRegression_daal4py),
+                (linear_model_module, "LogisticRegression", LogisticRegression_daal4py),
                 None,
             ]
         ],
-        'knn_classifier': [
+        "knn_classifier": [
             [
                 (
                     neighbors_module,
-                    'KNeighborsClassifier',
+                    "KNeighborsClassifier",
                     KNeighborsClassifier_daal4py,
                 ),
                 None,
             ]
         ],
-        'nearest_neighbors': [
-            [(neighbors_module, 'NearestNeighbors', NearestNeighbors_daal4py), None]
+        "nearest_neighbors": [
+            [(neighbors_module, "NearestNeighbors", NearestNeighbors_daal4py), None]
         ],
-        'knn_regressor': [
+        "knn_regressor": [
             [
-                (neighbors_module, 'KNeighborsRegressor', KNeighborsRegressor_daal4py),
+                (neighbors_module, "KNeighborsRegressor", KNeighborsRegressor_daal4py),
                 None,
             ]
         ],
-        'random_forest_classifier': [
+        "random_forest_classifier": [
             [
                 (
                     ensemble_module,
-                    'RandomForestClassifier',
+                    "RandomForestClassifier",
                     RandomForestClassifier_daal4py,
                 ),
                 None,
             ]
         ],
-        'random_forest_regressor': [
+        "random_forest_regressor": [
             [
                 (
                     ensemble_module,
-                    'RandomForestRegressor',
+                    "RandomForestRegressor",
                     RandomForestRegressor_daal4py,
                 ),
                 None,
             ]
         ],
-        'train_test_split': [
-            [(model_selection, 'train_test_split', _daal_train_test_split), None]
+        "train_test_split": [
+            [(model_selection, "train_test_split", _daal_train_test_split), None]
         ],
-        'fin_check': [
-            [(validation, '_assert_all_finite', _daal_assert_all_finite), None]
+        "fin_check": [
+            [(validation, "_assert_all_finite", _daal_assert_all_finite), None]
         ],
-        'roc_auc_score': [[(metrics, 'roc_auc_score', _daal_roc_auc_score), None]],
-        'tsne': [[(manifold_module, 'TSNE', TSNE_daal4py), None]],
+        "roc_auc_score": [[(metrics, "roc_auc_score", _daal_roc_auc_score), None]],
+        "tsne": [[(manifold_module, "TSNE", TSNE_daal4py), None]],
     }
-    mapping['svc'] = mapping['svm']
-    mapping['logisticregression'] = mapping['log_reg']
-    mapping['kneighborsclassifier'] = mapping['knn_classifier']
-    mapping['nearestneighbors'] = mapping['nearest_neighbors']
-    mapping['kneighborsregressor'] = mapping['knn_regressor']
-    mapping['randomrorestclassifier'] = mapping['random_forest_classifier']
-    mapping['randomforestregressor'] = mapping['random_forest_regressor']
+    mapping["svc"] = mapping["svm"]
+    mapping["logisticregression"] = mapping["log_reg"]
+    mapping["kneighborsclassifier"] = mapping["knn_classifier"]
+    mapping["nearestneighbors"] = mapping["nearest_neighbors"]
+    mapping["kneighborsregressor"] = mapping["knn_regressor"]
+    mapping["randomrorestclassifier"] = mapping["random_forest_classifier"]
+    mapping["randomforestregressor"] = mapping["random_forest_regressor"]
     return mapping
 
 

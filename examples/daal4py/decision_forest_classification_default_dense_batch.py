@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2, dtype=t)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2, dtype=t)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     # input data file
     infile = "./data/batch/df_classification_train.csv"
     testfile = "./data/batch/df_classification_test.csv"
@@ -45,9 +45,9 @@ def main(readcsv=read_csv, method='defaultDense'):
         minObservationsInLeafNode=8,
         featuresPerNode=3,
         engine=d4p.engines_mt19937(seed=777),
-        varImportance='MDI',
+        varImportance="MDI",
         bootstrap=True,
-        resultsToCompute='computeOutOfBagError',
+        resultsToCompute="computeOutOfBagError",
     )
 
     # Read data. Let's use 3 features per observation
@@ -88,4 +88,4 @@ if __name__ == "__main__":
         predict_result.probabilities[0:10],
     )
     print("\nGround truth (first 10 rows):\n", plabels[0:10])
-    print('All looks good!')
+    print("All looks good!")

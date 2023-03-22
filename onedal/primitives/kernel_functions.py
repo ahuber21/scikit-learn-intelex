@@ -36,7 +36,7 @@ def _check_inputs(X, Y):
 def _compute_kernel(params, submodule, X, Y, queue):
     policy = _get_policy(queue, X, Y)
     X, Y = _convert_to_supported(policy, X, Y)
-    params['fptype'] = 'float' if X.dtype == np.float32 else 'double'
+    params["fptype"] = "float" if X.dtype == np.float32 else "double"
     X, Y = to_table(X, Y)
     result = submodule.compute(policy, params, X, Y)
     return from_table(result.values)
@@ -61,7 +61,7 @@ def linear_kernel(X, Y=None, scale=1.0, shift=0.0, queue=None):
     """
     X, Y = _check_inputs(X, Y)
     return _compute_kernel(
-        {'method': 'dense', 'scale': scale, 'shift': shift},
+        {"method": "dense", "scale": scale, "shift": shift},
         _backend.linear_kernel,
         X,
         Y,
@@ -93,7 +93,7 @@ def rbf_kernel(X, Y=None, gamma=None, queue=None):
     sigma = np.sqrt(0.5 / gamma)
 
     return _compute_kernel(
-        {'method': 'dense', 'sigma': sigma}, _backend.rbf_kernel, X, Y, queue
+        {"method": "dense", "sigma": sigma}, _backend.rbf_kernel, X, Y, queue
     )
 
 
@@ -118,7 +118,7 @@ def poly_kernel(X, Y=None, gamma=1.0, coef0=0.0, degree=3, queue=None):
 
     X, Y = _check_inputs(X, Y)
     return _compute_kernel(
-        {'method': 'dense', 'scale': gamma, 'shift': coef0, 'degree': degree},
+        {"method": "dense", "scale": gamma, "shift": coef0, "degree": degree},
         _backend.polynomial_kernel,
         X,
         Y,
@@ -146,7 +146,7 @@ def sigmoid_kernel(X, Y=None, gamma=1.0, coef0=0.0, queue=None):
 
     X, Y = _check_inputs(X, Y)
     return _compute_kernel(
-        {'method': 'dense', 'scale': gamma, 'shift': coef0},
+        {"method": "dense", "scale": gamma, "shift": coef0},
         _backend.sigmoid_kernel,
         X,
         Y,

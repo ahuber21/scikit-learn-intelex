@@ -29,7 +29,7 @@ from .._utils import get_patch_message, sklearn_check_version, PatchingCondition
 from .._device_offload import support_usm_ndarray
 import logging
 
-if sklearn_check_version('0.22'):
+if sklearn_check_version("0.22"):
     from sklearn.metrics._ranking import (
         _multiclass_roc_auc_score as multiclass_roc_auc_score,
     )
@@ -48,40 +48,40 @@ except ImportError:
 
 def _daal_type_of_target(y):
     valid = (
-        isinstance(y, Sequence) or sp.isspmatrix(y) or hasattr(y, '__array__')
+        isinstance(y, Sequence) or sp.isspmatrix(y) or hasattr(y, "__array__")
     ) and not isinstance(y, str)
 
     if not valid:
         raise ValueError(
-            'Expected array-like (array or non-string sequence), ' 'got %r' % y
+            "Expected array-like (array or non-string sequence), " "got %r" % y
         )
 
-    sparse_pandas = y.__class__.__name__ in ['SparseSeries', 'SparseArray']
+    sparse_pandas = y.__class__.__name__ in ["SparseSeries", "SparseArray"]
     if sparse_pandas:
         raise ValueError("y cannot be class 'SparseSeries' or 'SparseArray'")
 
     if is_multilabel(y):
-        return 'multilabel-indicator'
+        return "multilabel-indicator"
 
     try:
         y = np.asarray(y)
     except ValueError:
         # Known to fail in numpy 1.3 for array of arrays
-        return 'unknown'
+        return "unknown"
 
     # The old sequence of sequences format
     try:
         if (
-            not hasattr(y[0], '__array__')
+            not hasattr(y[0], "__array__")
             and isinstance(y[0], Sequence)
             and not isinstance(y[0], str)
         ):
             raise ValueError(
-                'You appear to be using a legacy multi-label data'
-                ' representation. Sequence of sequences are no'
-                ' longer supported; use a binary array or sparse'
-                ' matrix instead - the MultiLabelBinarizer'
-                ' transformer can convert to this format.'
+                "You appear to be using a legacy multi-label data"
+                " representation. Sequence of sequences are no"
+                " longer supported; use a binary array or sparse"
+                " matrix instead - the MultiLabelBinarizer"
+                " transformer can convert to this format."
             )
     except IndexError:
         pass
@@ -90,10 +90,10 @@ def _daal_type_of_target(y):
     if y.ndim > 2 or (
         y.dtype == object and len(y) != 0 and not isinstance(y.flat[0], str)
     ):
-        return 'unknown'  # [[[1, 2]]] or [obj_1] and not ["label_1"]
+        return "unknown"  # [[[1, 2]]] or [obj_1] and not ["label_1"]
 
     if y.ndim == 2 and y.shape[1] == 0:
-        return 'unknown'  # [[]]
+        return "unknown"  # [[]]
 
     if y.ndim == 2 and y.shape[1] > 1:
         suffix = "-multioutput"  # [[1, 2], [1, 2]]
@@ -101,18 +101,18 @@ def _daal_type_of_target(y):
         suffix = ""  # [1, 2, 3] or [[1], [2], [3]]
 
     # check float and contains non-integer float values
-    if y.dtype.kind == 'f' and np.any(y != y.astype(int)):
+    if y.dtype.kind == "f" and np.any(y != y.astype(int)):
         # [.1, .2, 3] or [[.1, .2, 3]] or [[1., .2]] and not [1., 2., 3.]
         _daal_assert_all_finite(y)
-        return 'continuous' + suffix
+        return "continuous" + suffix
 
     unique = np.sort(pd.unique(y.ravel())) if pandas_is_imported else np.unique(y)
 
     if (len(unique) > 2) or (y.ndim >= 2 and len(y[0]) > 1):
         # [1, 2, 3] or [[1., 2., 3]] or [[1, 2]]
-        result = ('multiclass' + suffix, None)
+        result = ("multiclass" + suffix, None)
     else:
-        result = ('binary', unique)  # [1, 2] or [["a"], ["b"]]
+        result = ("binary", unique)  # [1, 2] or [["a"], ["b"]]
     return result
 
 
@@ -154,7 +154,7 @@ def _daal_roc_auc_score(
                 " set to `None`, received `max_fpr={0}` "
                 "instead".format(max_fpr)
             )
-        if multi_class == 'raise':
+        if multi_class == "raise":
             raise ValueError("multi_class must be in ('ovo', 'ovr')")
 
         return multiclass_roc_auc_score(
@@ -173,7 +173,7 @@ def _daal_roc_auc_score(
         if _dal_ready:
             if not np.array_equal(labels, [0, 1]) or labels.dtype == bool:
                 y_true = label_binarize(y_true, classes=labels)[:, 0]
-                if hasattr(y_score, 'dtype') and y_score.dtype == bool:
+                if hasattr(y_score, "dtype") and y_score.dtype == bool:
                     y_score = label_binarize(y_score, classes=labels)[:, 0]
             result = d4p.daal_roc_auc_score(
                 y_true.reshape(-1, 1), y_score.reshape(-1, 1)

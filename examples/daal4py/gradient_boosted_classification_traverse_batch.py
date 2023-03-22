@@ -51,5 +51,5 @@ if __name__ == "__main__":
     for treeId in range(train_result.model.NumberOfTrees):
         treeState = d4p.getTreeState(train_result.model, treeId, 5)
         printTree(treeState.node_ar, treeState.value_ar)
-    print('Traversed {} trees.'.format(train_result.model.NumberOfTrees))
-    print('All looks good!')
+    print("Traversed {} trees.".format(train_result.model.NumberOfTrees))
+    print("All looks good!")

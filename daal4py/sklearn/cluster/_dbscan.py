@@ -29,7 +29,7 @@ from daal4py.sklearn._utils import make2d, getFPType, PatchingConditionsChain
 from .._device_offload import support_usm_ndarray
 from .._utils import sklearn_check_version
 
-if sklearn_check_version('1.1') and not sklearn_check_version('1.2'):
+if sklearn_check_version("1.1") and not sklearn_check_version("1.2"):
     from sklearn.utils import check_scalar
 
 
@@ -39,7 +39,7 @@ def _daal_dbscan(X, eps=0.5, min_samples=5, sample_weight=None):
 
     fpt = getFPType(XX)
     alg = daal4py.dbscan(
-        method='defaultDense',
+        method="defaultDense",
         fptype=fpt,
         epsilon=float(eps),
         minObservations=int(min_samples),
@@ -189,16 +189,16 @@ class DBSCAN(DBSCAN_original):
     DBSCAN(eps=3, min_samples=2)
     """
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**DBSCAN_original._parameter_constraints}
 
     def __init__(
         self,
         eps=0.5,
         min_samples=5,
-        metric='euclidean',
+        metric="euclidean",
         metric_params=None,
-        algorithm='auto',
+        algorithm="auto",
         leaf_size=30,
         p=None,
         n_jobs=None,
@@ -286,13 +286,13 @@ class DBSCAN(DBSCAN_original):
         _dal_ready = _patching_status.and_conditions(
             [
                 (
-                    self.algorithm in ['auto', 'brute'],
+                    self.algorithm in ["auto", "brute"],
                     f"'{self.algorithm}' algorithm is not supported. "
                     "Only 'auto' and 'brute' algorithms are supported",
                 ),
                 (
-                    self.metric == 'euclidean'
-                    or (self.metric == 'minkowski' and self.p == 2),
+                    self.metric == "euclidean"
+                    or (self.metric == "minkowski" and self.p == 2),
                     f"'{self.metric}' (p={self.p}) metric is not supported. "
                     "Only 'euclidean' or 'minkowski' with p=2 metrics are supported.",
                 ),
@@ -302,7 +302,7 @@ class DBSCAN(DBSCAN_original):
 
         _patching_status.write_log()
         if _dal_ready:
-            X = check_array(X, accept_sparse='csr', dtype=[np.float64, np.float32])
+            X = check_array(X, accept_sparse="csr", dtype=[np.float64, np.float32])
             core_ind, assignments = _daal_dbscan(
                 X, self.eps, self.min_samples, sample_weight=sample_weight
             )

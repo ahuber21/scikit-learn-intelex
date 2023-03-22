@@ -27,24 +27,24 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(
-            f, usecols=c, delimiter=',', header=None, dtype=np.float32
+            f, usecols=c, delimiter=",", header=None, dtype=np.float32
         )
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2, dtype=np.float32)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2, dtype=np.float32)
 
 
 # Commone code for both CPU and GPU computations
 def compute(train_indep_data, train_dep_data, test_indep_data, maxIterations):
     # Configure a training object
     train_algo = d4p.gbt_regression_training(
-        maxIterations=maxIterations, fptype='float'
+        maxIterations=maxIterations, fptype="float"
     )
     train_result = train_algo.compute(train_indep_data, train_dep_data)
     # Now let's do some prediction
-    predict_algo = d4p.gbt_regression_prediction(fptype='float')
+    predict_algo = d4p.gbt_regression_prediction(fptype="float")
     # now predict using the model from the training above
     return predict_algo.compute(test_indep_data, train_result.model)
 
@@ -68,12 +68,12 @@ def to_numpy(data):
     return data
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     maxIterations = 200
 
     # input data file
-    infile = os.path.join('..', 'data', 'batch', 'df_regression_train.csv')
-    testfile = os.path.join('..', 'data', 'batch', 'df_regression_test.csv')
+    infile = os.path.join("..", "data", "batch", "df_regression_train.csv")
+    testfile = os.path.join("..", "data", "batch", "df_regression_test.csv")
 
     # Read data. Let's use 13 features per observation
     train_indep_data = readcsv(infile, range(13), t=np.float32)
@@ -100,7 +100,7 @@ def main(readcsv=read_csv, method='defaultDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
     # It is possible to specify to make the computations on GPU
     with gpu_context():
@@ -115,7 +115,7 @@ def main(readcsv=read_csv, method='defaultDense'):
         )
 
     test_dep_data = np.loadtxt(
-        testfile, usecols=range(13, 14), delimiter=',', ndmin=2, dtype=np.float32
+        testfile, usecols=range(13, 14), delimiter=",", ndmin=2, dtype=np.float32
     )
 
     return (result_classic, test_dep_data)
@@ -128,4 +128,4 @@ if __name__ == "__main__":
         predict_result.prediction[0:10],
     )
     print("\nGround truth (first 10 rows):\n", test_dep_data[0:10])
-    print('All looks good!')
+    print("All looks good!")

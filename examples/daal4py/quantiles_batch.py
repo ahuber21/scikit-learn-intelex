@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c=None, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c=None, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     infile = "./data/batch/quantiles.csv"
 
     # configure a quantiles object
@@ -54,4 +54,4 @@ def main(readcsv=read_csv, method='defaultDense'):
 if __name__ == "__main__":
     result = main()
     print("Quantiles:\n", result.quantiles)
-    print('All looks good!')
+    print("All looks good!")

@@ -25,15 +25,15 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     infile = "./data/batch/custom.csv"
     # Read the data, let's have 4 independent variables
     data = readcsv(infile, range(4))
@@ -65,4 +65,4 @@ if __name__ == "__main__":
     res = main()
     print("\nMinimum:\n", res.minimum)
     print("\nNumber of iterations performed:\n", res.nIterations[0][0])
-    print('All looks good!')
+    print("All looks good!")

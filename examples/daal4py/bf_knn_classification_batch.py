@@ -25,18 +25,18 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     # Input data set parameters
-    train_file = os.path.join('data', 'batch', 'k_nearest_neighbors_train.csv')
-    predict_file = os.path.join('data', 'batch', 'k_nearest_neighbors_test.csv')
+    train_file = os.path.join("data", "batch", "k_nearest_neighbors_train.csv")
+    predict_file = os.path.join("data", "batch", "k_nearest_neighbors_test.csv")
 
     # Read data. Let's use 5 features per observation
     nFeatures = 5

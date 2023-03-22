@@ -22,7 +22,7 @@ import daal4py as d4p
 from stream import read_next
 
 
-def main(readcsv=None, method='defaultDense'):
+def main(readcsv=None, method="defaultDense"):
     infile = "./data/batch/covcormoments_dense.csv"
 
     # configure a covariance object
@@ -44,4 +44,4 @@ if __name__ == "__main__":
     res = main()
     print("Covariance matrix:\n", res.covariance)
     print("Mean vector:\n", res.mean)
-    print('All looks good!')
+    print("All looks good!")

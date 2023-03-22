@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     # input data file
     infile = "./data/batch/svm_two_class_train_dense.csv"
     testfile = "./data/batch/svm_two_class_test_dense.csv"
@@ -40,7 +40,7 @@ def main(readcsv=read_csv, method='defaultDense'):
     # Configure a SVM object to use rbf kernel (and adjusting cachesize)
     kern = d4p.kernel_function_linear()
     # need an object that lives when creating train_algo
-    train_algo = d4p.svm_training(method='thunder', kernel=kern, cacheSize=600000000)
+    train_algo = d4p.svm_training(method="thunder", kernel=kern, cacheSize=600000000)
 
     # Read data. Let's use features per observation
     data = readcsv(infile, range(20))
@@ -76,4 +76,4 @@ if __name__ == "__main__":
         "\nSVM classification results (first 20 observations):\n", predict_labels[0:20]
     )
     print("\nGround truth (first 20 observations):\n", plabels[0:20])
-    print('All looks good!')
+    print("All looks good!")

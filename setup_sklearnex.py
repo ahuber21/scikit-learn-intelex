@@ -33,29 +33,29 @@ IS_WIN = False
 IS_MAC = False
 IS_LIN = False
 
-if 'linux' in sys.platform:
+if "linux" in sys.platform:
     IS_LIN = True
-elif sys.platform == 'darwin':
+elif sys.platform == "darwin":
     IS_MAC = True
-elif sys.platform in ['win32', 'cygwin']:
+elif sys.platform in ["win32", "cygwin"]:
     IS_WIN = True
 else:
-    assert False, sys.platform + ' not supported'
+    assert False, sys.platform + " not supported"
 
-dal_root = os.environ.get('DALROOT')
+dal_root = os.environ.get("DALROOT")
 
 if dal_root is None:
     raise RuntimeError("Not set DALROOT variable")
 
-trues = ['true', 'True', 'TRUE', '1', 't', 'T', 'y', 'Y', 'Yes', 'yes', 'YES']
-no_dist = True if 'NO_DIST' in os.environ and os.environ['NO_DIST'] in trues else False
-dpcpp = True if 'DPCPPROOT' in os.environ else False
-dpcpp_root = None if not dpcpp else os.environ['DPCPPROOT']
+trues = ["true", "True", "TRUE", "1", "t", "T", "y", "Y", "Yes", "yes", "YES"]
+no_dist = True if "NO_DIST" in os.environ and os.environ["NO_DIST"] in trues else False
+dpcpp = True if "DPCPPROOT" in os.environ else False
+dpcpp_root = None if not dpcpp else os.environ["DPCPPROOT"]
 
 try:
     import dpctl
 
-    dpctl_available = dpctl.__version__ >= '0.14'
+    dpctl_available = dpctl.__version__ >= "0.14"
 except ImportError:
     dpctl_available = False
 
@@ -117,22 +117,22 @@ setup(
     packages=get_packages_with_tests(
         [
             "sklearnex",
-            'sklearnex.cluster',
-            'sklearnex.decomposition',
-            'sklearnex.ensemble',
-            'sklearnex.glob',
-            'sklearnex.linear_model',
-            'sklearnex.manifold',
-            'sklearnex.metrics',
-            'sklearnex.model_selection',
-            'sklearnex.neighbors',
-            'sklearnex.preview',
-            'sklearnex.preview.ensemble',
-            'sklearnex.preview.decomposition',
-            'sklearnex.preview.linear_model',
-            'sklearnex.svm',
-            'sklearnex.utils',
+            "sklearnex.cluster",
+            "sklearnex.decomposition",
+            "sklearnex.ensemble",
+            "sklearnex.glob",
+            "sklearnex.linear_model",
+            "sklearnex.manifold",
+            "sklearnex.metrics",
+            "sklearnex.model_selection",
+            "sklearnex.neighbors",
+            "sklearnex.preview",
+            "sklearnex.preview.ensemble",
+            "sklearnex.preview.decomposition",
+            "sklearnex.preview.linear_model",
+            "sklearnex.svm",
+            "sklearnex.utils",
         ]
-        + (['sklearnex.spmd'] if build_distribute else [])
+        + (["sklearnex.spmd"] if build_distribute else [])
     ),
 )

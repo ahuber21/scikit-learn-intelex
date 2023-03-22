@@ -32,8 +32,8 @@ if __name__ == "__main__":
     talgo = d4p.multinomial_naive_bayes_training(20, distributed=True)
 
     # Read data. Let's use 20 features per observation
-    data = loadtxt(infile, delimiter=',', usecols=range(20))
-    labels = loadtxt(infile, delimiter=',', usecols=range(20, 21))
+    data = loadtxt(infile, delimiter=",", usecols=range(20))
+    labels = loadtxt(infile, delimiter=",", usecols=range(20, 21))
     labels.shape = (labels.size, 1)  # must be a 2d array
     tresult = talgo.compute(data, labels)
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         palgo = d4p.multinomial_naive_bayes_prediction(20)
         # read test data (with same #features)
         pdata = loadtxt(
-            "./data/batch/naivebayes_test_dense.csv", delimiter=',', usecols=range(20)
+            "./data/batch/naivebayes_test_dense.csv", delimiter=",", usecols=range(20)
         )
         # now predict using the model from the training above
         presult = palgo.compute(pdata, tresult.model)
@@ -51,6 +51,6 @@ if __name__ == "__main__":
         # Prediction result provides prediction
         assert presult.prediction.shape == (pdata.shape[0], 1)
 
-        print('All looks good!')
+        print("All looks good!")
 
     d4p.daalfini()

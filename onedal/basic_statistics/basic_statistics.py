@@ -66,9 +66,9 @@ class BaseBasicStatistics(metaclass=ABCMeta):
     def _get_onedal_params(self, dtype=np.float32):
         options = self._get_result_options(self.options)
         return {
-            'fptype': 'float' if dtype == np.float32 else 'double',
-            'method': self.algorithm,
-            'result_option': options,
+            "fptype": "float" if dtype == np.float32 else "double",
+            "method": self.algorithm,
+            "result_option": options,
         }
 
     def _compute(self, data, weights, module, queue):

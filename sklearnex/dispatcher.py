@@ -23,13 +23,13 @@ from daal4py.sklearn._utils import daal_check_version, sklearn_check_version
 
 
 def _is_new_patching_available():
-    return os.environ.get('OFF_ONEDAL_IFACE') is None and daal_check_version(
-        (2021, 'P', 300)
+    return os.environ.get("OFF_ONEDAL_IFACE") is None and daal_check_version(
+        (2021, "P", 300)
     )
 
 
 def _is_preview_enabled():
-    return os.environ.get('SKLEARNEX_PREVIEW') is not None
+    return os.environ.get("SKLEARNEX_PREVIEW") is not None
 
 
 @lru_cache(maxsize=None)
@@ -82,44 +82,44 @@ def get_patch_map():
 
         if _is_preview_enabled():
             # Ensemble
-            mapping.pop('random_forest_classifier')
-            mapping.pop('random_forest_regressor')
-            mapping.pop('randomrorestclassifier')
-            mapping.pop('randomforestregressor')
-            mapping['random_forest_classifier'] = [
+            mapping.pop("random_forest_classifier")
+            mapping.pop("random_forest_regressor")
+            mapping.pop("randomrorestclassifier")
+            mapping.pop("randomforestregressor")
+            mapping["random_forest_classifier"] = [
                 [
                     (
                         ensemble_module,
-                        'RandomForestClassifier',
+                        "RandomForestClassifier",
                         RandomForestClassifier_sklearnex,
                     ),
                     None,
                 ]
             ]
-            mapping['random_forest_regressor'] = [
+            mapping["random_forest_regressor"] = [
                 [
                     (
                         ensemble_module,
-                        'RandomForestRegressor',
+                        "RandomForestRegressor",
                         RandomForestRegressor_sklearnex,
                     ),
                     None,
                 ]
             ]
-            mapping['randomrorestclassifier'] = mapping['random_forest_classifier']
-            mapping['randomforestregressor'] = mapping['random_forest_regressor']
+            mapping["randomrorestclassifier"] = mapping["random_forest_classifier"]
+            mapping["randomforestregressor"] = mapping["random_forest_regressor"]
 
             # PCA
-            mapping.pop('pca')
-            mapping['pca'] = [[(decomposition_module, 'PCA', PCA_sklearnex), None]]
+            mapping.pop("pca")
+            mapping["pca"] = [[(decomposition_module, "PCA", PCA_sklearnex), None]]
 
             # Linear Regression
-            mapping.pop('linear')
-            mapping['linear'] = [
+            mapping.pop("linear")
+            mapping["linear"] = [
                 [
                     (
                         linear_model_module,
-                        'LinearRegression',
+                        "LinearRegression",
                         LinearRegression_sklearnex,
                     ),
                     None,
@@ -127,65 +127,65 @@ def get_patch_map():
             ]
 
         # SVM
-        mapping.pop('svm')
-        mapping.pop('svc')
-        mapping['svr'] = [[(svm_module, 'SVR', SVR_sklearnex), None]]
-        mapping['svc'] = [[(svm_module, 'SVC', SVC_sklearnex), None]]
-        mapping['nusvr'] = [[(svm_module, 'NuSVR', NuSVR_sklearnex), None]]
-        mapping['nusvc'] = [[(svm_module, 'NuSVC', NuSVC_sklearnex), None]]
+        mapping.pop("svm")
+        mapping.pop("svc")
+        mapping["svr"] = [[(svm_module, "SVR", SVR_sklearnex), None]]
+        mapping["svc"] = [[(svm_module, "SVC", SVC_sklearnex), None]]
+        mapping["nusvr"] = [[(svm_module, "NuSVR", NuSVR_sklearnex), None]]
+        mapping["nusvc"] = [[(svm_module, "NuSVC", NuSVC_sklearnex), None]]
 
         # kNN
-        mapping.pop('knn_classifier')
-        mapping.pop('kneighborsclassifier')
-        mapping.pop('knn_regressor')
-        mapping.pop('kneighborsregressor')
-        mapping.pop('nearest_neighbors')
-        mapping.pop('nearestneighbors')
-        mapping['knn_classifier'] = [
+        mapping.pop("knn_classifier")
+        mapping.pop("kneighborsclassifier")
+        mapping.pop("knn_regressor")
+        mapping.pop("kneighborsregressor")
+        mapping.pop("nearest_neighbors")
+        mapping.pop("nearestneighbors")
+        mapping["knn_classifier"] = [
             [
                 (
                     neighbors_module,
-                    'KNeighborsClassifier',
+                    "KNeighborsClassifier",
                     KNeighborsClassifier_sklearnex,
                 ),
                 None,
             ]
         ]
-        mapping['knn_regressor'] = [
+        mapping["knn_regressor"] = [
             [
                 (
                     neighbors_module,
-                    'KNeighborsRegressor',
+                    "KNeighborsRegressor",
                     KNeighborsRegressor_sklearnex,
                 ),
                 None,
             ]
         ]
-        mapping['nearest_neighbors'] = [
-            [(neighbors_module, 'NearestNeighbors', NearestNeighbors_sklearnex), None]
+        mapping["nearest_neighbors"] = [
+            [(neighbors_module, "NearestNeighbors", NearestNeighbors_sklearnex), None]
         ]
-        mapping['kneighborsclassifier'] = mapping['knn_classifier']
-        mapping['kneighborsregressor'] = mapping['knn_regressor']
-        mapping['nearestneighbors'] = mapping['nearest_neighbors']
+        mapping["kneighborsclassifier"] = mapping["knn_classifier"]
+        mapping["kneighborsregressor"] = mapping["knn_regressor"]
+        mapping["nearestneighbors"] = mapping["nearest_neighbors"]
 
         # LocalOutlierFactor
-        mapping['lof'] = [
+        mapping["lof"] = [
             [
-                (neighbors_module, 'LocalOutlierFactor', LocalOutlierFactor_sklearnex),
+                (neighbors_module, "LocalOutlierFactor", LocalOutlierFactor_sklearnex),
                 None,
             ]
         ]
-        mapping['localoutlierfactor'] = mapping['lof']
+        mapping["localoutlierfactor"] = mapping["lof"]
 
         # Configs
-        mapping['set_config'] = [
-            [(base_module, 'set_config', set_config_sklearnex), None]
+        mapping["set_config"] = [
+            [(base_module, "set_config", set_config_sklearnex), None]
         ]
-        mapping['get_config'] = [
-            [(base_module, 'get_config', get_config_sklearnex), None]
+        mapping["get_config"] = [
+            [(base_module, "get_config", get_config_sklearnex), None]
         ]
-        mapping['config_context'] = [
-            [(base_module, 'config_context', config_context_sklearnex), None]
+        mapping["config_context"] = [
+            [(base_module, "config_context", config_context_sklearnex), None]
         ]
     return mapping
 
@@ -196,8 +196,8 @@ def get_patch_names():
 
 def patch_sklearn(name=None, verbose=True, global_patch=False, preview=False):
     if preview:
-        os.environ['SKLEARNEX_PREVIEW'] = 'enabled_via_patch_sklearn'
-    if not sklearn_check_version('0.22'):
+        os.environ["SKLEARNEX_PREVIEW"] = "enabled_via_patch_sklearn"
+    if not sklearn_check_version("0.22"):
         raise NotImplementedError(
             "Intel(R) Extension for Scikit-learn* patches apply "
             "for scikit-learn >= 0.22 only ..."
@@ -211,7 +211,7 @@ def patch_sklearn(name=None, verbose=True, global_patch=False, preview=False):
     from daal4py.sklearn import patch_sklearn as patch_sklearn_orig
 
     if _is_new_patching_available():
-        for config in ['set_config', 'get_config', 'config_context']:
+        for config in ["set_config", "get_config", "config_context"]:
             patch_sklearn_orig(
                 config, verbose=False, deprecation=False, get_map=get_patch_map
             )
@@ -244,11 +244,11 @@ def unpatch_sklearn(name=None, global_unpatch=False):
             unpatch_sklearn_orig(algorithm, get_map=get_patch_map)
     else:
         if _is_new_patching_available():
-            for config in ['set_config', 'get_config', 'config_context']:
+            for config in ["set_config", "get_config", "config_context"]:
                 unpatch_sklearn_orig(config, get_map=get_patch_map)
         unpatch_sklearn_orig(name, get_map=get_patch_map)
-    if os.environ.get('SKLEARNEX_PREVIEW') == 'enabled_via_patch_sklearn':
-        os.environ.pop('SKLEARNEX_PREVIEW')
+    if os.environ.get("SKLEARNEX_PREVIEW") == "enabled_via_patch_sklearn":
+        os.environ.pop("SKLEARNEX_PREVIEW")
 
 
 def sklearn_is_patched(name=None, return_map=False):

@@ -32,7 +32,7 @@ from sklearn.utils import check_random_state, check_array
 from ..neighbors import NearestNeighbors
 from .._device_offload import support_usm_ndarray
 
-if sklearn_check_version('0.22'):
+if sklearn_check_version("0.22"):
     from sklearn.manifold._t_sne import _joint_probabilities
     from sklearn.manifold._t_sne import _joint_probabilities_nn
 else:
@@ -108,7 +108,7 @@ class TSNE(BaseTSNE):
         ]
 
         # Pass params to daal4py backend
-        if daal_check_version((2023, 'P', 1)):
+        if daal_check_version((2023, "P", 1)):
             size_iter.extend([[self._EXPLORATION_N_ITER], [self._N_ITER_CHECK]])
 
         size_iter = np.array(size_iter, dtype=P.dtype)
@@ -145,28 +145,28 @@ class TSNE(BaseTSNE):
 
     def _fit(self, X, skip_num_points=0):
         """Private function to fit the model using X as training data."""
-        if isinstance(self.init, str) and self.init == 'warn':
+        if isinstance(self.init, str) and self.init == "warn":
             warnings.warn(
                 "The default initialization in TSNE will change "
                 "from 'random' to 'pca' in 1.2.",
                 FutureWarning,
             )
-            self._init = 'random'
+            self._init = "random"
         else:
             self._init = self.init
 
-        if isinstance(self._init, str) and self._init == 'pca' and issparse(X):
+        if isinstance(self._init, str) and self._init == "pca" and issparse(X):
             raise TypeError(
                 "PCA initialization is currently not suported "
                 "with the sparse input matrix. Use "
-                "init=\"random\" instead."
+                'init="random" instead.'
             )
 
-        if self.method not in ['barnes_hut', 'exact']:
+        if self.method not in ["barnes_hut", "exact"]:
             raise ValueError("'method' must be 'barnes_hut' or 'exact'")
         if self.angle < 0.0 or self.angle > 1.0:
             raise ValueError("'angle' must be between 0.0 - 1.0")
-        if self.learning_rate == 'warn':
+        if self.learning_rate == "warn":
             warnings.warn(
                 "The default learning rate in TSNE will change "
                 "from 200.0 to 'auto' in 1.2.",
@@ -175,7 +175,7 @@ class TSNE(BaseTSNE):
             self._learning_rate = 200.0
         else:
             self._learning_rate = self.learning_rate
-        if self._learning_rate == 'auto':
+        if self._learning_rate == "auto":
             self._learning_rate = X.shape[0] / self.early_exaggeration / 4
             self._learning_rate = np.maximum(self._learning_rate, 50)
         else:
@@ -184,10 +184,10 @@ class TSNE(BaseTSNE):
                     "'learning_rate' must be a positive number " "or 'auto'."
                 )
         # rename attribute for compatibility with sklearn>=1.2
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             self.learning_rate_ = self._learning_rate
 
-        if hasattr(self, 'square_distances'):
+        if hasattr(self, "square_distances"):
             if sklearn_check_version("1.1"):
                 if self.square_distances != "deprecated":
                     warnings.warn(
@@ -210,40 +210,40 @@ class TSNE(BaseTSNE):
                         FutureWarning,
                     )
 
-        if self.method == 'barnes_hut':
-            if sklearn_check_version('0.23'):
+        if self.method == "barnes_hut":
+            if sklearn_check_version("0.23"):
                 X = self._validate_data(
                     X,
-                    accept_sparse=['csr'],
+                    accept_sparse=["csr"],
                     ensure_min_samples=2,
                     dtype=[np.float32, np.float64],
                 )
             else:
                 X = check_array(
                     X,
-                    accept_sparse=['csr'],
+                    accept_sparse=["csr"],
                     ensure_min_samples=2,
                     dtype=[np.float32, np.float64],
                 )
         else:
-            if sklearn_check_version('0.23'):
+            if sklearn_check_version("0.23"):
                 X = self._validate_data(
                     X,
-                    accept_sparse=['csr', 'csc', 'coo'],
+                    accept_sparse=["csr", "csc", "coo"],
                     dtype=[np.float32, np.float64],
                 )
             else:
                 X = check_array(
                     X,
-                    accept_sparse=['csr', 'csc', 'coo'],
+                    accept_sparse=["csr", "csc", "coo"],
                     dtype=[np.float32, np.float64],
                 )
 
         if self.metric == "precomputed":
-            if isinstance(self._init, str) and self._init == 'pca':
+            if isinstance(self._init, str) and self._init == "pca":
                 raise ValueError(
-                    "The parameter init=\"pca\" cannot be "
-                    "used with metric=\"precomputed\"."
+                    'The parameter init="pca" cannot be '
+                    'used with metric="precomputed".'
                 )
             if X.shape[0] != X.shape[1]:
                 raise ValueError("X should be a square distance matrix")
@@ -258,10 +258,10 @@ class TSNE(BaseTSNE):
                 raise TypeError(
                     'TSNE with method="exact" does not accept sparse '
                     'precomputed distance matrix. Use method="barnes_hut" '
-                    'or provide the dense distance matrix.'
+                    "or provide the dense distance matrix."
                 )
 
-        if self.method == 'barnes_hut' and self.n_components > 3:
+        if self.method == "barnes_hut" and self.n_components > 3:
             raise ValueError(
                 "'n_components' should be inferior to 4 for the "
                 "barnes_hut algorithm as it relies on "
@@ -300,7 +300,7 @@ class TSNE(BaseTSNE):
                     distances = pairwise_distances(X, metric=self.metric, squared=True)
                 else:
                     metric_params_ = {}
-                    if sklearn_check_version('1.1'):
+                    if sklearn_check_version("1.1"):
                         metric_params_ = self.metric_params or {}
                     distances = pairwise_distances(
                         X, metric=self.metric, n_jobs=self.n_jobs, **metric_params_
@@ -314,7 +314,7 @@ class TSNE(BaseTSNE):
 
             if (
                 self.metric != "euclidean"
-                and getattr(self, 'square_distances', True) is True
+                and getattr(self, "square_distances", True) is True
             ):
                 distances **= 2
 
@@ -340,7 +340,7 @@ class TSNE(BaseTSNE):
             knn = None
             if sklearn_check_version("1.1"):
                 knn = NearestNeighbors(
-                    algorithm='auto',
+                    algorithm="auto",
                     n_jobs=self.n_jobs,
                     n_neighbors=n_neighbors,
                     metric=self.metric,
@@ -348,7 +348,7 @@ class TSNE(BaseTSNE):
                 )
             else:
                 knn = NearestNeighbors(
-                    algorithm='auto',
+                    algorithm="auto",
                     n_jobs=self.n_jobs,
                     n_neighbors=n_neighbors,
                     metric=self.metric,
@@ -364,7 +364,7 @@ class TSNE(BaseTSNE):
                 )
 
             t0 = time()
-            distances_nn = knn.kneighbors_graph(mode='distance')
+            distances_nn = knn.kneighbors_graph(mode="distance")
             duration = time() - t0
             if self.verbose:
                 print(
@@ -376,7 +376,7 @@ class TSNE(BaseTSNE):
             del knn
 
             if (
-                getattr(self, 'square_distances', True) is True
+                getattr(self, "square_distances", True) is True
                 or self.metric == "euclidean"
             ):
                 # knn return the euclidean distance but we need it squared
@@ -391,10 +391,10 @@ class TSNE(BaseTSNE):
 
         if isinstance(self._init, np.ndarray):
             X_embedded = self._init
-        elif self._init == 'pca':
+        elif self._init == "pca":
             pca = PCA(
                 n_components=self.n_components,
-                svd_solver='randomized',
+                svd_solver="randomized",
                 random_state=random_state,
             )
             X_embedded = pca.fit_transform(X).astype(np.float32, copy=False)
@@ -404,7 +404,7 @@ class TSNE(BaseTSNE):
                 "in 1.2. This will ensure better convergence.",
                 FutureWarning,
             )
-        elif self._init == 'random':
+        elif self._init == "random":
             # The embedding is initialized with iid samples from Gaussians with
             # standard deviation 1e-4.
             X_embedded = 1e-4 * random_state.randn(n_samples, self.n_components).astype(
@@ -420,10 +420,10 @@ class TSNE(BaseTSNE):
         degrees_of_freedom = max(self.n_components - 1, 1)
 
         daal_ready = (
-            self.method == 'barnes_hut'
+            self.method == "barnes_hut"
             and self.n_components == 2
             and self.verbose == 0
-            and daal_check_version((2021, 'P', 600))
+            and daal_check_version((2021, "P", 600))
         )
 
         if daal_ready:

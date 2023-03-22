@@ -24,20 +24,20 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     infile = "./data/batch/stump_train.csv"
     testfile = "./data/batch/stump_test.csv"
 
     # Configure a stump classification training object
-    train_algo = d4p.stump_classification_training(splitCriterion='gini')
+    train_algo = d4p.stump_classification_training(splitCriterion="gini")
 
     # Read data. Let's have 20 independent,
     # and 1 dependent variable (for each observation)
@@ -55,7 +55,7 @@ def main(readcsv=read_csv, method='defaultDense'):
 
     # The prediction result provides prediction
     assert predict_result.prediction.shape == (pdata.shape[0], dep_data.shape[1])
-    ptdata = np.loadtxt(testfile, usecols=range(20, 21), delimiter=',', ndmin=2)
+    ptdata = np.loadtxt(testfile, usecols=range(20, 21), delimiter=",", ndmin=2)
     assert np.allclose(predict_result.prediction, ptdata)
     return (train_result, predict_result, ptdata)
 
@@ -67,4 +67,4 @@ if __name__ == "__main__":
         "Stump classification results: (first 20 observations):\n",
         predict_result.prediction[:20],
     )
-    print('All looks good!')
+    print("All looks good!")

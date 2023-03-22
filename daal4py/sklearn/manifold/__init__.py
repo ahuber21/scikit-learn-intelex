@@ -17,4 +17,4 @@
 
 from ._t_sne import TSNE
 
-__all__ = ['TSNE']
+__all__ = ["TSNE"]

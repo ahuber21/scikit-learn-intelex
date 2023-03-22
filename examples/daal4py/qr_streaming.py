@@ -22,7 +22,7 @@ import daal4py as d4p
 from stream import read_next
 
 
-def main(readcsv=None, method='svdDense'):
+def main(readcsv=None, method="svdDense"):
     infile = "./data/batch/qr.csv"
 
     # configure a QR object
@@ -45,4 +45,4 @@ if __name__ == "__main__":
     result = main()
     print("Orthogonal matrix Q:\n", result.matrixQ[:10])
     print("Triangular matrix R:\n", result.matrixR)
-    print('All looks good!')
+    print("All looks good!")

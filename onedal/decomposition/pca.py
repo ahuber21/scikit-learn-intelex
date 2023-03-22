@@ -25,7 +25,7 @@ from daal4py.sklearn._utils import sklearn_check_version
 
 class PCA:
     def __init__(
-        self, n_components=None, is_deterministic=True, method='precomputed', copy=True
+        self, n_components=None, is_deterministic=True, method="precomputed", copy=True
     ):
         self.n_components = n_components
         self.method = method
@@ -33,10 +33,10 @@ class PCA:
 
     def get_onedal_params(self, data):
         return {
-            'fptype': 'float' if data.dtype == np.float32 else 'double',
-            'method': self.method,
-            'n_components': self.n_components,
-            'is_deterministic': self.is_deterministic,
+            "fptype": "float" if data.dtype == np.float32 else "double",
+            "method": self.method,
+            "n_components": self.n_components,
+            "is_deterministic": self.is_deterministic,
         }
 
     def _get_policy(self, queue, *data):
@@ -49,13 +49,13 @@ class PCA:
         policy = self._get_policy(queue, X)
         # TODO: investigate why np.ndarray with OWNDATA=FALSE flag
         # fails to be converted to oneDAL table
-        if isinstance(X, np.ndarray) and not X.flags['OWNDATA']:
+        if isinstance(X, np.ndarray) and not X.flags["OWNDATA"]:
             X = X.copy()
         X = _convert_to_supported(policy, X)
 
         params = self.get_onedal_params(X)
         cov_result = _backend.covariance.compute(
-            policy, {'fptype': params['fptype'], 'method': 'dense'}, to_table(X)
+            policy, {"fptype": params["fptype"], "method": "dense"}, to_table(X)
         )
         covariance_matrix = from_table(cov_result.cov_matrix)
         self.mean_ = from_table(cov_result.means)

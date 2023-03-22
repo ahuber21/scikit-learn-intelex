@@ -48,11 +48,11 @@ if sklearn_check_version("0.24"):
             self,
             n_neighbors=5,
             *,
-            weights='uniform',
-            algorithm='auto',
+            weights="uniform",
+            algorithm="auto",
             leaf_size=30,
             p=2,
-            metric='minkowski',
+            metric="minkowski",
             metric_params=None,
             n_jobs=None,
             **kwargs
@@ -86,11 +86,11 @@ else:
             self,
             n_neighbors=5,
             *,
-            weights='uniform',
-            algorithm='auto',
+            weights="uniform",
+            algorithm="auto",
             leaf_size=30,
             p=2,
-            metric='minkowski',
+            metric="minkowski",
             metric_params=None,
             n_jobs=None,
             **kwargs
@@ -115,11 +115,11 @@ class KNeighborsRegressor(KNeighborsRegressor_):
         self,
         n_neighbors=5,
         *,
-        weights='uniform',
-        algorithm='auto',
+        weights="uniform",
+        algorithm="auto",
         leaf_size=30,
         p=2,
-        metric='minkowski',
+        metric="minkowski",
         metric_params=None,
         n_jobs=None,
         **kwargs
@@ -178,6 +178,6 @@ class KNeighborsRegressor(KNeighborsRegressor_):
         y : ndarray of shape (n_queries,) or (n_queries, n_outputs), dtype=int
             Target values.
         """
-        if sklearn_check_version('1.0'):
+        if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
         return BaseKNeighborsRegressor.predict(self, X)

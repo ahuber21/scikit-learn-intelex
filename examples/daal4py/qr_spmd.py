@@ -33,7 +33,7 @@ def main():
     result1 = algo.compute(infile)
 
     # We can also load the data ourselfs and provide the numpy array
-    data = loadtxt(infile, delimiter=',')
+    data = loadtxt(infile, delimiter=",")
     result2 = algo.compute(data)
 
     # QR result provide matrixQ and matrixR
@@ -54,5 +54,5 @@ if __name__ == "__main__":
     if d4p.my_procid() == 0:
         print("\nEach process has matrixR but only his part of matrixQ:\n")
         print(result)
-        print('All looks good!')
+        print("All looks good!")
     d4p.daalfini()

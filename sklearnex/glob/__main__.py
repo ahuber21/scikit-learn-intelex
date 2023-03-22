@@ -37,22 +37,22 @@ def _main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    parser.register('action', 'extend', ExtendAction)
+    parser.register("action", "extend", ExtendAction)
     parser.add_argument(
-        'action',
+        "action",
         choices=["patch_sklearn", "unpatch_sklearn"],
         help="Enable or Disable patching",
     )
     parser.add_argument(
-        '--no-verbose',
-        '-nv',
-        action='store_false',
+        "--no-verbose",
+        "-nv",
+        action="store_false",
         help="Disable additional information about enabling patching",
     )
     parser.add_argument(
-        '--algorithm',
-        '-a',
-        action='extend',
+        "--algorithm",
+        "-a",
+        action="extend",
         type=str,
         nargs="+",
         help="The name of an algorithm to be patched globally",

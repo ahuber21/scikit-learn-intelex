@@ -22,7 +22,7 @@ def _check_is_fitted(estimator, attributes=None, *, msg=None):
             "appropriate arguments before using this estimator."
         )
 
-    if not hasattr(estimator, 'fit'):
+    if not hasattr(estimator, "fit"):
         raise TypeError("%s is not an estimator instance." % (estimator))
 
     if attributes is not None:
@@ -35,7 +35,7 @@ def _check_is_fitted(estimator, attributes=None, *, msg=None):
         ]
 
     if not attrs:
-        raise AttributeError(msg % {'name': type(estimator).__name__})
+        raise AttributeError(msg % {"name": type(estimator).__name__})
 
 
 def _is_classifier(estimator):

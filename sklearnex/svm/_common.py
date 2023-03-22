@@ -31,7 +31,7 @@ def get_dual_coef(self):
 
 def set_dual_coef(self, value):
     self.dual_coef_ = value
-    if hasattr(self, '_onedal_estimator'):
+    if hasattr(self, "_onedal_estimator"):
         self._onedal_estimator.dual_coef_ = value
         if not self._is_in_fit:
             del self._onedal_estimator._onedal_model
@@ -43,7 +43,7 @@ def get_intercept(self):
 
 def set_intercept(self, value):
     self._intercept_ = value
-    if hasattr(self, '_onedal_estimator'):
+    if hasattr(self, "_onedal_estimator"):
         self._onedal_estimator.intercept_ = value
         if not self._is_in_fit:
             del self._onedal_estimator._onedal_model
@@ -69,13 +69,13 @@ class BaseSVC(ABC):
 
         params = self.get_params()
         params["probability"] = False
-        params["decision_function_shape"] = 'ovr'
+        params["decision_function_shape"] = "ovr"
         clf_base = self.__class__(**params)
 
         # We use stock metaestimators below, so the only way
         # to pass a queue is using config_context.
         cfg = get_config()
-        cfg['target_offload'] = queue
+        cfg["target_offload"] = queue
         with config_context(**cfg):
             try:
                 n_splits = 5
@@ -85,17 +85,17 @@ class BaseSVC(ABC):
                 )
                 if sklearn_check_version("0.24"):
                     self.clf_prob = CalibratedClassifierCV(
-                        clf_base, ensemble=False, cv=cv, method='sigmoid', n_jobs=n_jobs
+                        clf_base, ensemble=False, cv=cv, method="sigmoid", n_jobs=n_jobs
                     )
                 else:
                     self.clf_prob = CalibratedClassifierCV(
-                        clf_base, cv=cv, method='sigmoid'
+                        clf_base, cv=cv, method="sigmoid"
                     )
                 self.clf_prob.fit(X, y, sample_weight)
             except ValueError:
                 clf_base = clf_base.fit(X, y, sample_weight)
                 self.clf_prob = CalibratedClassifierCV(
-                    clf_base, cv="prefit", method='sigmoid'
+                    clf_base, cv="prefit", method="sigmoid"
                 )
                 self.clf_prob.fit(X, y, sample_weight)
 

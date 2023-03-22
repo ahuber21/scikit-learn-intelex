@@ -23,10 +23,10 @@ import pandas as pd
 
 
 def pd_read_csv(f, c=None, t=np.float64):
-    return pd.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+    return pd.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 
-def main(readcsv=pd_read_csv, method='defaultDense'):
+def main(readcsv=pd_read_csv, method="defaultDense"):
     # Path to data
     train_file = "./data/batch/df_classification_train.csv"
     test_file = "./data/batch/df_classification_test.csv"
@@ -44,16 +44,16 @@ def main(readcsv=pd_read_csv, method='defaultDense'):
 
     # training parameters setting
     params = {
-        'max_bin': 256,
-        'scale_pos_weight': 2,
-        'lambda_l2': 1,
-        'alpha': 0.9,
-        'max_depth': 8,
-        'num_leaves': 2**8,
-        'verbose': -1,
-        'objective': 'multiclass',
-        'learning_rate': 0.3,
-        'num_class': 5,
+        "max_bin": 256,
+        "scale_pos_weight": 2,
+        "lambda_l2": 1,
+        "alpha": 0.9,
+        "max_depth": 8,
+        "num_leaves": 2**8,
+        "verbose": -1,
+        "objective": "multiclass",
+        "learning_rate": 0.3,
+        "num_class": 5,
     }
 
     # Training
@@ -70,7 +70,7 @@ def main(readcsv=pd_read_csv, method='defaultDense'):
     daal_predict_algo = d4p.gbt_classification_prediction(
         nClasses=params["num_class"],
         resultsToEvaluate="computeClassLabels",
-        fptype='float',
+        fptype="float",
     )
     daal_prediction = daal_predict_algo.compute(X_test, daal_model)
     daal_errors_count = np.count_nonzero(daal_prediction.prediction - y_test)

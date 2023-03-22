@@ -22,7 +22,7 @@ from sklearnex.spmd.basic_statistics import BasicStatistics as BasicStatisticsSp
 
 
 def generate_data(par, size, seed=777):
-    ns, nf = par['ns'], par['nf']
+    ns, nf = par["ns"], par["nf"]
 
     data_blocks, weight_blocks = [], []
     rng = np.random.default_rng(seed)
@@ -45,7 +45,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-params_spmd = {'ns': 19, 'nf': 31}
+params_spmd = {"ns": 19, "nf": 31}
 
 data, weights = generate_data(params_spmd, size)
 weighted_data = np.diag(weights) @ data

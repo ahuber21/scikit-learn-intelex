@@ -16,4 +16,4 @@
 
 from ._split import _daal_train_test_split
 
-__all__ = ['_daal_train_test_split']
+__all__ = ["_daal_train_test_split"]

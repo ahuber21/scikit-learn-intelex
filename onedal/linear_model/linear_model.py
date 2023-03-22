@@ -48,12 +48,12 @@ class BaseLinearRegression(BaseEstimator, metaclass=ABCMeta):
         return _get_policy(queue, *data)
 
     def _get_onedal_params(self, dtype=np.float32):
-        intercept = 'intercept|' if self.fit_intercept else ''
+        intercept = "intercept|" if self.fit_intercept else ""
         return {
-            'fptype': 'float' if dtype == np.float32 else 'double',
-            'method': self.algorithm,
-            'intercept': self.fit_intercept,
-            'result_option': (intercept + 'coefficients'),
+            "fptype": "float" if dtype == np.float32 else "double",
+            "method": self.algorithm,
+            "intercept": self.fit_intercept,
+            "result_option": (intercept + "coefficients"),
         }
 
     def _fit(self, X, y, module, queue):
@@ -170,7 +170,7 @@ class BaseLinearRegression(BaseEstimator, metaclass=ABCMeta):
         )
         _check_n_features(self, X_loc, False)
 
-        if hasattr(self, '_onedal_model'):
+        if hasattr(self, "_onedal_model"):
             model = self._onedal_model
         else:
             model = self._create_model(module, policy)
@@ -200,7 +200,7 @@ class LinearRegression(RegressorMixin, BaseLinearRegression):
     """
 
     def __init__(
-        self, fit_intercept=True, copy_X=False, *, algorithm='norm_eq', **kwargs
+        self, fit_intercept=True, copy_X=False, *, algorithm="norm_eq", **kwargs
     ):
         super().__init__(
             fit_intercept=fit_intercept, copy_X=copy_X, algorithm=algorithm

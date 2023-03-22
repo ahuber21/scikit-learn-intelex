@@ -24,7 +24,7 @@ from daal4py.oneapi import sycl_buffer
 # let's use a generator for getting stream from file (defined in stream.py)
 import sys
 
-sys.path.insert(0, '..')
+sys.path.insert(0, "..")
 from stream import read_next
 
 try:
@@ -36,7 +36,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -61,13 +61,13 @@ def to_numpy(data):
     return data
 
 
-def main(readcsv=None, method='defaultDense'):
+def main(readcsv=None, method="defaultDense"):
     # read data from file
-    infile = os.path.join('..', 'data', 'batch', 'covcormoments_dense.csv')
+    infile = os.path.join("..", "data", "batch", "covcormoments_dense.csv")
 
     # Using of the classic way (computations on CPU)
     # Configure a low order moments object for streaming
-    algo = d4p.low_order_moments(streaming=True, fptype='float')
+    algo = d4p.low_order_moments(streaming=True, fptype="float")
     # get the generator (defined in stream.py)...
     rn = read_next(infile, 55, readcsv)
     # ... and iterate through chunks/stream
@@ -89,16 +89,16 @@ def main(readcsv=None, method='defaultDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     try:
         with gpu_context():
             # Configure a low order moments object for streaming
-            algo = d4p.low_order_moments(streaming=True, fptype='float')
+            algo = d4p.low_order_moments(streaming=True, fptype="float")
             # get the generator (defined in stream.py)...
             rn = read_next(infile, 55, readcsv)
             # ... and iterate through chunks/stream
@@ -108,16 +108,16 @@ def main(readcsv=None, method='defaultDense'):
             # finalize computation
             result_gpu = algo.finalize()
         for name in [
-            'minimum',
-            'maximum',
-            'sum',
-            'sumSquares',
-            'sumSquaresCentered',
-            'mean',
-            'secondOrderRawMoment',
-            'variance',
-            'standardDeviation',
-            'variation',
+            "minimum",
+            "maximum",
+            "sum",
+            "sumSquares",
+            "sumSquaresCentered",
+            "mean",
+            "secondOrderRawMoment",
+            "variance",
+            "standardDeviation",
+            "variation",
         ]:
             assert np.allclose(getattr(result_classic, name), getattr(result_gpu, name))
     except RuntimeError:
@@ -125,7 +125,7 @@ def main(readcsv=None, method='defaultDense'):
     # It is possible to specify to make the computations on CPU
     with cpu_context():
         # Configure a low order moments object for streaming
-        algo = d4p.low_order_moments(streaming=True, fptype='float')
+        algo = d4p.low_order_moments(streaming=True, fptype="float")
         # get the generator (defined in stream.py)...
         rn = read_next(infile, 55, readcsv)
         # ... and iterate through chunks/stream
@@ -138,16 +138,16 @@ def main(readcsv=None, method='defaultDense'):
     # result provides minimum, maximum, sum, sumSquares, sumSquaresCentered,
     # mean, secondOrderRawMoment, variance, standardDeviation, variation
     for name in [
-        'minimum',
-        'maximum',
-        'sum',
-        'sumSquares',
-        'sumSquaresCentered',
-        'mean',
-        'secondOrderRawMoment',
-        'variance',
-        'standardDeviation',
-        'variation',
+        "minimum",
+        "maximum",
+        "sum",
+        "sumSquares",
+        "sumSquaresCentered",
+        "mean",
+        "secondOrderRawMoment",
+        "variance",
+        "standardDeviation",
+        "variation",
     ]:
         assert np.allclose(getattr(result_classic, name), getattr(result_cpu, name))
 
@@ -167,4 +167,4 @@ if __name__ == "__main__":
     print("\nVariance:\n", res.variance)
     print("\nStandard deviation:\n", res.standardDeviation)
     print("\nVariation:\n", res.variation)
-    print('All looks good!')
+    print("All looks good!")

@@ -23,29 +23,29 @@ from .dispatcher import sklearn_is_patched
 from ._config import get_config, set_config, config_context
 
 __all__ = [
-    'cluster',
-    'config_context',
-    'basic_statistics',
-    'decomposition',
-    'ensemble',
-    'get_config',
-    'get_patch_names',
-    'linear_model',
-    'manifold',
-    'metrics',
-    'neighbors',
-    'patch_sklearn',
-    'set_config',
-    'svm',
-    'unpatch_sklearn',
-    'utils',
-    'sklearn_is_patchedget_patch_map',
+    "cluster",
+    "config_context",
+    "basic_statistics",
+    "decomposition",
+    "ensemble",
+    "get_config",
+    "get_patch_names",
+    "linear_model",
+    "manifold",
+    "metrics",
+    "neighbors",
+    "patch_sklearn",
+    "set_config",
+    "svm",
+    "unpatch_sklearn",
+    "utils",
+    "sklearn_is_patchedget_patch_map",
 ]
 
 from onedal import _is_dpc_backend
 
 if _is_dpc_backend:
-    __all__.append('spmd')
+    __all__.append("spmd")
 
 from ._utils import set_sklearn_ex_verbose
 

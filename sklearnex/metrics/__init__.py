@@ -19,6 +19,6 @@ from .ranking import roc_auc_score
 from .pairwise import pairwise_distances
 
 __all__ = [
-    'roc_auc_score',
-    'pairwise_distances',
+    "roc_auc_score",
+    "pairwise_distances",
 ]

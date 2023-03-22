@@ -37,7 +37,7 @@ def main():
     data = read_csv(infile, sr=skiprows, nr=nrows)
 
     # Create algorithm with distributed mode
-    alg = d4p.low_order_moments(method='defaultDense', distributed=True)
+    alg = d4p.low_order_moments(method="defaultDense", distributed=True)
 
     # Perform computation
     res = alg.compute(data)
@@ -47,16 +47,16 @@ def main():
     assert all(
         getattr(res, name).shape == (1, data.shape[1])
         for name in [
-            'minimum',
-            'maximum',
-            'sum',
-            'sumSquares',
-            'sumSquaresCentered',
-            'mean',
-            'secondOrderRawMoment',
-            'variance',
-            'standardDeviation',
-            'variation',
+            "minimum",
+            "maximum",
+            "sum",
+            "sumSquares",
+            "sumSquaresCentered",
+            "mean",
+            "secondOrderRawMoment",
+            "variance",
+            "standardDeviation",
+            "variation",
         ]
     )
 

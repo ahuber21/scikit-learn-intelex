@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     nClasses = 5
     nFeatures = 6
 
@@ -62,7 +62,7 @@ def main(readcsv=read_csv, method='defaultDense'):
     assert predict_result.probabilities.shape == (predict_data.shape[0], nClasses)
     assert predict_result.logProbabilities.shape == (predict_data.shape[0], nClasses)
     predict_labels = np.loadtxt(
-        testfile, usecols=range(nFeatures, nFeatures + 1), delimiter=',', ndmin=2
+        testfile, usecols=range(nFeatures, nFeatures + 1), delimiter=",", ndmin=2
     )
     assert (
         np.count_nonzero(predict_result.prediction - predict_labels)
@@ -89,4 +89,4 @@ if __name__ == "__main__":
         "\nLogistic regression prediction log probabilities (first 10 rows):\n",
         predict_result.logProbabilities[0:10],
     )
-    print('All looks good!')
+    print("All looks good!")

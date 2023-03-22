@@ -43,12 +43,12 @@ from .._utils import (
 def _daal_assert_all_finite(
     X, allow_nan=False, msg_dtype=None, estimator_name=None, input_name=""
 ):
-    if _get_config()['assume_finite']:
+    if _get_config()["assume_finite"]:
         return
 
     # Data with small size has too big relative overhead
     # TODO: tune threshold size
-    if hasattr(X, 'size'):
+    if hasattr(X, "size"):
         if X.size < 32768:
             if sklearn_check_version("1.1"):
                 _assert_all_finite(
@@ -71,22 +71,22 @@ def _daal_assert_all_finite(
         lst = []
         for idx in X:
             arr = X[idx].to_numpy()
-            lst.append(arr if arr.flags['C_CONTIGUOUS'] else np.ascontiguousarray(arr))
+            lst.append(arr if arr.flags["C_CONTIGUOUS"] else np.ascontiguousarray(arr))
     else:
         X = np.asanyarray(X)
         is_df = False
 
     dt = np.dtype(get_dtype(X))
-    is_float = dt.kind in 'fc'
+    is_float = dt.kind in "fc"
 
     msg_err = "Input {} contains {} or a value too large for {!r}."
-    type_err = 'infinity' if allow_nan else 'NaN, infinity'
+    type_err = "infinity" if allow_nan else "NaN, infinity"
     err = msg_err.format(
         input_name, type_err, msg_dtype if msg_dtype is not None else dt
     )
 
     _patching_status = PatchingConditionsChain(
-        'sklearn.utils.validation._assert_all_finite'
+        "sklearn.utils.validation._assert_all_finite"
     )
     _dal_ready = _patching_status.and_conditions(
         [
@@ -123,7 +123,7 @@ def _daal_assert_all_finite(
         ):
             raise ValueError(err)
     # for object dtype data, we only check for NaNs (GH-13254)
-    elif dt == np.dtype('object') and not allow_nan:
+    elif dt == np.dtype("object") and not allow_nan:
         if _object_dtype_isnan(X).any():
             raise ValueError(f"Input {input_name} contains NaN")
 
@@ -138,7 +138,7 @@ def _pandas_check_array(
     context,
 ):
     if force_all_finite:
-        _daal_assert_all_finite(array, allow_nan=force_all_finite == 'allow-nan')
+        _daal_assert_all_finite(array, allow_nan=force_all_finite == "allow-nan")
 
     if ensure_min_samples > 0:
         n_samples = _num_samples(array)
@@ -261,10 +261,10 @@ def _daal_check_array(
     array_converted : object
         The converted and validated array.
     """
-    if force_all_finite not in (True, False, 'allow-nan'):
+    if force_all_finite not in (True, False, "allow-nan"):
         raise ValueError(
             'force_all_finite should be a bool or "allow-nan"'
-            '. Got {!r} instead'.format(force_all_finite)
+            ". Got {!r} instead".format(force_all_finite)
         )
 
     if estimator is not None:
@@ -282,7 +282,7 @@ def _daal_check_array(
     if is_DataFrame(array) and get_number_of_types(array) > 1:
         from pandas.api.types import is_sparse
 
-        if hasattr(array, 'sparse') or not array.dtypes.apply(is_sparse).any():
+        if hasattr(array, "sparse") or not array.dtypes.apply(is_sparse).any():
             return _pandas_check_array(
                 array,
                 array_orig,
@@ -297,7 +297,7 @@ def _daal_check_array(
     dtype_numeric = isinstance(dtype, str) and dtype == "numeric"
 
     dtype_orig = getattr(array, "dtype", None)
-    if not hasattr(dtype_orig, 'kind'):
+    if not hasattr(dtype_orig, "kind"):
         # not a data type (e.g. a column named dtype in a pandas DataFrame)
         dtype_orig = None
 
@@ -305,13 +305,13 @@ def _daal_check_array(
     # DataFrame), and store them. If not, store None.
     dtypes_orig = None
     has_pd_integer_array = False
-    if hasattr(array, "dtypes") and hasattr(array.dtypes, '__array__'):
+    if hasattr(array, "dtypes") and hasattr(array.dtypes, "__array__"):
         # throw warning if columns are sparse. If all columns are sparse, then
         # array.sparse exists and sparsity will be perserved (later).
         with suppress(ImportError):
             from pandas.api.types import is_sparse
 
-            if not hasattr(array, 'sparse') and array.dtypes.apply(is_sparse).any():
+            if not hasattr(array, "sparse") and array.dtypes.apply(is_sparse).any():
                 warnings.warn(
                     "pandas.DataFrame with sparse columns found."
                     "It will be converted to a dense numpy array."
@@ -320,7 +320,7 @@ def _daal_check_array(
         dtypes_orig = list(array.dtypes)
         # pandas boolean dtype __array__ interface coerces bools to objects
         for i, dtype_iter in enumerate(dtypes_orig):
-            if dtype_iter.kind == 'b':
+            if dtype_iter.kind == "b":
                 dtypes_orig[i] = np.dtype(np.object)
             elif dtype_iter.name.startswith(("Int", "UInt")):
                 # name looks like an Integer Extension Array, now check for
@@ -376,7 +376,7 @@ def _daal_check_array(
         array = array.astype(dtype)
 
     # When all dataframe columns are sparse, convert to a sparse array
-    if hasattr(array, 'sparse') and array.ndim > 1:
+    if hasattr(array, "sparse") and array.ndim > 1:
         # DataFrame.sparse only supports `to_coo`
         array = array.sparse.to_coo()
 
@@ -398,13 +398,13 @@ def _daal_check_array(
         # of warnings context manager.
         with warnings.catch_warnings():
             try:
-                warnings.simplefilter('error', ComplexWarning)
-                if dtype is not None and np.dtype(dtype).kind in 'iu':
+                warnings.simplefilter("error", ComplexWarning)
+                if dtype is not None and np.dtype(dtype).kind in "iu":
                     # Conversion float -> int should not contain NaN or
                     # inf (numpy#14412). We cannot use casting='safe' because
                     # then conversion float -> int would be disallowed.
                     array = np.asarray(array, order=order)
-                    if array.dtype.kind == 'f':
+                    if array.dtype.kind == "f":
                         _daal_assert_all_finite(array, allow_nan=False, msg_dtype=dtype)
                     array = array.astype(dtype, casting="unsafe", copy=False)
                 else:
@@ -459,7 +459,7 @@ def _daal_check_array(
             )
 
         if force_all_finite:
-            _daal_assert_all_finite(array, allow_nan=force_all_finite == 'allow-nan')
+            _daal_assert_all_finite(array, allow_nan=force_all_finite == "allow-nan")
 
     if ensure_min_samples > 0:
         n_samples = _num_samples(array)
@@ -620,12 +620,12 @@ def _daal_check_X_y(
     )
     if multi_output:
         y = _daal_check_array(
-            y, accept_sparse='csr', force_all_finite=True, ensure_2d=False, dtype=None
+            y, accept_sparse="csr", force_all_finite=True, ensure_2d=False, dtype=None
         )
     else:
         y = column_or_1d(y, warn=True)
         _daal_assert_all_finite(y)
-    if y_numeric and hasattr(y, 'dtype') and y.dtype.kind == 'O':
+    if y_numeric and hasattr(y, "dtype") and y.dtype.kind == "O":
         y = y.astype(np.float64)
 
     check_consistent_length(X, y)

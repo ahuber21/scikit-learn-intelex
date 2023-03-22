@@ -46,7 +46,7 @@ from sklearn.exceptions import DataConversionWarning
 from math import ceil
 from scipy import sparse as sp
 
-if sklearn_check_version('1.2'):
+if sklearn_check_version("1.2"):
     from sklearn.utils._param_validation import Interval
 
 
@@ -55,8 +55,8 @@ def _to_absolute_max_features(max_features, n_features, is_classification=False)
         return n_features
     if isinstance(max_features, str):
         if max_features == "auto":
-            if not sklearn_check_version('1.3'):
-                if sklearn_check_version('1.1'):
+            if not sklearn_check_version("1.3"):
+                if sklearn_check_version("1.1"):
                     warnings.warn(
                         "`max_features='auto'` has been deprecated in 1.1 "
                         "and will be removed in 1.3. To keep the past behaviour, "
@@ -70,18 +70,18 @@ def _to_absolute_max_features(max_features, n_features, is_classification=False)
                     if is_classification
                     else n_features
                 )
-        if max_features == 'sqrt':
+        if max_features == "sqrt":
             return max(1, int(np.sqrt(n_features)))
         if max_features == "log2":
             return max(1, int(np.log2(n_features)))
         allowed_string_values = (
             '"sqrt" or "log2"'
-            if sklearn_check_version('1.3')
+            if sklearn_check_version("1.3")
             else '"auto", "sqrt" or "log2"'
         )
         raise ValueError(
-            'Invalid value for max_features. Allowed string '
-            f'values are {allowed_string_values}.'
+            "Invalid value for max_features. Allowed string "
+            f"values are {allowed_string_values}."
         )
     if isinstance(max_features, (numbers.Integral, np.integer)):
         return max_features
@@ -95,7 +95,7 @@ def _get_n_samples_bootstrap(n_samples, max_samples):
         return 1.0
 
     if isinstance(max_samples, numbers.Integral):
-        if not sklearn_check_version('1.2'):
+        if not sklearn_check_version("1.2"):
             if not (1 <= max_samples <= n_samples):
                 msg = "`max_samples` must be in range 1 to {} but got value {}"
                 raise ValueError(msg.format(n_samples, max_samples))
@@ -106,9 +106,9 @@ def _get_n_samples_bootstrap(n_samples, max_samples):
         return float(max_samples / n_samples)
 
     if isinstance(max_samples, numbers.Real):
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             pass
-        elif sklearn_check_version('1.0'):
+        elif sklearn_check_version("1.0"):
             if not (0 < float(max_samples) <= 1):
                 msg = "`max_samples` must be in range (0.0, 1.0] but got value {}"
                 raise ValueError(msg.format(max_samples))
@@ -201,7 +201,7 @@ def _daal_fit_classifier(self, X, y, sample_weight=None):
     y, expanded_class_weight = self._validate_y_class_weight(y)
     n_classes_ = self.n_classes_[0]
     self.n_features_in_ = X.shape[1]
-    if not sklearn_check_version('1.0'):
+    if not sklearn_check_version("1.0"):
         self.n_features_ = self.n_features_in_
 
     if expanded_class_weight is not None:
@@ -213,7 +213,7 @@ def _daal_fit_classifier(self, X, y, sample_weight=None):
         sample_weight = [sample_weight]
 
     rs_ = check_random_state(self.random_state)
-    seed_ = rs_.randint(0, np.iinfo('i').max)
+    seed_ = rs_.randint(0, np.iinfo("i").max)
 
     if n_classes_ < 2:
         raise ValueError("Training data only contain information about one class.")
@@ -244,7 +244,7 @@ def _daal_fit_classifier(self, X, y, sample_weight=None):
     dfc_algorithm = daal4py.decision_forest_classification_training(
         nClasses=int(n_classes_),
         fptype=X_fptype,
-        method='hist',
+        method="hist",
         nTrees=int(self.n_estimators),
         observationsPerTreeFraction=n_samples_bootstrap_
         if self.bootstrap is True
@@ -306,16 +306,16 @@ def _daal_predict_classifier(self, X):
     if X.shape[1] != self.n_features_in_:
         raise ValueError(
             (
-                f'X has {X.shape[1]} features, '
-                f'but RandomForestClassifier is expecting '
-                f'{self.n_features_in_} features as input'
+                f"X has {X.shape[1]} features, "
+                f"but RandomForestClassifier is expecting "
+                f"{self.n_features_in_} features as input"
             )
         )
     dfc_predictionResult = dfc_algorithm.compute(X, self.daal_model_)
 
     pred = dfc_predictionResult.prediction
 
-    return np.take(self.classes_, pred.ravel().astype(np.int64, casting='unsafe'))
+    return np.take(self.classes_, pred.ravel().astype(np.int64, casting="unsafe"))
 
 
 def _daal_predict_proba(self, X):
@@ -349,7 +349,7 @@ def _fit_classifier(self, X, y, sample_weight=None):
         [
             (
                 self.oob_score
-                and daal_check_version((2021, 'P', 500))
+                and daal_check_version((2021, "P", 500))
                 or not self.oob_score,
                 "OOB score is only supported starting from 2021.5 version of oneDAL.",
             ),
@@ -412,7 +412,7 @@ def _fit_classifier(self, X, y, sample_weight=None):
 
 def _daal_fit_regressor(self, X, y, sample_weight=None):
     self.n_features_in_ = X.shape[1]
-    if not sklearn_check_version('1.0'):
+    if not sklearn_check_version("1.0"):
         self.n_features_ = self.n_features_in_
 
     rs_ = check_random_state(self.random_state)
@@ -428,7 +428,7 @@ def _daal_fit_regressor(self, X, y, sample_weight=None):
         raise ValueError("Out of bag estimation only available" " if bootstrap=True")
 
     X_fptype = getFPType(X)
-    seed_ = rs_.randint(0, np.iinfo('i').max)
+    seed_ = rs_.randint(0, np.iinfo("i").max)
 
     daal_engine = daal4py.engines_mt19937(seed=seed_, fptype=X_fptype)
 
@@ -441,14 +441,14 @@ def _daal_fit_regressor(self, X, y, sample_weight=None):
     )
 
     if sample_weight is not None:
-        if hasattr(sample_weight, '__array__'):
+        if hasattr(sample_weight, "__array__"):
             sample_weight[sample_weight == 0.0] = 1.0
         sample_weight = [sample_weight]
 
     # create algorithm
     dfr_algorithm = daal4py.decision_forest_regression_training(
         fptype=getFPType(X),
-        method='hist',
+        method="hist",
         nTrees=int(self.n_estimators),
         observationsPerTreeFraction=n_samples_bootstrap
         if self.bootstrap is True
@@ -513,7 +513,7 @@ def _fit_regressor(self, X, y, sample_weight=None):
     if sample_weight is not None:
         sample_weight = check_sample_weight(sample_weight, X)
 
-    if sklearn_check_version('1.0') and self.criterion == "mse":
+    if sklearn_check_version("1.0") and self.criterion == "mse":
         warnings.warn(
             "Criterion 'mse' was deprecated in v1.0 and will be "
             "removed in version 1.2. Use `criterion='squared_error'` "
@@ -528,7 +528,7 @@ def _fit_regressor(self, X, y, sample_weight=None):
         [
             (
                 self.oob_score
-                and daal_check_version((2021, 'P', 500))
+                and daal_check_version((2021, "P", 500))
                 or not self.oob_score,
                 "OOB score is only supported starting from 2021.5 version of oneDAL.",
             ),
@@ -590,9 +590,9 @@ def _daal_predict_regressor(self, X):
     if X.shape[1] != self.n_features_in_:
         raise ValueError(
             (
-                f'X has {X.shape[1]} features, '
-                f'but RandomForestRegressor is expecting '
-                f'{self.n_features_in_} features as input'
+                f"X has {X.shape[1]} features, "
+                f"but RandomForestRegressor is expecting "
+                f"{self.n_features_in_} features as input"
             )
         )
     X_fptype = getFPType(X)
@@ -635,14 +635,14 @@ def check_sample_weight(sample_weight, X, dtype=None):
 class RandomForestClassifier(RandomForestClassifier_original):
     __doc__ = RandomForestClassifier_original.__doc__
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {
             **RandomForestClassifier_original._parameter_constraints,
             "maxBins": [Interval(numbers.Integral, 2, None, closed="left")],
             "minBinSize": [Interval(numbers.Integral, 1, None, closed="left")],
         }
 
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
 
         def __init__(
             self,
@@ -652,7 +652,7 @@ class RandomForestClassifier(RandomForestClassifier_original):
             min_samples_split=2,
             min_samples_leaf=1,
             min_weight_fraction_leaf=0.0,
-            max_features='sqrt' if sklearn_check_version('1.1') else 'auto',
+            max_features="sqrt" if sklearn_check_version("1.1") else "auto",
             max_leaf_nodes=None,
             min_impurity_decrease=0.0,
             bootstrap=True,
@@ -797,11 +797,11 @@ class RandomForestClassifier(RandomForestClassifier_original):
         )
         _dal_ready = _patching_status.and_conditions(
             [
-                (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
+                (hasattr(self, "daal_model_"), "oneDAL model was not trained."),
                 (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
             ]
         )
-        if hasattr(self, 'n_outputs_'):
+        if hasattr(self, "n_outputs_"):
             _dal_ready = _patching_status.and_conditions(
                 [
                     (
@@ -818,7 +818,7 @@ class RandomForestClassifier(RandomForestClassifier_original):
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
         X = check_array(
-            X, accept_sparse=['csr', 'csc', 'coo'], dtype=[np.float64, np.float32]
+            X, accept_sparse=["csr", "csc", "coo"], dtype=[np.float64, np.float32]
         )
         return _daal_predict_classifier(self, X)
 
@@ -848,7 +848,7 @@ class RandomForestClassifier(RandomForestClassifier_original):
         """
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
-        if hasattr(self, 'n_features_in_'):
+        if hasattr(self, "n_features_in_"):
             try:
                 num_features = _daal_num_features(X)
             except TypeError:
@@ -856,9 +856,9 @@ class RandomForestClassifier(RandomForestClassifier_original):
             if num_features != self.n_features_in_:
                 raise ValueError(
                     (
-                        f'X has {num_features} features, '
-                        f'but RandomForestClassifier is expecting '
-                        f'{self.n_features_in_} features as input'
+                        f"X has {num_features} features, "
+                        f"but RandomForestClassifier is expecting "
+                        f"{self.n_features_in_} features as input"
                     )
                 )
 
@@ -867,15 +867,15 @@ class RandomForestClassifier(RandomForestClassifier_original):
         )
         _dal_ready = _patching_status.and_conditions(
             [
-                (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
+                (hasattr(self, "daal_model_"), "oneDAL model was not trained."),
                 (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
                 (
-                    daal_check_version((2021, 'P', 400)),
+                    daal_check_version((2021, "P", 400)),
                     "oneDAL version is lower than 2021.4.",
                 ),
             ]
         )
-        if hasattr(self, 'n_outputs_'):
+        if hasattr(self, "n_outputs_"):
             _dal_ready = _patching_status.and_conditions(
                 [
                     (
@@ -890,11 +890,11 @@ class RandomForestClassifier(RandomForestClassifier_original):
             return super(RandomForestClassifier, self).predict_proba(X)
         X = check_array(X, dtype=[np.float64, np.float32])
         check_is_fitted(self)
-        if sklearn_check_version('0.23'):
+        if sklearn_check_version("0.23"):
             self._check_n_features(X, reset=False)
         return _daal_predict_proba(self, X)
 
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
 
         @deprecated(
             "Attribute `n_features_` was deprecated in version 1.0 and will be "
@@ -906,30 +906,30 @@ class RandomForestClassifier(RandomForestClassifier_original):
 
     @property
     def _estimators_(self):
-        if hasattr(self, '_cached_estimators_'):
+        if hasattr(self, "_cached_estimators_"):
             if self._cached_estimators_:
                 return self._cached_estimators_
 
-        if sklearn_check_version('0.22'):
+        if sklearn_check_version("0.22"):
             check_is_fitted(self)
         else:
-            check_is_fitted(self, 'daal_model_')
+            check_is_fitted(self, "daal_model_")
         classes_ = self.classes_[0]
         n_classes_ = self.n_classes_[0]
         # convert model to estimators
         params = {
-            'criterion': self.criterion,
-            'max_depth': self.max_depth,
-            'min_samples_split': self.min_samples_split,
-            'min_samples_leaf': self.min_samples_leaf,
-            'min_weight_fraction_leaf': self.min_weight_fraction_leaf,
-            'max_features': self.max_features,
-            'max_leaf_nodes': self.max_leaf_nodes,
-            'min_impurity_decrease': self.min_impurity_decrease,
-            'random_state': None,
+            "criterion": self.criterion,
+            "max_depth": self.max_depth,
+            "min_samples_split": self.min_samples_split,
+            "min_samples_leaf": self.min_samples_leaf,
+            "min_weight_fraction_leaf": self.min_weight_fraction_leaf,
+            "max_features": self.max_features,
+            "max_leaf_nodes": self.max_leaf_nodes,
+            "min_impurity_decrease": self.min_impurity_decrease,
+            "random_state": None,
         }
-        if not sklearn_check_version('1.0'):
-            params['min_impurity_split'] = self.min_impurity_split
+        if not sklearn_check_version("1.0"):
+            params["min_impurity_split"] = self.min_impurity_split
         est = DecisionTreeClassifier(**params)
         # we need to set est.tree_ field with Trees constructed from Intel(R)
         # oneAPI Data Analytics Library solution
@@ -940,7 +940,7 @@ class RandomForestClassifier(RandomForestClassifier_original):
             est_i.set_params(
                 random_state=random_state_checked.randint(np.iinfo(np.int32).max)
             )
-            if sklearn_check_version('1.0'):
+            if sklearn_check_version("1.0"):
                 est_i.n_features_in_ = self.n_features_in_
             else:
                 est_i.n_features_ = self.n_features_in_
@@ -959,10 +959,10 @@ class RandomForestClassifier(RandomForestClassifier_original):
             #     value_ndarray, value_ndarray.astype(np.intc, casting='unsafe')
             # ), "Value array is non-integer"
             tree_i_state_dict = {
-                'max_depth': tree_i_state_class.max_depth,
-                'node_count': tree_i_state_class.node_count,
-                'nodes': tree_i_state_class.node_ar,
-                'values': tree_i_state_class.value_ar,
+                "max_depth": tree_i_state_class.max_depth,
+                "node_count": tree_i_state_class.node_count,
+                "nodes": tree_i_state_class.node_ar,
+                "values": tree_i_state_class.value_ar,
             }
             est_i.tree_ = Tree(
                 self.n_features_in_,
@@ -979,14 +979,14 @@ class RandomForestClassifier(RandomForestClassifier_original):
 class RandomForestRegressor(RandomForestRegressor_original):
     __doc__ = RandomForestRegressor_original.__doc__
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {
             **RandomForestRegressor_original._parameter_constraints,
             "maxBins": [Interval(numbers.Integral, 2, None, closed="left")],
             "minBinSize": [Interval(numbers.Integral, 1, None, closed="left")],
         }
 
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
 
         def __init__(
             self,
@@ -997,7 +997,7 @@ class RandomForestRegressor(RandomForestRegressor_original):
             min_samples_split=2,
             min_samples_leaf=1,
             min_weight_fraction_leaf=0.0,
-            max_features=1.0 if sklearn_check_version('1.1') else 'auto',
+            max_features=1.0 if sklearn_check_version("1.1") else "auto",
             max_leaf_nodes=None,
             min_impurity_decrease=0.0,
             bootstrap=True,
@@ -1139,11 +1139,11 @@ class RandomForestRegressor(RandomForestRegressor_original):
         )
         _dal_ready = _patching_status.and_conditions(
             [
-                (hasattr(self, 'daal_model_'), "oneDAL model was not trained."),
+                (hasattr(self, "daal_model_"), "oneDAL model was not trained."),
                 (not sp.issparse(X), "X is sparse. Sparse input is not supported."),
             ]
         )
-        if hasattr(self, 'n_outputs_'):
+        if hasattr(self, "n_outputs_"):
             _dal_ready = _patching_status.and_conditions(
                 [
                     (
@@ -1160,11 +1160,11 @@ class RandomForestRegressor(RandomForestRegressor_original):
         if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
         X = check_array(
-            X, accept_sparse=['csr', 'csc', 'coo'], dtype=[np.float64, np.float32]
+            X, accept_sparse=["csr", "csc", "coo"], dtype=[np.float64, np.float32]
         )
         return _daal_predict_regressor(self, X)
 
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
 
         @deprecated(
             "Attribute `n_features_` was deprecated in version 1.0 and will be "
@@ -1176,27 +1176,27 @@ class RandomForestRegressor(RandomForestRegressor_original):
 
     @property
     def _estimators_(self):
-        if hasattr(self, '_cached_estimators_'):
+        if hasattr(self, "_cached_estimators_"):
             if self._cached_estimators_:
                 return self._cached_estimators_
-        if sklearn_check_version('0.22'):
+        if sklearn_check_version("0.22"):
             check_is_fitted(self)
         else:
-            check_is_fitted(self, 'daal_model_')
+            check_is_fitted(self, "daal_model_")
         # convert model to estimators
         params = {
-            'criterion': self.criterion,
-            'max_depth': self.max_depth,
-            'min_samples_split': self.min_samples_split,
-            'min_samples_leaf': self.min_samples_leaf,
-            'min_weight_fraction_leaf': self.min_weight_fraction_leaf,
-            'max_features': self.max_features,
-            'max_leaf_nodes': self.max_leaf_nodes,
-            'min_impurity_decrease': self.min_impurity_decrease,
-            'random_state': None,
+            "criterion": self.criterion,
+            "max_depth": self.max_depth,
+            "min_samples_split": self.min_samples_split,
+            "min_samples_leaf": self.min_samples_leaf,
+            "min_weight_fraction_leaf": self.min_weight_fraction_leaf,
+            "max_features": self.max_features,
+            "max_leaf_nodes": self.max_leaf_nodes,
+            "min_impurity_decrease": self.min_impurity_decrease,
+            "random_state": None,
         }
-        if not sklearn_check_version('1.0'):
-            params['min_impurity_split'] = self.min_impurity_split
+        if not sklearn_check_version("1.0"):
+            params["min_impurity_split"] = self.min_impurity_split
         est = DecisionTreeRegressor(**params)
 
         # we need to set est.tree_ field with Trees constructed from Intel(R)
@@ -1208,7 +1208,7 @@ class RandomForestRegressor(RandomForestRegressor_original):
             est_i.set_params(
                 random_state=random_state_checked.randint(np.iinfo(np.int32).max)
             )
-            if sklearn_check_version('1.0'):
+            if sklearn_check_version("1.0"):
                 est_i.n_features_in_ = self.n_features_in_
             else:
                 est_i.n_features_ = self.n_features_in_
@@ -1216,10 +1216,10 @@ class RandomForestRegressor(RandomForestRegressor_original):
 
             tree_i_state_class = daal4py.getTreeState(self.daal_model_, i)
             tree_i_state_dict = {
-                'max_depth': tree_i_state_class.max_depth,
-                'node_count': tree_i_state_class.node_count,
-                'nodes': tree_i_state_class.node_ar,
-                'values': tree_i_state_class.value_ar,
+                "max_depth": tree_i_state_class.max_depth,
+                "node_count": tree_i_state_class.node_count,
+                "nodes": tree_i_state_class.node_ar,
+                "values": tree_i_state_class.value_ar,
             }
 
             est_i.tree_ = Tree(

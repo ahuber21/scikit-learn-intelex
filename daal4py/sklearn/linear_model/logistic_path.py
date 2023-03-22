@@ -41,7 +41,7 @@ from sklearn.utils.validation import _check_sample_weight, check_is_fitted
 from sklearn.linear_model._sag import sag_solver
 from sklearn.utils.optimize import _newton_cg, _check_optimize_result
 
-if sklearn_check_version('1.1'):
+if sklearn_check_version("1.1"):
     from sklearn.linear_model._linear_loss import LinearModelLoss
     from sklearn._loss.loss import HalfBinomialLoss, HalfMultinomialLoss
     from sklearn.linear_model._logistic import (
@@ -80,13 +80,13 @@ def __logistic_regression_path(
     max_iter=100,
     tol=1e-4,
     verbose=0,
-    solver='lbfgs',
+    solver="lbfgs",
     coef=None,
     class_weight=None,
     dual=False,
-    penalty='l2',
+    penalty="l2",
     intercept_scaling=1.0,
-    multi_class='warn',
+    multi_class="warn",
     random_state=None,
     check_input=True,
     max_squared_sum=None,
@@ -251,7 +251,7 @@ def __logistic_regression_path(
     _dal_ready = _patching_status.and_conditions(
         [
             (
-                not (sklearn_check_version('1.2') and solver == 'newton-cholesky'),
+                not (sklearn_check_version("1.2") and solver == "newton-cholesky"),
                 f"'{solver}' solver is not supported. "
                 "Only 'lbfgs' and 'newton-cg' solvers are supported.",
             )
@@ -290,19 +290,19 @@ def __logistic_regression_path(
 
     # Preprocessing.
     if check_input:
-        if sklearn_check_version('1.1'):
+        if sklearn_check_version("1.1"):
             X = check_array(
                 X,
-                accept_sparse='csr',
+                accept_sparse="csr",
                 dtype=np.float64,
                 accept_large_sparse=solver not in ["liblinear", "sag", "saga"],
             )
         else:
             X = check_array(
                 X,
-                accept_sparse='csr',
+                accept_sparse="csr",
                 dtype=np.float64,
-                accept_large_sparse=solver != 'liblinear',
+                accept_large_sparse=solver != "liblinear",
             )
         y = check_array(y, ensure_2d=False, dtype=None)
         check_consistent_length(X, y)
@@ -312,16 +312,16 @@ def __logistic_regression_path(
     random_state = check_random_state(random_state)
 
     multi_class = _check_multi_class(multi_class, solver, len(classes))
-    if pos_class is None and multi_class != 'multinomial':
+    if pos_class is None and multi_class != "multinomial":
         if classes.size > 2:
-            raise ValueError('To fit OvR, use the pos_class argument')
+            raise ValueError("To fit OvR, use the pos_class argument")
         # np.unique(y) gives labels in sorted order.
         pos_class = classes[1]
 
     _dal_ready = _patching_status.and_conditions(
         [
             (
-                solver in ['lbfgs', 'newton-cg'],
+                solver in ["lbfgs", "newton-cg"],
                 f"'{solver}' solver is not supported. "
                 "Only 'lbfgs' and 'newton-cg' solvers are supported.",
             ),
@@ -332,7 +332,7 @@ def __logistic_regression_path(
     )
 
     if not _dal_ready:
-        if sklearn_check_version('0.24'):
+        if sklearn_check_version("0.24"):
             sample_weight = _check_sample_weight(
                 sample_weight, X, dtype=X.dtype, copy=True
             )
@@ -343,7 +343,7 @@ def __logistic_regression_path(
     # the class_weights are assigned after masking the labels with a OvR.
     le = LabelEncoder()
     if (
-        isinstance(class_weight, dict) or multi_class == 'multinomial'
+        isinstance(class_weight, dict) or multi_class == "multinomial"
     ) and not _dal_ready:
         class_weight_ = compute_class_weight(class_weight, classes=classes, y=y)
         if not np.allclose(class_weight_, np.ones_like(class_weight_)):
@@ -351,10 +351,10 @@ def __logistic_regression_path(
 
     # For doing a ovr, we need to mask the labels first. for the
     # multinomial case this is not necessary.
-    if multi_class == 'ovr':
+    if multi_class == "ovr":
         y_bin = np.ones(y.shape, dtype=X.dtype)
 
-        if sklearn_check_version('1.1'):
+        if sklearn_check_version("1.1"):
             mask = y == pos_class
             y_bin = np.ones(y.shape, dtype=X.dtype)
             # for compute_class_weight
@@ -387,7 +387,7 @@ def __logistic_regression_path(
             w0 = np.zeros(n_features + int(fit_intercept), dtype=X.dtype)
 
     else:
-        if sklearn_check_version('1.1'):
+        if sklearn_check_version("1.1"):
             if solver in ["sag", "saga", "lbfgs", "newton-cg"]:
                 # SAG, lbfgs and newton-cg multinomial solvers need LabelEncoder,
                 # not LabelBinarizer, i.e. y as a 1d-array of integers.
@@ -405,7 +405,7 @@ def __logistic_regression_path(
                 if Y_multi.shape[1] == 1:
                     Y_multi = np.hstack([1 - Y_multi, Y_multi])
         else:
-            if solver not in ['sag', 'saga']:
+            if solver not in ["sag", "saga"]:
                 if _dal_ready:
                     Y_multi = le.fit_transform(y).astype(X.dtype, copy=False)
                 else:
@@ -419,21 +419,21 @@ def __logistic_regression_path(
                 Y_multi = le.fit_transform(y).astype(X.dtype, copy=False)
 
         if _dal_ready:
-            w0 = np.zeros((classes.size, n_features + 1), order='C', dtype=X.dtype)
+            w0 = np.zeros((classes.size, n_features + 1), order="C", dtype=X.dtype)
         else:
             w0 = np.zeros(
                 (classes.size, n_features + int(fit_intercept)),
-                order='F',
+                order="F",
                 dtype=X.dtype,
             )
 
     if coef is not None:
         # it must work both giving the bias term and not
-        if multi_class == 'ovr':
+        if multi_class == "ovr":
             if coef.size not in (n_features, w0.size):
                 raise ValueError(
-                    'Initialization coef is of shape %d, expected shape '
-                    '%d or %d' % (coef.size, n_features, w0.size)
+                    "Initialization coef is of shape %d, expected shape "
+                    "%d or %d" % (coef.size, n_features, w0.size)
                 )
             if _dal_ready:
                 w0[-coef.size :] = (
@@ -453,8 +453,8 @@ def __logistic_regression_path(
                 n_features + 1,
             ):
                 raise ValueError(
-                    'Initialization coef is of shape (%d, %d), expected '
-                    'shape (%d, %d) or (%d, %d)'
+                    "Initialization coef is of shape (%d, %d), expected "
+                    "shape (%d, %d) or (%d, %d)"
                     % (
                         coef.shape[0],
                         coef.shape[1],
@@ -484,23 +484,23 @@ def __logistic_regression_path(
     #    C_daal_multiplier = 2
     #    w0 *= 2
 
-    if multi_class == 'multinomial':
+    if multi_class == "multinomial":
         # fmin_l_bfgs_b and newton-cg accepts only ravelled parameters.
-        if solver in ['lbfgs', 'newton-cg']:
+        if solver in ["lbfgs", "newton-cg"]:
             if _dal_ready and classes.size == 2:
                 w0 = w0[-1:, :]
-            if sklearn_check_version('1.1'):
+            if sklearn_check_version("1.1"):
                 w0 = w0.ravel(order="F")
             else:
                 w0 = w0.ravel()
         target = Y_multi
         loss = None
-        if sklearn_check_version('1.1'):
+        if sklearn_check_version("1.1"):
             loss = LinearModelLoss(
                 base_loss=HalfMultinomialLoss(n_classes=classes.size),
                 fit_intercept=fit_intercept,
             )
-        if solver == 'lbfgs':
+        if solver == "lbfgs":
             if _dal_ready:
                 if classes.size == 2:
                     # _map_to_binary_logistic_regression()
@@ -511,14 +511,14 @@ def __logistic_regression_path(
                     daal_extra_args_func = _daal4py_cross_entropy_loss_extra_args
                 func = _daal4py_loss_and_grad
             else:
-                if sklearn_check_version('1.1') and loss is not None:
+                if sklearn_check_version("1.1") and loss is not None:
                     func = loss.loss_gradient
                 else:
 
                     def func(x, *args):
                         return _multinomial_loss_grad(x, *args)[0:2]
 
-        elif solver == 'newton-cg':
+        elif solver == "newton-cg":
             if _dal_ready:
                 if classes.size == 2:
                     # _map_to_binary_logistic_regression()
@@ -531,7 +531,7 @@ def __logistic_regression_path(
                 grad = _daal4py_grad_
                 hess = _daal4py_grad_hess_
             else:
-                if sklearn_check_version('1.1') and loss is not None:
+                if sklearn_check_version("1.1") and loss is not None:
                     func = loss.loss
                     grad = loss.gradient
                     hess = loss.gradient_hessian_product  # hess = [gradient, hessp]
@@ -544,29 +544,29 @@ def __logistic_regression_path(
                         return _multinomial_loss_grad(x, *args)[1]
 
                     hess = _multinomial_grad_hess
-        warm_start_sag = {'coef': w0.T}
+        warm_start_sag = {"coef": w0.T}
     else:
         target = y_bin
-        if solver == 'lbfgs':
+        if solver == "lbfgs":
             if _dal_ready:
                 func = _daal4py_loss_and_grad
                 daal_extra_args_func = _daal4py_logistic_loss_extra_args
             else:
-                if sklearn_check_version('1.1'):
+                if sklearn_check_version("1.1"):
                     loss = LinearModelLoss(
                         base_loss=HalfBinomialLoss(), fit_intercept=fit_intercept
                     )
                     func = loss.loss_gradient
                 else:
                     func = _logistic_loss_and_grad
-        elif solver == 'newton-cg':
+        elif solver == "newton-cg":
             if _dal_ready:
                 daal_extra_args_func = _daal4py_logistic_loss_extra_args
                 func = _daal4py_loss_
                 grad = _daal4py_grad_
                 hess = _daal4py_grad_hess_
             else:
-                if sklearn_check_version('1.1'):
+                if sklearn_check_version("1.1"):
                     loss = LinearModelLoss(
                         base_loss=HalfBinomialLoss(), fit_intercept=fit_intercept
                     )
@@ -580,12 +580,12 @@ def __logistic_regression_path(
                         return _logistic_loss_and_grad(x, *args)[1]
 
                     hess = _logistic_grad_hess
-        warm_start_sag = {'coef': np.expand_dims(w0, axis=1)}
+        warm_start_sag = {"coef": np.expand_dims(w0, axis=1)}
 
     coefs = list()
     n_iter = np.zeros(len(Cs), dtype=np.int32)
     for i, C in enumerate(Cs):
-        if solver == 'lbfgs':
+        if solver == "lbfgs":
             if _dal_ready:
                 extra_args = daal_extra_args_func(
                     classes.size,
@@ -600,7 +600,7 @@ def __logistic_regression_path(
                     hessian=False,
                 )
             else:
-                if sklearn_check_version('1.1'):
+                if sklearn_check_version("1.1"):
                     l2_reg_strength = 1.0 / C
                     extra_args = (X, target, sample_weight, l2_reg_strength, n_threads)
                 else:
@@ -626,7 +626,7 @@ def __logistic_regression_path(
             w0, loss = opt_res.x, opt_res.fun
             if _dal_ready and C_daal_multiplier == 2:
                 w0 /= 2
-        elif solver == 'newton-cg':
+        elif solver == "newton-cg":
             if _dal_ready:
 
                 def make_ncg_funcs(f, value=False, gradient=False, hessian=False):
@@ -662,7 +662,7 @@ def __logistic_regression_path(
                     tol=tol,
                 )
             else:
-                if sklearn_check_version('1.1'):
+                if sklearn_check_version("1.1"):
                     l2_reg_strength = 1.0 / C
                     args = (X, target, sample_weight, l2_reg_strength, n_threads)
                 else:
@@ -671,7 +671,7 @@ def __logistic_regression_path(
                 w0, n_iter_i = _newton_cg(
                     hess, func, grad, w0, args=args, maxiter=max_iter, tol=tol
                 )
-        elif solver == 'liblinear':
+        elif solver == "liblinear":
             (
                 coef_,
                 intercept_,
@@ -696,17 +696,17 @@ def __logistic_regression_path(
             else:
                 w0 = coef_.ravel()
 
-        elif solver in ['sag', 'saga']:
-            if multi_class == 'multinomial':
+        elif solver in ["sag", "saga"]:
+            if multi_class == "multinomial":
                 target = target.astype(X.dtype, copy=False)
-                loss = 'multinomial'
+                loss = "multinomial"
             else:
-                loss = 'log'
+                loss = "log"
             # alpha is for L2-norm, beta is for L1-norm
-            if penalty == 'l1':
+            if penalty == "l1":
                 alpha = 0.0
                 beta = 1.0 / C
-            elif penalty == 'l2':
+            elif penalty == "l2":
                 alpha = 1.0 / C
                 beta = 0.0
             else:  # Elastic-Net penalty
@@ -727,7 +727,7 @@ def __logistic_regression_path(
                 False,
                 max_squared_sum,
                 warm_start_sag,
-                is_saga=(solver == 'saga'),
+                is_saga=(solver == "saga"),
             )
 
         else:
@@ -736,7 +736,7 @@ def __logistic_regression_path(
                 "'newton-cg', 'sag'}, got '%s' instead" % solver
             )
 
-        if multi_class == 'multinomial':
+        if multi_class == "multinomial":
             if _dal_ready:
                 if classes.size == 2:
                     multi_w0 = w0[np.newaxis, :]
@@ -744,7 +744,7 @@ def __logistic_regression_path(
                     multi_w0 = np.reshape(w0, (classes.size, -1))
             else:
                 n_classes = max(2, classes.size)
-                if sklearn_check_version('1.1'):
+                if sklearn_check_version("1.1"):
                     if solver in ["lbfgs", "newton-cg"]:
                         multi_w0 = np.reshape(w0, (n_classes, -1), order="F")
                     else:
@@ -774,24 +774,24 @@ def __logistic_regression_path(
 
 def daal4py_predict(self, X, resultsToEvaluate):
     check_is_fitted(self)
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
         self._check_feature_names(X, reset=False)
-    X = check_array(X, accept_sparse='csr', dtype=[np.float64, np.float32])
+    X = check_array(X, accept_sparse="csr", dtype=[np.float64, np.float32])
     try:
         fptype = getFPType(X)
     except ValueError:
         fptype = None
 
-    if resultsToEvaluate == 'computeClassLabels':
-        _function_name = 'predict'
-    elif resultsToEvaluate == 'computeClassProbabilities':
-        _function_name = 'predict_proba'
-    elif resultsToEvaluate == 'computeClassLogProbabilities':
-        _function_name = 'predict_log_proba'
+    if resultsToEvaluate == "computeClassLabels":
+        _function_name = "predict"
+    elif resultsToEvaluate == "computeClassProbabilities":
+        _function_name = "predict_proba"
+    elif resultsToEvaluate == "computeClassLogProbabilities":
+        _function_name = "predict_log_proba"
     else:
         raise ValueError(
-            'resultsToEvaluate must be in [computeClassLabels, \
-            computeClassProbabilities, computeClassLogProbabilities]'
+            "resultsToEvaluate must be in [computeClassLabels, \
+            computeClassProbabilities, computeClassLogProbabilities]"
         )
 
     _patching_status = PatchingConditionsChain(
@@ -806,7 +806,7 @@ def daal4py_predict(self, X, resultsToEvaluate):
             ),
             (self.classes_.size == 2, "Number of classes != 2."),
             (
-                resultsToEvaluate == 'computeClassLabels',
+                resultsToEvaluate == "computeClassLabels",
                 "resultsToEvaluate != 'computeClassLabels'.",
             ),
         ],
@@ -828,47 +828,47 @@ def daal4py_predict(self, X, resultsToEvaluate):
         n_features = self.coef_.shape[1]
         if X.shape[1] != n_features:
             raise ValueError(
-                f'X has {X.shape[1]} features, '
-                f'but LogisticRegression is expecting {n_features} features as input'
+                f"X has {X.shape[1]} features, "
+                f"but LogisticRegression is expecting {n_features} features as input"
             )
         builder = d4p.logistic_regression_model_builder(X.shape[1], len(self.classes_))
         builder.set_beta(self.coef_, self.intercept_)
         predict = d4p.logistic_regression_prediction(
             nClasses=len(self.classes_),
             fptype=fptype,
-            method='defaultDense',
+            method="defaultDense",
             resultsToEvaluate=resultsToEvaluate,
         )
         res = predict.compute(X, builder.model)
-        if resultsToEvaluate == 'computeClassLabels':
+        if resultsToEvaluate == "computeClassLabels":
             res = res.prediction
             if (
                 not np.array_equal(self.classes_, np.arange(0, len(self.classes_)))
                 or self.classes_.dtype != X.dtype
             ):
                 res = self.classes_.take(np.asarray(res, dtype=np.intp))
-        elif resultsToEvaluate == 'computeClassProbabilities':
+        elif resultsToEvaluate == "computeClassProbabilities":
             res = res.probabilities
-        elif resultsToEvaluate == 'computeClassLogProbabilities':
+        elif resultsToEvaluate == "computeClassLogProbabilities":
             res = res.logProbabilities
         else:
             raise ValueError(
-                'resultsToEvaluate must be in [computeClassLabels, \
-                computeClassProbabilities, computeClassLogProbabilities]'
+                "resultsToEvaluate must be in [computeClassLabels, \
+                computeClassProbabilities, computeClassLogProbabilities]"
             )
         if res.shape[1] == 1:
             res = np.ravel(res)
         return res
 
-    if resultsToEvaluate == 'computeClassLabels':
+    if resultsToEvaluate == "computeClassLabels":
         return LogisticRegression_original.predict(self, X)
-    if resultsToEvaluate == 'computeClassProbabilities':
+    if resultsToEvaluate == "computeClassProbabilities":
         return LogisticRegression_original.predict_proba(self, X)
-    if resultsToEvaluate == 'computeClassLogProbabilities':
+    if resultsToEvaluate == "computeClassLogProbabilities":
         return LogisticRegression_original.predict_log_proba(self, X)
 
 
-if sklearn_check_version('0.24'):
+if sklearn_check_version("0.24"):
 
     @support_usm_ndarray()
     def logistic_regression_path(
@@ -880,13 +880,13 @@ if sklearn_check_version('0.24'):
         max_iter=100,
         tol=1e-4,
         verbose=0,
-        solver='lbfgs',
+        solver="lbfgs",
         coef=None,
         class_weight=None,
         dual=False,
-        penalty='l2',
+        penalty="l2",
         intercept_scaling=1.0,
-        multi_class='auto',
+        multi_class="auto",
         random_state=None,
         check_input=True,
         max_squared_sum=None,
@@ -894,7 +894,7 @@ if sklearn_check_version('0.24'):
         l1_ratio=None,
         n_threads=1,
     ):
-        if sklearn_check_version('1.1'):
+        if sklearn_check_version("1.1"):
             return __logistic_regression_path(
                 X,
                 y,
@@ -944,14 +944,14 @@ if sklearn_check_version('0.24'):
     class LogisticRegression(LogisticRegression_original):
         __doc__ = LogisticRegression_original.__doc__
 
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             _parameter_constraints: dict = {
                 **LogisticRegression_original._parameter_constraints
             }
 
         def __init__(
             self,
-            penalty='l2',
+            penalty="l2",
             dual=False,
             tol=1e-4,
             C=1.0,
@@ -959,9 +959,9 @@ if sklearn_check_version('0.24'):
             intercept_scaling=1,
             class_weight=None,
             random_state=None,
-            solver='lbfgs',
+            solver="lbfgs",
             max_iter=100,
-            multi_class='auto',
+            multi_class="auto",
             verbose=0,
             warm_start=False,
             n_jobs=None,
@@ -1013,11 +1013,11 @@ if sklearn_check_version('0.24'):
             -----
             The SAGA solver supports both float64 and float32 bit arrays.
             """
-            if sklearn_check_version('1.0'):
+            if sklearn_check_version("1.0"):
                 self._check_feature_names(X, reset=True)
             if sklearn_check_version("1.2"):
                 self._validate_params()
-            which, what = logistic_module, '_logistic_regression_path'
+            which, what = logistic_module, "_logistic_regression_path"
             replacer = logistic_regression_path
             descriptor = getattr(which, what, None)
             setattr(which, what, replacer)
@@ -1040,7 +1040,7 @@ if sklearn_check_version('0.24'):
             C : array, shape [n_samples]
                 Predicted class label per sample.
             """
-            return daal4py_predict(self, X, 'computeClassLabels')
+            return daal4py_predict(self, X, "computeClassLabels")
 
         @support_usm_ndarray()
         def predict_log_proba(self, X):
@@ -1062,7 +1062,7 @@ if sklearn_check_version('0.24'):
                 Returns the log-probability of the sample for each class in the
                 model, where classes are ordered as they are in ``self.classes_``.
             """
-            return daal4py_predict(self, X, 'computeClassLogProbabilities')
+            return daal4py_predict(self, X, "computeClassLogProbabilities")
 
         @support_usm_ndarray()
         def predict_proba(self, X):
@@ -1091,7 +1091,7 @@ if sklearn_check_version('0.24'):
                 Returns the probability of the sample for each class in the model,
                 where classes are ordered as they are in ``self.classes_``.
             """
-            return daal4py_predict(self, X, 'computeClassProbabilities')
+            return daal4py_predict(self, X, "computeClassProbabilities")
 
 else:
 
@@ -1105,13 +1105,13 @@ else:
         max_iter=100,
         tol=1e-4,
         verbose=0,
-        solver='lbfgs',
+        solver="lbfgs",
         coef=None,
         class_weight=None,
         dual=False,
-        penalty='l2',
+        penalty="l2",
         intercept_scaling=1.0,
-        multi_class='auto',
+        multi_class="auto",
         random_state=None,
         check_input=True,
         max_squared_sum=None,
@@ -1146,7 +1146,7 @@ else:
 
         def __init__(
             self,
-            penalty='l2',
+            penalty="l2",
             dual=False,
             tol=1e-4,
             C=1.0,
@@ -1154,9 +1154,9 @@ else:
             intercept_scaling=1,
             class_weight=None,
             random_state=None,
-            solver='lbfgs',
+            solver="lbfgs",
             max_iter=100,
-            multi_class='auto',
+            multi_class="auto",
             verbose=0,
             warm_start=False,
             n_jobs=None,
@@ -1208,7 +1208,7 @@ else:
             -----
             The SAGA solver supports both float64 and float32 bit arrays.
             """
-            which, what = logistic_module, '_logistic_regression_path'
+            which, what = logistic_module, "_logistic_regression_path"
             replacer = logistic_regression_path
             descriptor = getattr(which, what, None)
             setattr(which, what, replacer)
@@ -1231,7 +1231,7 @@ else:
             C : array, shape [n_samples]
                 Predicted class label per sample.
             """
-            return daal4py_predict(self, X, 'computeClassLabels')
+            return daal4py_predict(self, X, "computeClassLabels")
 
         @support_usm_ndarray()
         def predict_log_proba(self, X):
@@ -1253,7 +1253,7 @@ else:
                 Returns the log-probability of the sample for each class in the
                 model, where classes are ordered as they are in ``self.classes_``.
             """
-            return daal4py_predict(self, X, 'computeClassLogProbabilities')
+            return daal4py_predict(self, X, "computeClassLogProbabilities")
 
         @support_usm_ndarray()
         def predict_proba(self, X):
@@ -1282,4 +1282,4 @@ else:
                 Returns the probability of the sample for each class in the model,
                 where classes are ordered as they are in ``self.classes_``.
             """
-            return daal4py_predict(self, X, 'computeClassProbabilities')
+            return daal4py_predict(self, X, "computeClassProbabilities")

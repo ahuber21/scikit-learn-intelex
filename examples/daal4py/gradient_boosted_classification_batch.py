@@ -24,15 +24,15 @@ try:
     import pandas
 
     def read_csv(f, c=None, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c=None, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2, dtype=t)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2, dtype=t)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     nFeatures = 3
     nClasses = 5
     maxIterations = 200
@@ -47,7 +47,7 @@ def main(readcsv=read_csv, method='defaultDense'):
         maxIterations=maxIterations,
         minObservationsInLeafNode=minObservationsInLeafNode,
         featuresPerNode=nFeatures,
-        varImportance='weight|totalCover|cover|totalGain|gain',
+        varImportance="weight|totalCover|cover|totalGain|gain",
     )
 
     # Read data. Let's use 3 features per observation
@@ -96,4 +96,4 @@ if __name__ == "__main__":
         "\nvariableImportanceByTotalGain:\n", train_result.variableImportanceByTotalGain
     )
     print("\nvariableImportanceByGain:\n", train_result.variableImportanceByGain)
-    print('All looks good!')
+    print("All looks good!")

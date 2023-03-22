@@ -25,22 +25,22 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
-    data = readcsv(os.path.join('data', 'batch', 'distance.csv'), range(10))
+def main(readcsv=read_csv, method="defaultDense"):
+    data = readcsv(os.path.join("data", "batch", "distance.csv"), range(10))
 
     # Create algorithm to compute correlation distance (no parameters)
     algorithm = d4p.correlation_distance()
 
     # Computed correlation distance with file or numpy array
-    res1 = algorithm.compute(os.path.join('data', 'batch', 'distance.csv'))
+    res1 = algorithm.compute(os.path.join("data", "batch", "distance.csv"))
     res2 = algorithm.compute(data)
 
     assert np.allclose(res1.correlationDistance, res2.correlationDistance)

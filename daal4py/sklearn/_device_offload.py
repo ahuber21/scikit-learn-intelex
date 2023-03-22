@@ -29,9 +29,9 @@ except ImportError:
     import logging
 
     logging.warning(
-        'Device support is limited in daal4py patching. '
-        'Use Intel(R) Extension for Scikit-learn* '
-        'for full experience.'
+        "Device support is limited in daal4py patching. "
+        "Use Intel(R) Extension for Scikit-learn* "
+        "for full experience."
     )
     _sklearnex_available = False
 
@@ -48,7 +48,7 @@ def _extract_usm_iface(*args, **kwargs):
     allargs = (*args, *kwargs.values())
     if len(allargs) == 0:
         return None
-    return getattr(allargs[0], '__sycl_usm_array_interface__', None)
+    return getattr(allargs[0], "__sycl_usm_array_interface__", None)
 
 
 def _run_on_device(func, queue, obj=None, *args, **kwargs):
@@ -61,10 +61,10 @@ def _run_on_device(func, queue, obj=None, *args, **kwargs):
         from daal4py.oneapi import sycl_context, _get_in_sycl_ctxt
 
         if _get_in_sycl_ctxt() is False:
-            host_offload = get_config()['allow_fallback_to_host']
+            host_offload = get_config()["allow_fallback_to_host"]
 
             with sycl_context(
-                'gpu' if queue.sycl_device.is_gpu else 'cpu',
+                "gpu" if queue.sycl_device.is_gpu else "cpu",
                 host_offload_on_fail=host_offload,
             ):
                 return dispatch_by_obj(obj, func, *args, **kwargs)
@@ -78,7 +78,7 @@ def support_usm_ndarray(freefunc=False):
                 usm_iface = _extract_usm_iface(*args, **kwargs)
                 q, hostargs, hostkwargs = _get_host_inputs(*args, **kwargs)
                 result = _run_on_device(func, q, obj, *hostargs, **hostkwargs)
-                if usm_iface is not None and hasattr(result, '__array_interface__'):
+                if usm_iface is not None and hasattr(result, "__array_interface__"):
                     return _copy_to_usm(q, result)
                 return result
             return _run_on_device(func, None, obj, *args, **kwargs)

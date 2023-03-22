@@ -50,7 +50,7 @@ def _daal_validate_data(
     """
 
     if y is None:
-        if self._get_tags()['requires_y']:
+        if self._get_tags()["requires_y"]:
             raise ValueError(
                 f"This {self.__class__.__name__} estimator "
                 f"requires y to be passed, but the target y is None."
@@ -70,6 +70,6 @@ def _daal_validate_data(
             X, y = _daal_check_X_y(X, y, **check_params)
         out = X, y
 
-    if check_params.get('ensure_2d', True):
+    if check_params.get("ensure_2d", True):
         self._check_n_features(X, reset=reset)
     return out

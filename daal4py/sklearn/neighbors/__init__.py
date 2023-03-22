@@ -19,4 +19,4 @@ from ._classification import KNeighborsClassifier
 from ._unsupervised import NearestNeighbors
 from ._regression import KNeighborsRegressor
 
-__all__ = ['KNeighborsClassifier', 'NearestNeighbors', 'KNeighborsRegressor']
+__all__ = ["KNeighborsClassifier", "NearestNeighbors", "KNeighborsRegressor"]

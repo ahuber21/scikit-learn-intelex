@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 try:
@@ -43,7 +43,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -52,11 +52,11 @@ except:
 # Commone code for both CPU and GPU computations
 def compute(train_indep_data, train_dep_data, test_indep_data):
     # Configure a Linear regression training object
-    train_algo = d4p.linear_regression_training(interceptFlag=True, fptype='float')
+    train_algo = d4p.linear_regression_training(interceptFlag=True, fptype="float")
     # Now train/compute, the result provides the model for prediction
     train_result = train_algo.compute(train_indep_data, train_dep_data)
     # Now let's do some prediction
-    predict_algo = d4p.linear_regression_prediction(fptype='float')
+    predict_algo = d4p.linear_regression_prediction(fptype="float")
     # now predict using the model from the training above
     return predict_algo.compute(test_indep_data, train_result.model), train_result
 
@@ -80,15 +80,15 @@ def to_numpy(data):
     return data
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     # read training data. Let's have 10 independent,
     # and 2 dependent variables (for each observation)
-    trainfile = os.path.join('..', 'data', 'batch', 'linear_regression_train.csv')
+    trainfile = os.path.join("..", "data", "batch", "linear_regression_train.csv")
     train_indep_data = readcsv(trainfile, range(10), t=np.float32)
     train_dep_data = readcsv(trainfile, range(10, 12), t=np.float32)
 
     # read testing data
-    testfile = os.path.join('..', 'data', 'batch', 'linear_regression_test.csv')
+    testfile = os.path.join("..", "data", "batch", "linear_regression_test.csv")
     test_indep_data = readcsv(testfile, range(10), t=np.float32)
     test_dep_data = readcsv(testfile, range(10, 12), t=np.float32)
 
@@ -114,10 +114,10 @@ def main(readcsv=read_csv, method='defaultDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
@@ -158,4 +158,4 @@ if __name__ == "__main__":
         predict_result.prediction[0:10],
     )
     print("\nGround truth (first 10 rows):\n", test_dep_data[0:10])
-    print('All looks good!')
+    print("All looks good!")

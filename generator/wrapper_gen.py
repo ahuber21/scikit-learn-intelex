@@ -55,7 +55,7 @@ from .wrappers import hpat_types
 
 ###############################################################################
 # generic utility functions/defs needed by generated code
-cython_header = '''
+cython_header = """
 # distutils: language = c++
 #cython: language_level=2
 
@@ -302,7 +302,7 @@ def _execute_with_context(func):
 
         return func(*args, **keyArgs)
     return exec_func
-'''
+"""
 
 ###############################################################################
 # generates result/model classes
@@ -1212,7 +1212,7 @@ extern "C" void * compute_{{algo}}(daal::services::SharedPtr<{{algo}}__iface__> 
 """
 
 # generate a D4PSpec
-hpat_spec_template = '''
+hpat_spec_template = """
 hpat_spec.append({
     'pyclass'     : {{algo}},
     'c_name'      : '{{algo}}',
@@ -1221,12 +1221,12 @@ hpat_spec.append({
     'result_dist' : {{"'REP'" if step_specs is defined else "None"}},
     'has_setup'   : {{True if add_setup else False}}
 })
-'''
+"""
 
 # template for footer in .pyx file
 # requires {{algos}}    list of algorithms that are available
 #          {{version}}  version of DAAL
-pyx_footer_template = '''
+pyx_footer_template = """
 def getTreeState(model, i=0, n_classes=1):
     cdef TreeState cTreeState
     if False:
@@ -1286,18 +1286,18 @@ def _get__daal_run_version__():
     return "{}{}{}_{}".format(li.majorVersion, str(li.minorVersion).zfill(2),
                               str(li.updateVersion).zfill(2), li.build_rev)
 
-'''
+"""
 
 # template for footer in .cpp file
 # requires {{algos}}                list of algorithms that are available
 #          {{dist_custom_algos}}    list of algorithms with custom distribution pattern
-cpp_footer_template = '''
+cpp_footer_template = """
 {% for algo in dist_custom_algos%}
 {% if algo in algos %}
 #include "dist_{{algo|flat}}.h"
 {% endif %}
 {% endfor %}
-'''
+"""
 
 
 ##################################################################################
@@ -1305,55 +1305,55 @@ cpp_footer_template = '''
 # from oneDAL C++ headers to cython syntax and/or C++ for our own code
 ##################################################################################
 def flat(t, cpp=True):
-    '''Flatten C++ name, leaving only what's needed to disambiguate names.
+    """Flatten C++ name, leaving only what's needed to disambiguate names.
     E.g. stripping of leading namespaces and replaceing :: with _
-    '''
+    """
 
     def _flat(ty):
         def __flat(typ):
-            nn = typ.split('::')
-            if nn[0] == 'daal':
-                if nn[1] == 'algorithms':
-                    r = '_'.join(nn[2:])
+            nn = typ.split("::")
+            if nn[0] == "daal":
+                if nn[1] == "algorithms":
+                    r = "_".join(nn[2:])
                 else:
-                    r = '_'.join(nn[1:])
-            elif nn[0] == 'algorithms':
-                r = '_'.join(nn[1:])
+                    r = "_".join(nn[1:])
+            elif nn[0] == "algorithms":
+                r = "_".join(nn[1:])
             else:
-                r = '_'.join(nn)
+                r = "_".join(nn)
             return (
-                ('c_' if cpp and typ.endswith('__iface__') else '')
+                ("c_" if cpp and typ.endswith("__iface__") else "")
                 + r
                 + (
-                    ' *'
-                    if cpp and any(typ.endswith(x) for x in ['__iface__', 'Ptr'])
-                    else ''
+                    " *"
+                    if cpp and any(typ.endswith(x) for x in ["__iface__", "Ptr"])
+                    else ""
                 )
             )
 
         ty = ty.replace(
-            'daal::algorithms::kernel_function::KernelIfacePtr',
-            'daal::services::SharedPtr<kernel_function::KernelIface>',
+            "daal::algorithms::kernel_function::KernelIfacePtr",
+            "daal::services::SharedPtr<kernel_function::KernelIface>",
         )
         ty = re.sub(
-            r'(daal::)?(algorithms::)?(engines::)?EnginePtr',
-            r'daal::services::SharedPtr<engines::BatchBase>',
+            r"(daal::)?(algorithms::)?(engines::)?EnginePtr",
+            r"daal::services::SharedPtr<engines::BatchBase>",
             ty,
         )
         ty = re.sub(
-            r'(?:daal::)?(?:algorithms::)?([^:]+::)BatchPtr',
-            r'daal::services::SharedPtr<\1Batch>',
+            r"(?:daal::)?(?:algorithms::)?([^:]+::)BatchPtr",
+            r"daal::services::SharedPtr<\1Batch>",
             ty,
         )
-        ty = re.sub(r'(daal::)?services::SharedPtr<([^>]+)>', r'\2__iface__', ty)
-        return ' '.join([__flat(x).replace('const', '') for x in ty.split(' ')])
+        ty = re.sub(r"(daal::)?services::SharedPtr<([^>]+)>", r"\2__iface__", ty)
+        return " ".join([__flat(x).replace("const", "") for x in ty.split(" ")])
 
     return [_flat(x) for x in t if x] if isinstance(t, list) else _flat(t)
 
 
 def d2cy(ty, cpp=True):
     def flt(t, cpp):
-        return flat(t, cpp).replace('lambda', 'lambda_')
+        return flat(t, cpp).replace("lambda", "lambda_")
 
     return [flt(x, cpp) for x in ty if x] if isinstance(ty, list) else flt(ty, cpp)
 
@@ -1364,9 +1364,9 @@ def d2hpat(arg, ty, fn):
         if fn in hpat_types and arg in hpat_types[fn]:
             return hpat_types[fn][arg]
         return (
-            'dtable_type'
-            if 'NumericTablePtr' in rtype
-            else rtype.replace('ModelPtr', 'model').replace(' ', '')
+            "dtable_type"
+            if "NumericTablePtr" in rtype
+            else rtype.replace("ModelPtr", "model").replace(" ", "")
         )
 
     return (
@@ -1375,21 +1375,21 @@ def d2hpat(arg, ty, fn):
 
 
 def fmt(*args, **kwargs):
-    sep = kwargs['sep'] if 'sep' in kwargs else ', '
+    sep = kwargs["sep"] if "sep" in kwargs else ", "
     return sep.join([y for y in [x.format(args[1], *args[2:]) for x in args[0]] if y])
 
 
 jenv = jinja2.Environment(
     trim_blocks=True,
-    autoescape=select_autoescape(disabled_extensions=('pyx'), default_for_string=False),
+    autoescape=select_autoescape(disabled_extensions=("pyx"), default_for_string=False),
 )
 # jenv.filters['match'] = lambda a, x: [x for x in a if s in x]
-jenv.filters['d2cy'] = d2cy
-jenv.filters['flat'] = flat
-jenv.filters['d2hpat'] = d2hpat
-jenv.filters['strip'] = lambda s, c: s.strip(c)
-jenv.filters['quote'] = lambda x: "'" + x + "'" if x else ''
-jenv.filters['fmt'] = fmt
+jenv.filters["d2cy"] = d2cy
+jenv.filters["flat"] = flat
+jenv.filters["d2hpat"] = d2hpat
+jenv.filters["strip"] = lambda s, c: s.strip(c)
+jenv.filters["quote"] = lambda x: "'" + x + "'" if x else ""
+jenv.filters["fmt"] = fmt
 
 
 class wrapper_gen(object):
@@ -1405,7 +1405,7 @@ class wrapper_gen(object):
             "#ifndef DAAL4PY_CPP_INC_\n"
             + "#define DAAL4PY_CPP_INC_\n#include <daal4py_dist.h>\n\n"
         )
-        pyx = ''
+        pyx = ""
         for i in self.ifaces:
             tstr = (
                 gen_cython_iface_macro
@@ -1416,7 +1416,7 @@ class wrapper_gen(object):
                 + '")}}\n'
             )
             t = jenv.from_string(tstr)
-            pyx += t.render({'parent': self.ifaces[i][1]}) + '\n'
+            pyx += t.render({"parent": self.ifaces[i][1]}) + "\n"
             tstr = (
                 gen_cpp_iface_macro
                 + '{{gen_cpp_iface("'
@@ -1426,7 +1426,7 @@ class wrapper_gen(object):
                 + '")}}\n'
             )
             t = jenv.from_string(tstr)
-            cpp += t.render({'parent': self.ifaces[i][1]}) + '\n'
+            cpp += t.render({"parent": self.ifaces[i][1]}) + "\n"
 
         return (cpp, cython_header + pyx)
 
@@ -1436,13 +1436,13 @@ class wrapper_gen(object):
         return string from typemap_wrapper_template for given Model.
         uses entries from 'gets' in Model class def to fill 'named_gets'.
         """
-        jparams = self.algocfg[ns + '::' + algo]['model_typemap']
+        jparams = self.algocfg[ns + "::" + algo]["model_typemap"]
         if len(jparams) > 0:
-            jparams['ns'] = ns
-            jparams['algo'] = algo
+            jparams["ns"] = ns
+            jparams["algo"] = algo
             t = jenv.from_string(typemap_wrapper_template)
-            return (t.render(**jparams) + '\n').split('%SNIP%')
-        return '', '', ''
+            return (t.render(**jparams) + "\n").split("%SNIP%")
+        return "", "", ""
 
     ##################################################################################
     def gen_resultmaps(self, ns, algo):
@@ -1455,16 +1455,16 @@ class wrapper_gen(object):
         Looks up Return type and then target-language
         independently creates lists of its content.
         """
-        jparams = self.algocfg[ns + '::' + algo]['result_typemap']
+        jparams = self.algocfg[ns + "::" + algo]["result_typemap"]
         if len(jparams) > 0:
-            jparams['ns'] = ns
-            jparams['algo'] = algo
+            jparams["ns"] = ns
+            jparams["algo"] = algo
             t = jenv.from_string(typemap_wrapper_template)
-            return (t.render(**jparams) + '\n').split('%SNIP%')
-        return '', '', ''
+            return (t.render(**jparams) + "\n").split("%SNIP%")
+        return "", "", ""
 
     def lp(self, t):
-        tmp = t.split('\n')
+        tmp = t.split("\n")
         for i in enumerate(tmp):
             print(i[0], i[1])
 
@@ -1481,8 +1481,8 @@ class wrapper_gen(object):
 
         Handling single-phased algos only which are not part of a multi-phased algo
         """
-        cfg = self.algocfg[ns + '::' + algo]
-        cpp_begin, pyx_begin, pyx_end, typesstr = '', '', '', ''
+        cfg = self.algocfg[ns + "::" + algo]
+        cpp_begin, pyx_begin, pyx_end, typesstr = "", "", "", ""
 
         cpp_map, cpp_end, pyx_map = self.gen_modelmaps(ns, algo)
         a, b, c = self.gen_resultmaps(ns, algo)
@@ -1490,69 +1490,69 @@ class wrapper_gen(object):
         cpp_end += b
         pyx_map += c
 
-        if len(cfg['params']) == 0:
+        if len(cfg["params"]) == 0:
             return (cpp_map, cpp_begin, cpp_end, pyx_map, pyx_begin, pyx_end, typesstr)
 
-        jparams = cfg['params'].copy()
-        jparams.update(cfg['params']['params_templ'])
-        jparams['create'] = cfg['create']
-        jparams['add_setup'] = cfg['add_setup']
-        jparams['add_get_result'] = cfg['add_get_result']
-        jparams['model_maps'] = cfg['model_typemap']
-        jparams['result_map'] = cfg['result_typemap']
-        jparams['params_ds'] = (
-            jparams['params_req']
-            + jparams['params_opt']
-            + [cfg['distributed'], cfg['streaming']]
+        jparams = cfg["params"].copy()
+        jparams.update(cfg["params"]["params_templ"])
+        jparams["create"] = cfg["create"]
+        jparams["add_setup"] = cfg["add_setup"]
+        jparams["add_get_result"] = cfg["add_get_result"]
+        jparams["model_maps"] = cfg["model_typemap"]
+        jparams["result_map"] = cfg["result_typemap"]
+        jparams["params_ds"] = (
+            jparams["params_req"]
+            + jparams["params_opt"]
+            + [cfg["distributed"], cfg["streaming"]]
         )
-        jparams['params_all'] = (
-            jparams['params_req']
-            + (jparams['template_args'] if jparams['template_args'] else [])
-            + jparams['params_opt']
-            + [cfg['distributed'], cfg['streaming']]
+        jparams["params_all"] = (
+            jparams["params_req"]
+            + (jparams["template_args"] if jparams["template_args"] else [])
+            + jparams["params_opt"]
+            + [cfg["distributed"], cfg["streaming"]]
         )
-        jparams['args_all'] = (
-            jparams['input_args'] + jparams['params_req'] + jparams['params_opt']
+        jparams["args_all"] = (
+            jparams["input_args"] + jparams["params_req"] + jparams["params_opt"]
         )
 
-        for p in ['distributed', 'streaming']:
+        for p in ["distributed", "streaming"]:
             if p in cfg:
                 jparams[p] = cfg[p]
 
         t = jenv.from_string(algo_iface_template)
-        cpp_begin += t.render(**jparams) + '\n'
+        cpp_begin += t.render(**jparams) + "\n"
 
         if jparams:
-            if 'dist' in cfg:
+            if "dist" in cfg:
                 # a wrapper for distributed mode
-                jparams.update(cfg['dist'])
+                jparams.update(cfg["dist"])
 
             t = jenv.from_string(manager_wrapper_template)
-            cpp_begin += t.render(**jparams) + '\n'
+            cpp_begin += t.render(**jparams) + "\n"
 
             t = jenv.from_string(hpat_spec_template)
-            pyx_begin += t.render(**jparams) + '\n'
+            pyx_begin += t.render(**jparams) + "\n"
 
             # this is our actual API wrapper
             t = jenv.from_string(parent_wrapper_template)
-            pyx_end += t.render(**jparams) + '\n'
+            pyx_end += t.render(**jparams) + "\n"
 
             # the C function generating specialized classes
             t = jenv.from_string(algo_wrapper_template)
-            cpp_end += t.render(**jparams) + '\n'
+            cpp_end += t.render(**jparams) + "\n"
 
         return (cpp_map, cpp_begin, cpp_end, pyx_map, pyx_begin, pyx_end, typesstr)
 
     ##################################################################################
     def gen_footers(
-        self, no_dist=False, no_stream=False, algos=[], version='', dist_custom_algos=[]
+        self, no_dist=False, no_stream=False, algos=[], version="", dist_custom_algos=[]
     ):
         t = jenv.from_string(pyx_footer_template)
         pyx_footer = t.render(algos=algos, version=version)
-        pyx_footer += '__has_dist__ = {}\n\n'.format(not no_dist)
+        pyx_footer += "__has_dist__ = {}\n\n".format(not no_dist)
 
         if no_dist:
-            return ('', pyx_footer, '')
+            return ("", pyx_footer, "")
         t = jenv.from_string(cpp_footer_template)
         cpp_footer = t.render(algos=algos, dist_custom_algos=dist_custom_algos)
-        return ('', pyx_footer, cpp_footer)
+        return ("", pyx_footer, cpp_footer)

@@ -25,26 +25,26 @@ import pytest
 import sklearn
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-d',
-        '--device',
+        "-d",
+        "--device",
         type=str,
-        default='none',
-        help='device name',
-        choices=['none', 'cpu', 'gpu'],
+        default="none",
+        help="device name",
+        choices=["none", "cpu", "gpu"],
     )
     args = parser.parse_args()
 
     os.chdir(os.path.dirname(sklearn.__file__))
 
     pytest_args = (
-        '--verbose --pyargs --durations=100 --durations-min=0.01 '
-        f'{os.environ["DESELECTED_TESTS"]} {os.environ["SELECTED_TESTS"]}'.split(' ')
+        "--verbose --pyargs --durations=100 --durations-min=0.01 "
+        f'{os.environ["DESELECTED_TESTS"]} {os.environ["SELECTED_TESTS"]}'.split(" ")
     )
 
-    if args.device != 'none':
+    if args.device != "none":
         with sklearn.config_context(target_offload=args.device):
             return_code = pytest.main(pytest_args)
     else:

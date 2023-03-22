@@ -17,14 +17,14 @@
 
 from .._utils import get_sklearnex_version
 
-if get_sklearnex_version((2021, 'P', 300)):
+if get_sklearnex_version((2021, "P", 300)):
     from .svr import SVR
     from .svc import SVC
     from .nusvr import NuSVR
     from .nusvc import NuSVC
 
-    __all__ = ['SVR', 'SVC', 'NuSVC', 'NuSVR']
+    __all__ = ["SVR", "SVC", "NuSVC", "NuSVR"]
 else:
     from daal4py.sklearn.svm import SVC
 
-    __all__ = ['SVC']
+    __all__ = ["SVC"]

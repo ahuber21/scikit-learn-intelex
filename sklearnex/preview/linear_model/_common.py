@@ -31,7 +31,7 @@ def get_coef(self):
 
 def set_coef(self, value):
     self._coef_ = value
-    if hasattr(self, '_onedal_estimator'):
+    if hasattr(self, "_onedal_estimator"):
         self._onedal_estimator.coef_ = value
         if not self._is_in_fit:
             del self._onedal_estimator._onedal_model
@@ -43,7 +43,7 @@ def get_intercept(self):
 
 def set_intercept(self, value):
     self._intercept_ = value
-    if hasattr(self, '_onedal_estimator'):
+    if hasattr(self, "_onedal_estimator"):
         self._onedal_estimator.intercept_ = value
         if not self._is_in_fit:
             del self._onedal_estimator._onedal_model

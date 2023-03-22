@@ -18,10 +18,10 @@ from .kernel_functions import linear_kernel, rbf_kernel, poly_kernel, sigmoid_ke
 from .get_tree import get_tree_state_cls, get_tree_state_reg
 
 __all__ = [
-    'get_tree_state_cls',
-    'get_tree_state_reg',
-    'linear_kernel',
-    'rbf_kernel',
-    'poly_kernel',
-    'sigmoid_kernel',
+    "get_tree_state_cls",
+    "get_tree_state_reg",
+    "linear_kernel",
+    "rbf_kernel",
+    "poly_kernel",
+    "sigmoid_kernel",
 ]

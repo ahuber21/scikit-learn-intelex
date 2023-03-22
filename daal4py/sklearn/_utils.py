@@ -43,7 +43,7 @@ try:
 except (ImportError, ModuleNotFoundError):
     ctx_imported = False
 
-oneapi_is_available = 'daal4py.oneapi' in sys.modules
+oneapi_is_available = "daal4py.oneapi" in sys.modules
 if oneapi_is_available:
     from daal4py.oneapi import _get_device_name_sycl_ctxt
 
@@ -54,7 +54,7 @@ def set_idp_sklearn_verbose():
         if logLevel is not None:
             logging.basicConfig(
                 stream=sys.stdout,
-                format='%(levelname)s: %(message)s',
+                format="%(levelname)s: %(message)s",
                 level=logLevel.upper(),
             )
     except Exception:
@@ -88,7 +88,7 @@ sklearn_versions_map = {}
 def sklearn_check_version(ver):
     if ver in sklearn_versions_map.keys():
         return sklearn_versions_map[ver]
-    if hasattr(Version(ver), 'base_version'):
+    if hasattr(Version(ver), "base_version"):
         base_sklearn_version = Version(sklearn_version).base_version
         res = bool(Version(base_sklearn_version) >= Version(ver))
     else:
@@ -116,7 +116,7 @@ def getFPType(X):
             dt = find_common_type(X.dtypes.tolist())
             return parse_dtype(dt)
 
-    dt = getattr(X, 'dtype', None)
+    dt = getattr(X, "dtype", None)
     return parse_dtype(dt)
 
 
@@ -133,16 +133,16 @@ def get_patch_message(s):
         message = "running accelerated version on "
         if oneapi_is_available:
             dev = _get_device_name_sycl_ctxt()
-            if dev == 'cpu' or dev is None:
-                message += 'CPU'
-            elif dev == 'gpu':
-                message += 'GPU'
+            if dev == "cpu" or dev is None:
+                message += "CPU"
+            elif dev == "gpu":
+                message += "GPU"
             else:
                 raise ValueError(
                     f"Unexpected device name {dev}." " Supported types are cpu and gpu"
                 )
         else:
-            message += 'CPU'
+            message += "CPU"
 
     elif s == "sklearn":
         message = "fallback to original Scikit-learn"
@@ -219,11 +219,11 @@ class PatchingConditionsChain:
             logging.info(f"{self.scope_name}: {get_patch_message('daal')}")
         else:
             logging.debug(
-                f'{self.scope_name}: debugging for the patch is enabled to track'
-                ' the usage of Intel® oneAPI Data Analytics Library (oneDAL)'
+                f"{self.scope_name}: debugging for the patch is enabled to track"
+                " the usage of Intel® oneAPI Data Analytics Library (oneDAL)"
             )
             for message in self.messages:
                 logging.debug(
-                    f'{self.scope_name}: patching failed with cause - {message}'
+                    f"{self.scope_name}: patching failed with cause - {message}"
                 )
             logging.info(f"{self.scope_name}: {get_patch_message('sklearn')}")

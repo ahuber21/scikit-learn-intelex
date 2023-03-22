@@ -25,13 +25,13 @@ try:
 
     def read_csv(f, c, s=0, n=None, t=np.float64):
         return pandas.read_csv(
-            f, usecols=c, delimiter=',', header=None, skiprows=s, nrows=n, dtype=t
+            f, usecols=c, delimiter=",", header=None, skiprows=s, nrows=n, dtype=t
         )
 
 except:
     # fall back to numpy genfromtxt
     def read_csv(f, c, s=0, n=np.iinfo(np.int64).max):
-        a = np.genfromtxt(f, usecols=c, delimiter=',', skip_header=s, max_rows=n)
+        a = np.genfromtxt(f, usecols=c, delimiter=",", skip_header=s, max_rows=n)
         if a.shape[0] == 0:
             raise Exception("done")
         if a.ndim == 1:
@@ -39,7 +39,7 @@ except:
         return a
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     infile = "./data/batch/linear_regression_train.csv"
     testfile = "./data/batch/linear_regression_test.csv"
 
@@ -86,4 +86,4 @@ if __name__ == "__main__":
         predict_result.prediction[0:10],
     )
     print("\nGround truth (first 10 rows):\n", ptdata[0:10])
-    print('All looks good!')
+    print("All looks good!")

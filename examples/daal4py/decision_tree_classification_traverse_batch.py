@@ -52,4 +52,4 @@ if __name__ == "__main__":
     treeState = d4p.getTreeState(train_result.model, treeId, 5)
     # Now let printTree traverse the TreeState
     printTree(treeState.node_ar, treeState.value_ar)
-    print('All looks good!')
+    print("All looks good!")

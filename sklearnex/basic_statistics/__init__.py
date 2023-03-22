@@ -17,4 +17,4 @@
 
 from .basic_statistics import BasicStatistics
 
-__all__ = ['BasicStatistics']
+__all__ = ["BasicStatistics"]

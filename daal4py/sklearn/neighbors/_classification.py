@@ -44,18 +44,18 @@ else:
 
 
 def daal4py_classifier_predict(estimator, X, base_predict):
-    if sklearn_check_version('1.0'):
+    if sklearn_check_version("1.0"):
         estimator._check_feature_names(X, reset=False)
-    X = check_array(X, accept_sparse='csr', dtype=[np.float64, np.float32])
-    daal_model = getattr(estimator, '_daal_model', None)
-    n_features = getattr(estimator, 'n_features_in_', None)
-    shape = getattr(X, 'shape', None)
+    X = check_array(X, accept_sparse="csr", dtype=[np.float64, np.float32])
+    daal_model = getattr(estimator, "_daal_model", None)
+    n_features = getattr(estimator, "n_features_in_", None)
+    shape = getattr(X, "shape", None)
     if n_features and shape and len(shape) > 1 and shape[1] != n_features:
         raise ValueError(
             (
-                f'X has {X.shape[1]} features, '
-                f'but KNNClassifier is expecting '
-                f'{n_features} features as input'
+                f"X has {X.shape[1]} features, "
+                f"but KNNClassifier is expecting "
+                f"{n_features} features as input"
             )
         )
 
@@ -78,14 +78,14 @@ def daal4py_classifier_predict(estimator, X, base_predict):
 
     if _dal_ready:
         params = {
-            'method': 'defaultDense',
-            'k': estimator.n_neighbors,
-            'nClasses': len(estimator.classes_),
-            'voteWeights': 'voteUniform'
-            if estimator.weights == 'uniform'
-            else 'voteDistance',
-            'resultsToEvaluate': 'computeClassLabels',
-            'resultsToCompute': '',
+            "method": "defaultDense",
+            "k": estimator.n_neighbors,
+            "nClasses": len(estimator.classes_),
+            "voteWeights": "voteUniform"
+            if estimator.weights == "uniform"
+            else "voteDistance",
+            "resultsToEvaluate": "computeClassLabels",
+            "resultsToCompute": "",
         }
 
         method = parse_auto_method(
@@ -110,11 +110,11 @@ if sklearn_check_version("0.24"):
             self,
             n_neighbors=5,
             *,
-            weights='uniform',
-            algorithm='auto',
+            weights="uniform",
+            algorithm="auto",
             leaf_size=30,
             p=2,
-            metric='minkowski',
+            metric="minkowski",
             metric_params=None,
             n_jobs=None,
             **kwargs,
@@ -146,11 +146,11 @@ elif sklearn_check_version("0.22"):
             self,
             n_neighbors=5,
             *,
-            weights='uniform',
-            algorithm='auto',
+            weights="uniform",
+            algorithm="auto",
             leaf_size=30,
             p=2,
-            metric='minkowski',
+            metric="minkowski",
             metric_params=None,
             n_jobs=None,
             **kwargs,
@@ -180,11 +180,11 @@ else:
             self,
             n_neighbors=5,
             *,
-            weights='uniform',
-            algorithm='auto',
+            weights="uniform",
+            algorithm="auto",
             leaf_size=30,
             p=2,
-            metric='minkowski',
+            metric="minkowski",
             metric_params=None,
             n_jobs=None,
             **kwargs,
@@ -210,11 +210,11 @@ class KNeighborsClassifier(KNeighborsClassifier_):
         self,
         n_neighbors=5,
         *,
-        weights='uniform',
-        algorithm='auto',
+        weights="uniform",
+        algorithm="auto",
         leaf_size=30,
         p=2,
-        metric='minkowski',
+        metric="minkowski",
         metric_params=None,
         n_jobs=None,
         **kwargs,
@@ -288,6 +288,6 @@ class KNeighborsClassifier(KNeighborsClassifier_):
             The class probabilities of the input samples. Classes are ordered
             by lexicographic order.
         """
-        if sklearn_check_version('1.0'):
+        if sklearn_check_version("1.0"):
             self._check_feature_names(X, reset=False)
         return BaseKNeighborsClassifier.predict_proba(self, X)

@@ -25,16 +25,16 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(
-            f, usecols=c, delimiter=',', header=None, dtype=np.float32
+            f, usecols=c, delimiter=",", header=None, dtype=np.float32
         )
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2, dtype=np.float32)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2, dtype=np.float32)
 
 
-def main(readcsv=read_csv, method='defaultDense'):
+def main(readcsv=read_csv, method="defaultDense"):
     # input data file
     infile = "./data/batch/decision_tree_train.csv"
     prunefile = "./data/batch/decision_tree_prune.csv"
@@ -71,4 +71,4 @@ if __name__ == "__main__":
         predict_result.prediction[0:20],
     )
     print("\nGround truth (first 20 rows):\n", plabels[0:20])
-    print('All looks good!')
+    print("All looks good!")

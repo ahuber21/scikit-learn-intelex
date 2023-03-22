@@ -23,10 +23,10 @@ import pandas as pd
 
 
 def pd_read_csv(f, c=None, t=np.float64):
-    return pd.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+    return pd.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 
-def main(readcsv=pd_read_csv, method='defaultDense'):
+def main(readcsv=pd_read_csv, method="defaultDense"):
     # Path to data
     train_file = "./data/batch/df_classification_train.csv"
     test_file = "./data/batch/df_classification_test.csv"
@@ -43,14 +43,14 @@ def main(readcsv=pd_read_csv, method='defaultDense'):
 
     # training parameters setting
     params = {
-        'reg_lambda': 1,
-        'max_depth': 8,
-        'num_leaves': 2**8,
-        'verbose': 0,
-        'objective': 'MultiClass',
-        'learning_rate': 0.3,
-        'n_estimators': 100,
-        'classes_count': 5,
+        "reg_lambda": 1,
+        "max_depth": 8,
+        "num_leaves": 2**8,
+        "verbose": 0,
+        "objective": "MultiClass",
+        "learning_rate": 0.3,
+        "n_estimators": 100,
+        "classes_count": 5,
     }
 
     # Training
@@ -58,7 +58,7 @@ def main(readcsv=pd_read_csv, method='defaultDense'):
     cb_model.fit(cb_train)
 
     # Catboost prediction
-    cb_prediction = cb_model.predict(cb_test, prediction_type='Class').T[0]
+    cb_prediction = cb_model.predict(cb_test, prediction_type="Class").T[0]
     cb_errors_count = np.count_nonzero(cb_prediction - np.ravel(y_test))
 
     # Conversion to daal4py
@@ -66,9 +66,9 @@ def main(readcsv=pd_read_csv, method='defaultDense'):
 
     # daal4py prediction
     daal_predict_algo = d4p.gbt_classification_prediction(
-        nClasses=params['classes_count'],
+        nClasses=params["classes_count"],
         resultsToEvaluate="computeClassLabels",
-        fptype='float',
+        fptype="float",
     )
     daal_prediction = daal_predict_algo.compute(X_test, daal_model)
     daal_errors_count = np.count_nonzero(daal_prediction.prediction - y_test)

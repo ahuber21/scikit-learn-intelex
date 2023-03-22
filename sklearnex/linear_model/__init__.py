@@ -21,10 +21,10 @@ from .ridge import Ridge
 from .coordinate_descent import ElasticNet, Lasso
 
 __all__ = [
-    'Ridge',
-    'LinearRegression',
-    'LogisticRegression',
-    'logistic_regression_path',
-    'ElasticNet',
-    'Lasso',
+    "Ridge",
+    "LinearRegression",
+    "LogisticRegression",
+    "logistic_regression_path",
+    "ElasticNet",
+    "Lasso",
 ]

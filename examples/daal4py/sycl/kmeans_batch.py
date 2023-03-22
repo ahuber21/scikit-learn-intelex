@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 try:
@@ -43,7 +43,7 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
@@ -52,12 +52,12 @@ except:
 # Commone code for both CPU and GPU computations
 def compute(data, nClusters, maxIter, method):
     # configure kmeans init object
-    initrain_algo = d4p.kmeans_init(nClusters, method=method, fptype='float')
+    initrain_algo = d4p.kmeans_init(nClusters, method=method, fptype="float")
     # compute initial centroids
     initrain_result = initrain_algo.compute(data)
 
     # configure kmeans main object: we also request the cluster assignments
-    algo = d4p.kmeans(nClusters, maxIter, assignFlag=True, fptype='float')
+    algo = d4p.kmeans(nClusters, maxIter, assignFlag=True, fptype="float")
     # compute the clusters/centroids
     return algo.compute(data, initrain_result.centroids)
 
@@ -86,8 +86,8 @@ def to_numpy(data):
     return data
 
 
-def main(readcsv=read_csv, method='randomDense'):
-    infile = os.path.join('..', 'data', 'batch', 'kmeans_dense.csv')
+def main(readcsv=read_csv, method="randomDense"):
+    infile = os.path.join("..", "data", "batch", "kmeans_dense.csv")
     nClusters = 20
     maxIter = 5
 
@@ -112,10 +112,10 @@ def main(readcsv=read_csv, method='randomDense'):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
@@ -152,4 +152,4 @@ if __name__ == "__main__":
     print("\nFirst 10 cluster assignments:\n", result.assignments[0:10])
     print("\nFirst 10 dimensions of centroids:\n", result.centroids[:, 0:10])
     print("\nObjective function value:\n", result.objectiveFunction)
-    print('All looks good!')
+    print("All looks good!")

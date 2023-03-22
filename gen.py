@@ -36,15 +36,15 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     argParser.add_argument(
-        '--daalroot',
+        "--daalroot",
         required=True,
         help="DAAL root directory (reads include dir in there)",
     )
     argParser.add_argument(
-        '--outdir', default='build', help="Output directory to store wrapper files to"
+        "--outdir", default="build", help="Output directory to store wrapper files to"
     )
     argParser.add_argument(
-        '--wall', default=False, action='store_true', help="Emit all warnings"
+        "--wall", default=False, action="store_true", help="Emit all warnings"
     )
 
     args = argParser.parse_args()

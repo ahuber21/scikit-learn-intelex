@@ -51,7 +51,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
         C,
         nu,
         epsilon,
-        kernel='rbf',
+        kernel="rbf",
         *,
         degree,
         gamma,
@@ -88,14 +88,14 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
 
     def _compute_gamma_sigma(self, gamma, X):
         if isinstance(gamma, str):
-            if gamma == 'scale':
+            if gamma == "scale":
                 if sp.isspmatrix(X):
                     # var = E[X^2] - E[X]^2
                     X_sc = (X.multiply(X)).mean() - (X.mean()) ** 2
                 else:
                     X_sc = X.var()
                 _gamma = 1.0 / (X.shape[1] * X_sc) if X_sc != 0 else 1.0
-            elif gamma == 'auto':
+            elif gamma == "auto":
                 _gamma = 1.0 / X.shape[1]
             else:
                 raise ValueError(
@@ -103,7 +103,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
                     "'auto'. Got '{}' instead.".format(gamma)
                 )
         else:
-            if sklearn_check_version('1.1') and not sklearn_check_version('1.2'):
+            if sklearn_check_version("1.1") and not sklearn_check_version("1.2"):
                 if isinstance(gamma, Real):
                     if gamma <= 0:
                         msg = (
@@ -184,24 +184,24 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
                     if self.nu * (weight_per_class[i] + weight_per_class[j]) / 2 > min(
                         weight_per_class[i], weight_per_class[j]
                     ):
-                        raise ValueError('specified nu is infeasible')
+                        raise ValueError("specified nu is infeasible")
 
         if np.all(sample_weight <= 0):
             if self.svm_type == SVMtype.nu_svc:
-                err_msg = 'negative dimensions are not allowed'
+                err_msg = "negative dimensions are not allowed"
             else:
-                err_msg = 'Invalid input - all samples have zero or negative weights.'
+                err_msg = "Invalid input - all samples have zero or negative weights."
             raise ValueError(err_msg)
         if np.any(sample_weight <= 0):
             if self.svm_type == SVMtype.c_svc and len(
                 np.unique(y[sample_weight > 0])
             ) != len(self.classes_):
                 raise ValueError(
-                    'Invalid input - all samples with positive weights '
-                    'belong to the same class'
-                    if sklearn_check_version('1.2')
-                    else 'Invalid input - all samples with positive weights '
-                    'have the same label.'
+                    "Invalid input - all samples with positive weights "
+                    "belong to the same class"
+                    if sklearn_check_version("1.2")
+                    else "Invalid input - all samples with positive weights "
+                    "have the same label."
                 )
         ww = sample_weight
         if self.class_weight_ is not None:
@@ -220,34 +220,34 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
         self.n_iter_ = 1 if max_iter < 1 else max_iter
         class_count = 0 if self.classes_ is None else len(self.classes_)
         return {
-            'fptype': 'float' if data.dtype == np.float32 else 'double',
-            'method': self.algorithm,
-            'kernel': self.kernel,
-            'c': self.C,
-            'nu': self.nu,
-            'epsilon': self.epsilon,
-            'class_count': class_count,
-            'accuracy_threshold': self.tol,
-            'max_iteration_count': int(max_iter),
-            'scale': self._scale_,
-            'sigma': self._sigma_,
-            'shift': self.coef0,
-            'degree': self.degree,
-            'tau': self.tau,
-            'shrinking': self.shrinking,
-            'cache_size': self.cache_size,
+            "fptype": "float" if data.dtype == np.float32 else "double",
+            "method": self.algorithm,
+            "kernel": self.kernel,
+            "c": self.C,
+            "nu": self.nu,
+            "epsilon": self.epsilon,
+            "class_count": class_count,
+            "accuracy_threshold": self.tol,
+            "max_iteration_count": int(max_iter),
+            "scale": self._scale_,
+            "sigma": self._sigma_,
+            "shift": self.coef0,
+            "degree": self.degree,
+            "tau": self.tau,
+            "shrinking": self.shrinking,
+            "cache_size": self.cache_size,
         }
 
     def _fit(self, X, y, sample_weight, module, queue):
-        if hasattr(self, 'decision_function_shape'):
-            if self.decision_function_shape not in ('ovr', 'ovo', None):
+        if hasattr(self, "decision_function_shape"):
+            if self.decision_function_shape not in ("ovr", "ovo", None):
                 raise ValueError(
                     f"decision_function_shape must be either 'ovr' or 'ovo', "
                     f"got {self.decision_function_shape}."
                 )
 
         if y is None:
-            if self._get_tags()['requires_y']:
+            if self._get_tags()["requires_y"]:
                 raise ValueError(
                     f"This {self.__class__.__name__} estimator "
                     f"requires y to be passed, but the target y is None."
@@ -257,14 +257,14 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
             y,
             dtype=[np.float64, np.float32],
             force_all_finite=True,
-            accept_sparse='csr',
+            accept_sparse="csr",
         )
         y = self._validate_targets(y, X.dtype)
         sample_weight = self._get_sample_weight(X, y, sample_weight)
 
         self._sparse = sp.isspmatrix(X)
 
-        if self.kernel == 'linear':
+        if self.kernel == "linear":
             self._scale_, self._sigma_ = 1.0, 1.0
             self.coef0 = 0.0
         else:
@@ -282,11 +282,11 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
             self.support_vectors_ = from_table(result.support_vectors)
 
         self.intercept_ = from_table(result.biases).ravel()
-        self.support_ = from_table(result.support_indices).ravel().astype('int')
+        self.support_ = from_table(result.support_indices).ravel().astype("int")
         self.n_features_in_ = X.shape[1]
         self.shape_fit_ = X.shape
 
-        if getattr(self, 'classes_', None) is not None:
+        if getattr(self, "classes_", None) is not None:
             indices = y.take(self.support_, axis=0)
             self._n_support = np.array(
                 [np.sum(indices == i) for i, _ in enumerate(self.classes_)]
@@ -309,7 +309,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
 
     def _predict(self, X, module, queue):
         _check_is_fitted(self)
-        if self.break_ties and self.decision_function_shape == 'ovo':
+        if self.break_ties and self.decision_function_shape == "ovo":
             raise ValueError(
                 "break_ties must be False when " "decision_function_shape is 'ovo'"
             )
@@ -328,7 +328,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
 
         if (
             self.break_ties
-            and self.decision_function_shape == 'ovr'
+            and self.decision_function_shape == "ovr"
             and len(self.classes_) > 2
         ):
             y = np.argmax(self.decision_function(X), axis=1)
@@ -337,7 +337,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
                 X,
                 dtype=[np.float64, np.float32],
                 force_all_finite=True,
-                accept_sparse='csr',
+                accept_sparse="csr",
             )
             _check_n_features(self, X, False)
 
@@ -355,7 +355,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
             policy = _get_policy(queue, X)
             params = self._get_onedal_params(X)
 
-            if hasattr(self, '_onedal_model'):
+            if hasattr(self, "_onedal_model"):
                 model = self._onedal_model
             else:
                 model = self._create_model(module)
@@ -388,7 +388,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
             X,
             dtype=[np.float64, np.float32],
             force_all_finite=False,
-            accept_sparse='csr',
+            accept_sparse="csr",
         )
         _check_n_features(self, X, False)
 
@@ -418,7 +418,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
         policy = _get_policy(queue, X)
         params = self._get_onedal_params(X)
 
-        if hasattr(self, '_onedal_model'):
+        if hasattr(self, "_onedal_model"):
             model = self._onedal_model
         else:
             model = self._create_model(module)
@@ -428,7 +428,7 @@ class BaseSVM(BaseEstimator, metaclass=ABCMeta):
         if len(self.classes_) == 2:
             decision_function = decision_function.ravel()
 
-        if self.decision_function_shape == 'ovr' and len(self.classes_) > 2:
+        if self.decision_function_shape == "ovr" and len(self.classes_) > 2:
             decision_function = self._ovr_decision_function(
                 decision_function < 0, -decision_function, len(self.classes_)
             )
@@ -444,17 +444,17 @@ class SVR(RegressorMixin, BaseSVM):
         self,
         C=1.0,
         epsilon=0.1,
-        kernel='rbf',
+        kernel="rbf",
         *,
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         tol=1e-3,
         shrinking=True,
         cache_size=200.0,
         max_iter=-1,
         tau=1e-12,
-        algorithm='thunder',
+        algorithm="thunder",
         **kwargs,
     ):
         super().__init__(
@@ -493,10 +493,10 @@ class SVC(ClassifierMixin, BaseSVM):
     def __init__(
         self,
         C=1.0,
-        kernel='rbf',
+        kernel="rbf",
         *,
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         tol=1e-3,
         shrinking=True,
@@ -504,9 +504,9 @@ class SVC(ClassifierMixin, BaseSVM):
         max_iter=-1,
         tau=1e-12,
         class_weight=None,
-        decision_function_shape='ovr',
+        decision_function_shape="ovr",
         break_ties=False,
-        algorithm='thunder',
+        algorithm="thunder",
         **kwargs,
     ):
         super().__init__(
@@ -557,17 +557,17 @@ class NuSVR(RegressorMixin, BaseSVM):
         self,
         nu=0.5,
         C=1.0,
-        kernel='rbf',
+        kernel="rbf",
         *,
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         tol=1e-3,
         shrinking=True,
         cache_size=200.0,
         max_iter=-1,
         tau=1e-12,
-        algorithm='thunder',
+        algorithm="thunder",
         **kwargs,
     ):
         super().__init__(
@@ -606,10 +606,10 @@ class NuSVC(ClassifierMixin, BaseSVM):
     def __init__(
         self,
         nu=0.5,
-        kernel='rbf',
+        kernel="rbf",
         *,
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         tol=1e-3,
         shrinking=True,
@@ -617,9 +617,9 @@ class NuSVC(ClassifierMixin, BaseSVM):
         max_iter=-1,
         tau=1e-12,
         class_weight=None,
-        decision_function_shape='ovr',
+        decision_function_shape="ovr",
         break_ties=False,
-        algorithm='thunder',
+        algorithm="thunder",
         **kwargs,
     ):
         super().__init__(

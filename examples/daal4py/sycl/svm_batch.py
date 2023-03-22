@@ -26,12 +26,12 @@ try:
     import pandas
 
     def read_csv(f, c, t=np.float64):
-        return pandas.read_csv(f, usecols=c, delimiter=',', header=None, dtype=t)
+        return pandas.read_csv(f, usecols=c, delimiter=",", header=None, dtype=t)
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2)
 
 
 try:
@@ -43,20 +43,20 @@ except:
     try:
         from daal4py.oneapi import sycl_context
 
-        with sycl_context('gpu'):
+        with sycl_context("gpu"):
             gpu_available = True
     except:
         gpu_available = False
 
 
 # Common code for both CPU and GPU computations
-def compute(train_indep_data, train_dep_data, test_indep_data, method='defaultDense'):
+def compute(train_indep_data, train_dep_data, test_indep_data, method="defaultDense"):
     # Configure a SVM object to use linear kernel
     kernel_function = d4p.kernel_function_linear(
-        fptype='float', method='defaultDense', k=1.0, b=0.0
+        fptype="float", method="defaultDense", k=1.0, b=0.0
     )
     train_algo = d4p.svm_training(
-        fptype='float',
+        fptype="float",
         method=method,
         kernel=kernel_function,
         C=1.0,
@@ -68,7 +68,7 @@ def compute(train_indep_data, train_dep_data, test_indep_data, method='defaultDe
     train_result = train_algo.compute(train_indep_data, train_dep_data)
 
     # Create an algorithm object and call compute
-    predict_algo = d4p.svm_prediction(fptype='float', kernel=kernel_function)
+    predict_algo = d4p.svm_prediction(fptype="float", kernel=kernel_function)
     predict_result = predict_algo.compute(test_indep_data, train_result.model)
     decision_result = predict_result.prediction
     predict_labels = np.where(decision_result >= 0, 1, -1)
@@ -96,8 +96,8 @@ def to_numpy(data):
 
 def main(readcsv=read_csv):
     # input data file
-    train_file = os.path.join('..', 'data', 'batch', 'svm_two_class_train_dense.csv')
-    predict_file = os.path.join('..', 'data', 'batch', 'svm_two_class_test_dense.csv')
+    train_file = os.path.join("..", "data", "batch", "svm_two_class_train_dense.csv")
+    predict_file = os.path.join("..", "data", "batch", "svm_two_class_test_dense.csv")
 
     nFeatures = 20
     train_data = readcsv(train_file, range(nFeatures), t=np.float32)
@@ -108,7 +108,7 @@ def main(readcsv=read_csv):
     )
 
     predict_result_classic, decision_function_classic = compute(
-        train_data, train_labels, predict_data, 'boser'
+        train_data, train_labels, predict_data, "boser"
     )
 
     train_data = to_numpy(train_data)
@@ -128,10 +128,10 @@ def main(readcsv=read_csv):
         from daal4py.oneapi import sycl_context
 
         def gpu_context():
-            return sycl_context('gpu')
+            return sycl_context("gpu")
 
         def cpu_context():
-            return sycl_context('cpu')
+            return sycl_context("cpu")
 
     # It is possible to specify to make the computations on GPU
     if gpu_available:
@@ -141,7 +141,7 @@ def main(readcsv=read_csv):
             sycl_predict_data = sycl_buffer(predict_data)
 
             predict_result_gpu, decision_function_gpu = compute(
-                sycl_train_data, sycl_train_labels, sycl_predict_data, 'thunder'
+                sycl_train_data, sycl_train_labels, sycl_predict_data, "thunder"
             )
             # assert np.allclose(predict_result_gpu, predict_result_classic)
 
@@ -150,7 +150,7 @@ def main(readcsv=read_csv):
         sycl_predict_data = sycl_buffer(predict_data)
 
         predict_result_cpu, decision_function_cpu = compute(
-            sycl_train_data, train_labels, sycl_predict_data, 'thunder'
+            sycl_train_data, train_labels, sycl_predict_data, "thunder"
         )
         assert np.allclose(predict_result_cpu, predict_result_classic)
 
@@ -169,4 +169,4 @@ if __name__ == "__main__":
         predict_result[0:10],
     )
     print("\nGround truth (first 10 observations):\n", predict_labels[0:10])
-    print('All looks good!')
+    print("All looks good!")

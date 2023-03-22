@@ -45,7 +45,7 @@ from .._utils import make2d, getFPType, sklearn_check_version, PatchingCondition
 
 
 def _get_libsvm_impl():
-    return ['c_svc', 'nu_svc', 'one_class', 'epsilon_svr', 'nu_svr']
+    return ["c_svc", "nu_svc", "one_class", "epsilon_svr", "nu_svr"]
 
 
 def _dual_coef_getter(self):
@@ -58,17 +58,17 @@ def _intercept_getter(self):
 
 def _dual_coef_setter(self, val):
     self._internal_dual_coef_ = val
-    if hasattr(self, 'daal_model_'):
+    if hasattr(self, "daal_model_"):
         del self.daal_model_
-    if getattr(self, '_daal_fit', False):
+    if getattr(self, "_daal_fit", False):
         self._daal_fit = False
 
 
 def _intercept_setter(self, val):
     self._internal_intercept_ = val
-    if hasattr(self, 'daal_model_'):
+    if hasattr(self, "daal_model_"):
         del self.daal_model_
-    if getattr(self, '_daal_fit', False):
+    if getattr(self, "_daal_fit", False):
         self._daal_fit = False
 
 
@@ -155,12 +155,12 @@ def extract_dual_coef(num_classes, sv_ind_by_clf, sv_coef_by_clf, labels):
 
 def _daal4py_kf(kernel, X_fptype, gamma=1.0, is_sparse=False):
     method = "fastCSR" if is_sparse else "defaultDense"
-    if kernel == 'rbf':
+    if kernel == "rbf":
         sigma_value = np.sqrt(0.5 / gamma)
         kf = daal4py.kernel_function_rbf(
             fptype=X_fptype, method=method, sigma=sigma_value
         )
-    elif kernel == 'linear':
+    elif kernel == "linear":
         kf = daal4py.kernel_function_linear(fptype=X_fptype, method=method)
     else:
         raise ValueError(
@@ -176,13 +176,13 @@ def _daal4py_check_weight(self, X, y, sample_weight):
         sample_weight = _check_sample_weight(sample_weight, X)
         if np.all(sample_weight <= 0):
             raise ValueError(
-                'Invalid input - all samples have zero or negative weights.'
+                "Invalid input - all samples have zero or negative weights."
             )
         if np.any(sample_weight <= 0):
             if len(np.unique(y[sample_weight > 0])) != len(self.classes_):
                 raise ValueError(
-                    'Invalid input - all samples with positive weights '
-                    'have the same label.'
+                    "Invalid input - all samples with positive weights "
+                    "have the same label."
                 )
         ww = sample_weight
     elif self.class_weight is not None:
@@ -205,7 +205,7 @@ def _daal4py_svm(
     nClasses=2,
 ):
     svm_train = daal4py.svm_training(
-        method='thunder',
+        method="thunder",
         fptype=fptype,
         C=C,
         accuracyThreshold=accuracyThreshold,
@@ -221,7 +221,7 @@ def _daal4py_svm(
         algo = daal4py.multi_class_classifier_training(
             nClasses=nClasses,
             fptype=fptype,
-            method='oneAgainstOne',
+            method="oneAgainstOne",
             training=svm_train,
         )
 
@@ -265,11 +265,11 @@ def _daal4py_fit(self, X, y_inp, sample_weight, kernel, is_sparse=False):
         # into the same layout as that of Scikit-Learn
         tmp = np.empty(
             two_class_sv_ind_.shape,
-            dtype=np.dtype([('label', y.dtype), ('ind', two_class_sv_ind_.dtype)]),
+            dtype=np.dtype([("label", y.dtype), ("ind", two_class_sv_ind_.dtype)]),
         )
-        tmp['label'][:] = y[two_class_sv_ind_].ravel()
-        tmp['ind'][:] = two_class_sv_ind_
-        perm = np.argsort(tmp, order=['label', 'ind'])
+        tmp["label"][:] = y[two_class_sv_ind_].ravel()
+        tmp["ind"][:] = two_class_sv_ind_
+        perm = np.argsort(tmp, order=["label", "ind"])
         del tmp
 
         self.support_ = two_class_sv_ind_[perm]
@@ -350,13 +350,13 @@ def __compute_gamma__(gamma, kernel, X, use_var=True, deprecation=True):
     See: https://github.com/scikit-learn/scikit-learn/pull/13221
     """
     if deprecation:
-        _gamma_is_scale = gamma in ('scale', 'auto_deprecated')
+        _gamma_is_scale = gamma in ("scale", "auto_deprecated")
     else:
-        _gamma_is_scale = gamma == 'scale'
+        _gamma_is_scale = gamma == "scale"
     if _gamma_is_scale:
         kernel_uses_gamma = not callable(kernel) and kernel not in (
-            'linear',
-            'precomputed',
+            "linear",
+            "precomputed",
         )
         if kernel_uses_gamma:
             if sp.isspmatrix(X):
@@ -368,7 +368,7 @@ def __compute_gamma__(gamma, kernel, X, use_var=True, deprecation=True):
                 X_sc = np.sqrt(X_sc)
         else:
             X_sc = 1.0 / X.shape[1]
-        if gamma == 'scale':
+        if gamma == "scale":
             if X_sc != 0:
                 _gamma = 1.0 / (X.shape[1] * X_sc)
             else:
@@ -388,7 +388,7 @@ def __compute_gamma__(gamma, kernel, X, use_var=True, deprecation=True):
                     FutureWarning,
                 )
             _gamma = 1.0 / X.shape[1]
-    elif gamma == 'auto':
+    elif gamma == "auto":
         _gamma = 1.0 / X.shape[1]
     elif isinstance(gamma, str) and not deprecation:
         raise ValueError(
@@ -447,8 +447,8 @@ def fit(self, X, y, sample_weight=None):
         raise TypeError("Sparse precomputed kernels are not supported.")
     self._sparse = is_sparse and not callable(self.kernel)
 
-    if hasattr(self, 'decision_function_shape'):
-        if self.decision_function_shape not in ('ovr', 'ovo'):
+    if hasattr(self, "decision_function_shape"):
+        if self.decision_function_shape not in ("ovr", "ovo"):
             raise ValueError(
                 f"decision_function_shape must be either 'ovr' or 'ovo', "
                 f"got {self.decision_function_shape}."
@@ -461,8 +461,8 @@ def fit(self, X, y, sample_weight=None):
             X,
             y,
             dtype=np.float64,
-            order='C',
-            accept_sparse='csr',
+            order="C",
+            accept_sparse="csr",
             accept_large_sparse=False,
         )
     y = self._validate_targets(y)
@@ -491,24 +491,24 @@ def fit(self, X, y, sample_weight=None):
             "boolean masks (use `indices=True` in CV)." % (sample_weight.shape, X.shape)
         )
 
-    kernel = 'precomputed' if callable(self.kernel) else self.kernel
-    if kernel == 'precomputed':
+    kernel = "precomputed" if callable(self.kernel) else self.kernel
+    if kernel == "precomputed":
         self._gamma = 0.0
     else:
         self._gamma = _compute_gamma(self.gamma, kernel, X)
 
     fit = self._sparse_fit if self._sparse else self._dense_fit
     if self.verbose:  # pragma: no cover
-        print('[LibSVM]', end='')
+        print("[LibSVM]", end="")
 
     # see comment on the other call to np.iinfo in this file
-    seed = rnd.randint(np.iinfo('i').max)
+    seed = rnd.randint(np.iinfo("i").max)
 
     _patching_status = PatchingConditionsChain("sklearn.svm.SVC.fit")
     _dal_ready = _patching_status.and_conditions(
         [
             (
-                kernel in ['linear', 'rbf'],
+                kernel in ["linear", "rbf"],
                 f"'{kernel}' kernel is not supported. "
                 "Only 'linear' and 'rbf' kernels are supported.",
             )
@@ -525,7 +525,7 @@ def fit(self, X, y, sample_weight=None):
         if self.probability:
             params = self.get_params()
             params["probability"] = False
-            params["decision_function_shape"] = 'ovr'
+            params["decision_function_shape"] = "ovr"
             clf_base = SVC(**params)
             try:
                 n_splits = 5
@@ -537,18 +537,18 @@ def fit(self, X, y, sample_weight=None):
                         clf_base,
                         ensemble=False,
                         cv=cv,
-                        method='sigmoid',
+                        method="sigmoid",
                         n_jobs=n_splits,
                     )
                 else:
                     self.clf_prob = CalibratedClassifierCV(
-                        clf_base, cv=cv, method='sigmoid'
+                        clf_base, cv=cv, method="sigmoid"
                     )
                 self.clf_prob.fit(X, y, sample_weight)
             except ValueError:
                 clf_base = clf_base.fit(X, y, sample_weight)
                 self.clf_prob = CalibratedClassifierCV(
-                    clf_base, cv="prefit", method='sigmoid'
+                    clf_base, cv="prefit", method="sigmoid"
                 )
                 self.clf_prob.fit(X, y, sample_weight)
     else:
@@ -559,7 +559,7 @@ def fit(self, X, y, sample_weight=None):
 
     # In binary case, we need to flip the sign of coef, intercept and
     # decision function. Use self._intercept_ and self._dual_coef_ internally.
-    if not getattr(self, '_daal_fit', False):
+    if not getattr(self, "_daal_fit", False):
         self._internal_intercept_ = self.intercept_.copy()
         self._internal_dual_coef_ = self.dual_coef_.copy()
     else:
@@ -570,9 +570,9 @@ def fit(self, X, y, sample_weight=None):
             self._internal_intercept_ *= -1
 
     if (
-        not getattr(self, '_daal_fit', False)
+        not getattr(self, "_daal_fit", False)
         and len(self.classes_) == 2
-        and self._impl in ['c_svc', 'nu_svc']
+        and self._impl in ["c_svc", "nu_svc"]
     ):
         self.intercept_ *= -1
         self.dual_coef_ *= -1
@@ -589,19 +589,19 @@ def _daal4py_predict(self, X, is_decision_function=False):
     )
 
     svm_predict = daal4py.svm_prediction(
-        fptype=X_fptype, method='defaultDense', kernel=kf
+        fptype=X_fptype, method="defaultDense", kernel=kf
     )
     if num_classes == 2:
         alg = svm_predict
     else:
         result_to_compute = (
-            'computeDecisionFunction' if is_decision_function else 'computeClassLabels'
+            "computeDecisionFunction" if is_decision_function else "computeClassLabels"
         )
         alg = daal4py.multi_class_classifier_prediction(
             nClasses=num_classes,
             fptype=X_fptype,
             pmethod="voteBased",
-            tmethod='oneAgainstOne',
+            tmethod="oneAgainstOne",
             resultsToEvaluate=result_to_compute,
             prediction=svm_predict,
         )
@@ -638,8 +638,8 @@ def predict(self, X):
     """
     check_is_fitted(self)
 
-    _break_ties = getattr(self, 'break_ties', False)
-    if _break_ties and self.decision_function_shape == 'ovo':
+    _break_ties = getattr(self, "break_ties", False)
+    if _break_ties and self.decision_function_shape == "ovo":
         raise ValueError(
             "break_ties must be False when " "decision_function_shape is 'ovo'"
         )
@@ -649,7 +649,7 @@ def predict(self, X):
         [
             (not _break_ties, "Breaking ties is not supported."),
             (
-                self.decision_function_shape != 'ovr',
+                self.decision_function_shape != "ovr",
                 "'ovr' decision function shape is not supported.",
             ),
             (len(self.classes_) <= 2, "Number of classes > 2."),
@@ -664,7 +664,7 @@ def predict(self, X):
         _dal_ready = _patching_status.and_conditions(
             [
                 (
-                    getattr(self, '_daal_fit', False) and hasattr(self, 'daal_model_'),
+                    getattr(self, "_daal_fit", False) and hasattr(self, "daal_model_"),
                     "oneDAL model was not trained.",
                 )
             ]
@@ -684,7 +684,7 @@ def predict(self, X):
 def _daal4py_predict_proba(self, X):
     X = self._validate_for_predict(X)
 
-    if getattr(self, 'clf_prob', None) is None:
+    if getattr(self, "clf_prob", None) is None:
         raise NotFittedError(
             "predict_proba is not available when fitted with probability=False"
         )
@@ -723,7 +723,7 @@ def predict_proba(self):
     self._check_proba()
     _patching_status = PatchingConditionsChain("sklearn.svm.SVC.predict_proba")
     _dal_ready = _patching_status.and_conditions(
-        [(getattr(self, '_daal_fit', False), "oneDAL model was not trained.")]
+        [(getattr(self, "_daal_fit", False), "oneDAL model was not trained.")]
     )
     _patching_status.write_log()
     if _dal_ready:
@@ -762,7 +762,7 @@ def decision_function(self, X):
 
     _patching_status = PatchingConditionsChain("sklearn.svm.SVC.decision_function")
     _dal_ready = _patching_status.and_conditions(
-        [(getattr(self, '_daal_fit', False), "oneDAL model was not trained.")]
+        [(getattr(self, "_daal_fit", False), "oneDAL model was not trained.")]
     )
     _patching_status.write_log()
     if _dal_ready:
@@ -770,7 +770,7 @@ def decision_function(self, X):
         dec = _daal4py_predict(self, X, is_decision_function=True)
     else:
         dec = self._decision_function(X)
-    if self.decision_function_shape == 'ovr' and len(self.classes_) > 2:
+    if self.decision_function_shape == "ovr" and len(self.classes_) > 2:
         return _ovr_decision_function(dec < 0, -dec, len(self.classes_))
     return dec
 
@@ -792,14 +792,14 @@ del __base_svc_init_function_code__
 
 
 class SVC(svm_base.BaseSVC):
-    _impl = 'c_svc'
+    _impl = "c_svc"
 
     def __init__(
         self,
         C=1.0,
-        kernel='rbf',
+        kernel="rbf",
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         shrinking=True,
         probability=False,
@@ -808,7 +808,7 @@ class SVC(svm_base.BaseSVC):
         class_weight=None,
         verbose=False,
         max_iter=-1,
-        decision_function_shape='ovr',
+        decision_function_shape="ovr",
         break_ties=False,
         random_state=None,
     ):

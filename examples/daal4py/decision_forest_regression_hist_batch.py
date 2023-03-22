@@ -25,16 +25,16 @@ try:
 
     def read_csv(f, c, t=np.float64):
         return pandas.read_csv(
-            f, usecols=c, delimiter=',', header=None, dtype=np.float32
+            f, usecols=c, delimiter=",", header=None, dtype=np.float32
         )
 
 except ImportError:
     # fall back to numpy loadtxt
     def read_csv(f, c, t=np.float64):
-        return np.loadtxt(f, usecols=c, delimiter=',', ndmin=2, dtype=np.float32)
+        return np.loadtxt(f, usecols=c, delimiter=",", ndmin=2, dtype=np.float32)
 
 
-def main(readcsv=read_csv, method='hist'):
+def main(readcsv=read_csv, method="hist"):
     infile = "./data/batch/df_regression_train.csv"
     testfile = "./data/batch/df_regression_test.csv"
 
@@ -44,10 +44,10 @@ def main(readcsv=read_csv, method='hist'):
         maxBins=512,
         minBinSize=1,
         nTrees=100,
-        varImportance='MDA_Raw',
+        varImportance="MDA_Raw",
         bootstrap=True,
         engine=d4p.engines_mt2203(seed=777),
-        resultsToCompute='computeOutOfBagError|computeOutOfBagErrorPerObservation',
+        resultsToCompute="computeOutOfBagError|computeOutOfBagErrorPerObservation",
     )
 
     # Read data. Let's have 13 independent,
@@ -82,4 +82,4 @@ if __name__ == "__main__":
         predict_result.prediction[0:10],
     )
     print("\nGround truth (first 10 rows):\n", ptdata[0:10])
-    print('All looks good!')
+    print("All looks good!")

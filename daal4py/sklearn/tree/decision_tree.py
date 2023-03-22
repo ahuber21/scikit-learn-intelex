@@ -75,7 +75,7 @@ class DecisionTreeClassifier(BaseEstimator, ClassifierMixin):
     """
 
     def __init__(
-        self, max_depth=None, min_observations_in_leaf_node=1, split_criterion='gini'
+        self, max_depth=None, min_observations_in_leaf_node=1, split_criterion="gini"
     ):
         self.max_depth = max_depth
         self.min_observations_in_leaf_node = min_observations_in_leaf_node
@@ -128,7 +128,7 @@ class DecisionTreeClassifier(BaseEstimator, ClassifierMixin):
         Internal utility that returns an array behind scikit-learn's tree object
         from daal_model_ produced by call to fit
         """
-        check_is_fitted(self, ['daal_model_', '_cached_tree_state_'])
+        check_is_fitted(self, ["daal_model_", "_cached_tree_state_"])
         if self._cached_tree_state_ is None:
             tree_state_class = d4p.getTreeState(self.daal_model_, int(self.n_classes_))
             self._cached_tree_state_ = tree_state_class
@@ -175,7 +175,7 @@ class DecisionTreeClassifier(BaseEstimator, ClassifierMixin):
         [1] https://software.intel.com/en-us/daal-programming-guide-decision-tree-2
         """
 
-        if self.split_criterion not in ('gini', 'infoGain'):
+        if self.split_criterion not in ("gini", "infoGain"):
             raise ValueError(
                 'Parameter "split_criterion" must be ' '"gini" or "infoGain".'
             )
@@ -184,7 +184,7 @@ class DecisionTreeClassifier(BaseEstimator, ClassifierMixin):
             if self.max_depth is not None:
                 raise ValueError(
                     'Parameter "max_depth" must be '
-                    'a non-negative integer value or None.'
+                    "a non-negative integer value or None."
                 )
 
         if (
@@ -193,7 +193,7 @@ class DecisionTreeClassifier(BaseEstimator, ClassifierMixin):
         ):
             raise ValueError(
                 'Parameter "min_observations_in_leaf_node" must be '
-                'non-zero positive integer value.'
+                "non-zero positive integer value."
             )
 
         X = check_array(X, dtype=[np.single, np.double])
@@ -289,14 +289,14 @@ class DecisionTreeClassifier(BaseEstimator, ClassifierMixin):
 
     @support_usm_ndarray()
     def predict(self, X, check_input=True):
-        check_is_fitted(self, 'daal_model_')
+        check_is_fitted(self, "daal_model_")
         X = self._validate_X_predict(X, check_input)
         y = self._daal4py_predict(X)
         return self.classes_.take(np.asarray(y, dtype=np.intp), axis=0)
 
     @support_usm_ndarray()
     def predict_proba(self, X, check_input=True):
-        check_is_fitted(self, 'daal_model_')
+        check_is_fitted(self, "daal_model_")
         X = self._validate_X_predict(X, check_input)
         y = self._daal4py_predict(X)
         return self.classes_.take(np.asarray(y, dtype=np.intp), axis=0)

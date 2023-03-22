@@ -30,7 +30,7 @@ from .._utils import getFPType
 class GBTDAALBase(BaseEstimator):
     def __init__(
         self,
-        split_method='inexact',
+        split_method="inexact",
         max_iterations=50,
         max_tree_depth=6,
         shrinkage=0.3,
@@ -59,7 +59,7 @@ class GBTDAALBase(BaseEstimator):
         self.random_state = random_state
 
     def _check_params(self):
-        if self.split_method not in ('inexact', 'exact'):
+        if self.split_method not in ("inexact", "exact"):
             raise ValueError(
                 'Parameter "split_method" must be ' '"inexact" or "exact".'
             )
@@ -68,32 +68,32 @@ class GBTDAALBase(BaseEstimator):
             or self.max_iterations <= 0
         ):
             raise ValueError(
-                'Parameter "max_iterations" must be ' 'non-zero positive integer value.'
+                'Parameter "max_iterations" must be ' "non-zero positive integer value."
             )
         if (
             not isinstance(self.max_tree_depth, numbers.Integral)
             or self.max_tree_depth < 0
         ):
             raise ValueError(
-                'Parameter "max_tree_depth" must be ' 'positive integer value or zero.'
+                'Parameter "max_tree_depth" must be ' "positive integer value or zero."
             )
         if self.shrinkage < 0 or self.shrinkage >= 1:
             raise ValueError(
-                'Parameter "shrinkage" must be ' 'more or equal to 0 and less than 1.'
+                'Parameter "shrinkage" must be ' "more or equal to 0 and less than 1."
             )
         if self.min_split_loss < 0:
             raise ValueError(
-                'Parameter "min_split_loss" must be ' 'more or equal to zero.'
+                'Parameter "min_split_loss" must be ' "more or equal to zero."
             )
         if self.reg_lambda < 0:
-            raise ValueError('Parameter "reg_lambda" must be ' 'more or equal to zero.')
+            raise ValueError('Parameter "reg_lambda" must be ' "more or equal to zero.")
         if (
             self.observations_per_tree_fraction <= 0
             or self.observations_per_tree_fraction > 1
         ):
             raise ValueError(
                 'Parameter "observations_per_tree_fraction" must be '
-                'more than 0 and less or equal to 1.'
+                "more than 0 and less or equal to 1."
             )
         if (
             not isinstance(self.features_per_node, numbers.Integral)
@@ -101,7 +101,7 @@ class GBTDAALBase(BaseEstimator):
         ):
             raise ValueError(
                 'Parameter "features_per_node" must be '
-                'positive integer value or zero.'
+                "positive integer value or zero."
             )
         if (
             not isinstance(self.min_observations_in_leaf_node, numbers.Integral)
@@ -109,20 +109,20 @@ class GBTDAALBase(BaseEstimator):
         ):
             raise ValueError(
                 'Parameter "min_observations_in_leaf_node" must be '
-                'non-zero positive integer value.'
+                "non-zero positive integer value."
             )
         if not (isinstance(self.memory_saving_mode, bool)):
-            raise ValueError('Parameter "memory_saving_mode" must be ' 'boolean value.')
+            raise ValueError('Parameter "memory_saving_mode" must be ' "boolean value.")
         if not isinstance(self.max_bins, numbers.Integral) or self.max_bins <= 0:
             raise ValueError(
-                'Parameter "max_bins" must be ' 'non-zero positive integer value.'
+                'Parameter "max_bins" must be ' "non-zero positive integer value."
             )
         if (
             not isinstance(self.min_bin_size, numbers.Integral)
             or self.min_bin_size <= 0
         ):
             raise ValueError(
-                'Parameter "min_bin_size" must be ' 'non-zero positive integer value.'
+                'Parameter "min_bin_size" must be ' "non-zero positive integer value."
             )
 
 
@@ -158,7 +158,7 @@ class GBTDAALClassifier(GBTDAALBase, ClassifierMixin):
 
         # Get random seed
         rs_ = check_random_state(self.random_state)
-        seed_ = rs_.randint(0, np.iinfo('i').max)
+        seed_ = rs_.randint(0, np.iinfo("i").max)
 
         # Define type of data
         fptype = getFPType(X)
@@ -191,18 +191,18 @@ class GBTDAALClassifier(GBTDAALBase, ClassifierMixin):
 
     def _predict(self, X, resultsToEvaluate):
         # Check is fit had been called
-        check_is_fitted(self, ['n_features_in_', 'n_classes_'])
+        check_is_fitted(self, ["n_features_in_", "n_classes_"])
 
         # Input validation
         X = check_array(X, dtype=[np.single, np.double])
         if X.shape[1] != self.n_features_in_:
-            raise ValueError('Shape of input is different from what was seen in `fit`')
+            raise ValueError("Shape of input is different from what was seen in `fit`")
 
         # Trivial case
         if self.n_classes_ == 1:
             return np.full(X.shape[0], self.classes_[0])
 
-        if not hasattr(self, 'daal_model_'):
+        if not hasattr(self, "daal_model_"):
             raise ValueError(
                 (
                     "The class {} instance does not have 'daal_model_' attribute set. "
@@ -261,7 +261,7 @@ class GBTDAALRegressor(GBTDAALBase, RegressorMixin):
 
         # Get random seed
         rs_ = check_random_state(self.random_state)
-        seed_ = rs_.randint(0, np.iinfo('i').max)
+        seed_ = rs_.randint(0, np.iinfo("i").max)
 
         # Define type of data
         fptype = getFPType(X)
@@ -293,14 +293,14 @@ class GBTDAALRegressor(GBTDAALBase, RegressorMixin):
 
     def predict(self, X):
         # Check is fit had been called
-        check_is_fitted(self, ['n_features_in_'])
+        check_is_fitted(self, ["n_features_in_"])
 
         # Input validation
         X = check_array(X, dtype=[np.single, np.double])
         if X.shape[1] != self.n_features_in_:
-            raise ValueError('Shape of input is different from what was seen in `fit`')
+            raise ValueError("Shape of input is different from what was seen in `fit`")
 
-        if not hasattr(self, 'daal_model_'):
+        if not hasattr(self, "daal_model_"):
             raise ValueError(
                 (
                     "The class {} instance does not have 'daal_model_' attribute set. "

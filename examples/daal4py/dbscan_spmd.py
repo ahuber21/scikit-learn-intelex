@@ -22,13 +22,13 @@ import daal4py as d4p
 import numpy as np
 
 
-def main(method='defaultDense'):
+def main(method="defaultDense"):
     infile = "./data/batch/dbscan_dense.csv"
     epsilon = 0.04
     minObservations = 45
 
     # Load the data
-    data = np.loadtxt(infile, delimiter=',')
+    data = np.loadtxt(infile, delimiter=",")
     rpp = int(data.shape[0] / d4p.num_procs())
     data = data[rpp * d4p.my_procid() : rpp * d4p.my_procid() + rpp, :]
 

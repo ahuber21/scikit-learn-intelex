@@ -26,16 +26,16 @@ from onedal.svm import SVR as onedal_SVR
 class SVR(sklearn_SVR, BaseSVR):
     __doc__ = sklearn_SVR.__doc__
 
-    if sklearn_check_version('1.2'):
+    if sklearn_check_version("1.2"):
         _parameter_constraints: dict = {**sklearn_SVR._parameter_constraints}
 
     @_deprecate_positional_args
     def __init__(
         self,
         *,
-        kernel='rbf',
+        kernel="rbf",
         degree=3,
-        gamma='scale',
+        gamma="scale",
         coef0=0.0,
         tol=1e-3,
         C=1.0,
@@ -99,10 +99,10 @@ class SVR(sklearn_SVR, BaseSVR):
             self._check_feature_names(X, reset=True)
         dispatch(
             self,
-            'svm.SVR.fit',
+            "svm.SVR.fit",
             {
-                'onedal': self.__class__._onedal_fit,
-                'sklearn': sklearn_SVR.fit,
+                "onedal": self.__class__._onedal_fit,
+                "sklearn": sklearn_SVR.fit,
             },
             X,
             y,
@@ -133,10 +133,10 @@ class SVR(sklearn_SVR, BaseSVR):
             self._check_feature_names(X, reset=False)
         return dispatch(
             self,
-            'svm.SVR.predict',
+            "svm.SVR.predict",
             {
-                'onedal': self.__class__._onedal_predict,
-                'sklearn': sklearn_SVR.predict,
+                "onedal": self.__class__._onedal_predict,
+                "sklearn": sklearn_SVR.predict,
             },
             X,
         )
@@ -145,23 +145,23 @@ class SVR(sklearn_SVR, BaseSVR):
         return False
 
     def _onedal_cpu_supported(self, method_name, *data):
-        if method_name == 'svm.SVR.fit':
-            return self.kernel in ['linear', 'rbf', 'poly', 'sigmoid']
-        if method_name == 'svm.SVR.predict':
-            return hasattr(self, '_onedal_estimator')
+        if method_name == "svm.SVR.fit":
+            return self.kernel in ["linear", "rbf", "poly", "sigmoid"]
+        if method_name == "svm.SVR.predict":
+            return hasattr(self, "_onedal_estimator")
 
     def _onedal_fit(self, X, y, sample_weight=None, queue=None):
         onedal_params = {
-            'C': self.C,
-            'epsilon': self.epsilon,
-            'kernel': self.kernel,
-            'degree': self.degree,
-            'gamma': self.gamma,
-            'coef0': self.coef0,
-            'tol': self.tol,
-            'shrinking': self.shrinking,
-            'cache_size': self.cache_size,
-            'max_iter': self.max_iter,
+            "C": self.C,
+            "epsilon": self.epsilon,
+            "kernel": self.kernel,
+            "degree": self.degree,
+            "gamma": self.gamma,
+            "coef0": self.coef0,
+            "tol": self.tol,
+            "shrinking": self.shrinking,
+            "cache_size": self.cache_size,
+            "max_iter": self.max_iter,
         }
 
         self._onedal_estimator = onedal_SVR(**onedal_params)

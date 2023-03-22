@@ -23,13 +23,13 @@ from .._utils import make2d, getFPType
 def _resultsToCompute_string(value=True, gradient=True, hessian=False):
     results_needed = []
     if value:
-        results_needed.append('value')
+        results_needed.append("value")
     if gradient:
-        results_needed.append('gradient')
+        results_needed.append("gradient")
     if hessian:
-        results_needed.append('hessian')
+        results_needed.append("hessian")
 
-    return '|'.join(results_needed)
+    return "|".join(results_needed)
 
 
 def _daal4py_logistic_loss_extra_args(
@@ -58,7 +58,7 @@ def _daal4py_logistic_loss_extra_args(
     objective_function_algorithm_instance = daal4py.optimization_solver_logistic_loss(
         numberOfTerms=n,
         fptype=getFPType(X),
-        method='defaultDense',
+        method="defaultDense",
         interceptFlag=fit_intercept,
         penaltyL1=l1 / n,
         penaltyL2=l2 / n,
@@ -96,7 +96,7 @@ def _daal4py_cross_entropy_loss_extra_args(
             nClasses=nClasses,
             numberOfTerms=n,
             fptype=getFPType(X),
-            method='defaultDense',
+            method="defaultDense",
             interceptFlag=fit_intercept,
             penaltyL1=l1 / n,
             penaltyL2=l2 / n,

@@ -43,7 +43,7 @@ from .._config import config_context
 if sklearn_check_version("1.0"):
 
     class LocalOutlierFactor(sklearn_LocalOutlierFactor):
-        if sklearn_check_version('1.2'):
+        if sklearn_check_version("1.2"):
             _parameter_constraints: dict = {
                 **sklearn_LocalOutlierFactor._parameter_constraints
             }
@@ -139,10 +139,10 @@ if sklearn_check_version("1.0"):
         def fit(self, X, y=None):
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor.fit',
+                "neighbors.LocalOutlierFactor.fit",
                 {
-                    'onedal': self.__class__._fit,
-                    'sklearn': None,
+                    "onedal": self.__class__._fit,
+                    "sklearn": None,
                 },
                 X,
                 y,
@@ -166,10 +166,10 @@ if sklearn_check_version("1.0"):
         def _predict(self, X=None):
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor.predict',
+                "neighbors.LocalOutlierFactor.predict",
                 {
-                    'onedal': self.__class__._onedal_predict,
-                    'sklearn': None,
+                    "onedal": self.__class__._onedal_predict,
+                    "sklearn": None,
                 },
                 X,
             )
@@ -208,10 +208,10 @@ if sklearn_check_version("1.0"):
         def score_samples(self, X):
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor.score_samples',
+                "neighbors.LocalOutlierFactor.score_samples",
                 {
-                    'onedal': self.__class__._score_samples,
-                    'sklearn': None,
+                    "onedal": self.__class__._score_samples,
+                    "sklearn": None,
                 },
                 X,
             )
@@ -234,10 +234,10 @@ if sklearn_check_version("1.0"):
         def fit_predict(self, X, y=None):
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor.fit_predict',
+                "neighbors.LocalOutlierFactor.fit_predict",
                 {
-                    'onedal': self.__class__._fit_predict,
-                    'sklearn': None,
+                    "onedal": self.__class__._fit_predict,
+                    "sklearn": None,
                 },
                 X,
                 y,
@@ -341,10 +341,10 @@ else:
         def fit(self, X, y=None):
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor.fit',
+                "neighbors.LocalOutlierFactor.fit",
                 {
-                    'onedal': self.__class__._fit,
-                    'sklearn': None,
+                    "onedal": self.__class__._fit,
+                    "sklearn": None,
                 },
                 X,
                 y,
@@ -368,10 +368,10 @@ else:
         def _predict(self, X=None):
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor.predict',
+                "neighbors.LocalOutlierFactor.predict",
                 {
-                    'onedal': self.__class__._onedal_predict,
-                    'sklearn': None,
+                    "onedal": self.__class__._onedal_predict,
+                    "sklearn": None,
                 },
                 X,
             )
@@ -397,20 +397,20 @@ else:
         def _score_samples(self, X):
             if not self.novelty:
                 msg = (
-                    'score_samples is not available when novelty=False. The '
-                    'scores of the training samples are always available '
-                    'through the negative_outlier_factor_ attribute. Use '
-                    'novelty=True if you want to use LOF for novelty detection '
-                    'and compute score_samples for new unseen data.'
+                    "score_samples is not available when novelty=False. The "
+                    "scores of the training samples are always available "
+                    "through the negative_outlier_factor_ attribute. Use "
+                    "novelty=True if you want to use LOF for novelty detection "
+                    "and compute score_samples for new unseen data."
                 )
                 raise AttributeError(msg)
 
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor.score_samples',
+                "neighbors.LocalOutlierFactor.score_samples",
                 {
-                    'onedal': self.__class__._onedal_score_samples,
-                    'sklearn': None,
+                    "onedal": self.__class__._onedal_score_samples,
+                    "sklearn": None,
                 },
                 X,
             )
@@ -423,10 +423,10 @@ else:
         def _fit_predict(self, X, y=None):
             return dispatch(
                 self,
-                'neighbors.LocalOutlierFactor._onedal_fit_predict',
+                "neighbors.LocalOutlierFactor._onedal_fit_predict",
                 {
-                    'onedal': self.__class__._onedal_fit_predict,
-                    'sklearn': None,
+                    "onedal": self.__class__._onedal_fit_predict,
+                    "sklearn": None,
                 },
                 X,
                 y,
