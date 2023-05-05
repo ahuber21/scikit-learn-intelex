@@ -295,7 +295,7 @@ class GBTDAALRegressor(GBTDAALBase, RegressorMixin):
         # Return the classifier
         return self
 
-    def predict(self, X, predict_interactions=False):
+    def predict(self, X):
         # Check is fit had been called
         check_is_fitted(self, ["n_features_in_"])
 
@@ -316,11 +316,36 @@ class GBTDAALRegressor(GBTDAALBase, RegressorMixin):
         fptype = getFPType(X)
 
         # Prediction
+        predict_algo = d4p.gbt_regression_prediction(fptype=fptype)
+        predict_result = predict_algo.compute(X, self.daal_model_)
+        return predict_result.prediction.ravel()
+
+
+class GBTDAALClassificationPredictor:
+    def __init__(self, model: d4p._daal4py.gbt_classification_model):
+        self._model = model
+
+    def predict(self, X, predict_interactions: bool = False):
         if predict_interactions is True:
-            # imitates the behaviour of XGBoosts model.predict(predict_interactions=True)
+            # imitates the behavior of XGBoosts model.predict(predict_interactions=True)
             return KernelExplainer(self.predict, X)
-        else:
-            # "normal" predict (M, N) inputs -> (1, N) predictions
-            predict_algo = d4p.gbt_regression_prediction(fptype=fptype)
-            predict_result = predict_algo.compute(X, self.daal_model_)
-            return predict_result.prediction.ravel()
+
+        fptype = getFPType(X)
+        predict_algo = d4p.gbt_classification_predictor(fptype=fptype)
+        predict_result = predict_algo.compute(X, self._model)
+        return predict_result.prediction.ravel()
+
+
+class GBTDAALRegressionPredictor:
+    def __init__(self, model: d4p._daal4py.gbt_regression_model):
+        self._model = model
+
+    def predict(self, X, predict_interactions: bool = False):
+        if predict_interactions is True:
+            # imitates the behavior of XGBoosts model.predict(predict_interactions=True)
+            return KernelExplainer(self.predict, X)
+
+        fptype = getFPType(X)
+        predict_algo = d4p.gbt_regression_prediction(fptype=fptype)
+        predict_result = predict_algo.compute(X, self._model)
+        return predict_result.prediction.ravel()
