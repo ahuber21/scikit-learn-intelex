@@ -49,7 +49,7 @@ from onedal.tests.utils._dataframes_support import (
     _convert_to_dataframe,
     get_dataframes_and_queues,
 )
-from sklearnex import check_entity_loaded, is_patched_instance
+from sklearnex import is_in_locals, is_patched_instance
 from sklearnex.dispatcher import _is_preview_enabled
 from sklearnex.metrics import pairwise_distances, roc_auc_score
 
@@ -360,16 +360,16 @@ def test_onedal_supported_member(name, member):
     assert "(self, method_name, *data)" == sig
 
 
-def test_check_entity_loaded():
+def test_is_in_locals():
     # Test when sklearn is not loaded
-    assert check_entity_loaded(modules={}) is None
+    assert is_in_locals() is None
 
     # Load sklearn and test again
     import sklearn
 
-    assert check_entity_loaded() is not None
+    assert is_in_locals() is not None
 
     # Test with a specific class from sklearn
     from sklearn.linear_model import LogisticRegression
 
-    assert "LogisticRegression" in check_entity_loaded("LogisticRegression")
+    assert "LogisticRegression" in is_in_locals("LogisticRegression")

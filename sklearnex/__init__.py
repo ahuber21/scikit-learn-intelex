@@ -19,9 +19,9 @@ from onedal.common.hyperparameters import get_hyperparameters
 from . import utils
 from ._config import config_context, get_config, set_config
 from .dispatcher import (
-    check_entity_loaded,
     get_patch_map,
     get_patch_names,
+    is_in_locals,
     is_patched_instance,
     patch_sklearn,
     sklearn_is_patched,

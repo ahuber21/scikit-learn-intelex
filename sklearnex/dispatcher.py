@@ -343,9 +343,9 @@ def is_instance_in_memory(class_name: str, defining_module: str = "sklearn") -> 
     return class_name in loaded_names_from_module
 
 
-def check_entity_loaded(name: Optional[str] = None) -> Optional[str]:
+def is_in_locals(name: Optional[str] = None) -> Optional[str]:
     """
-    This function checks if a specified module or class is already loaded in sys.modules.
+    This function checks if a specified module or class is already loaded in the local scope (=locals()).
 
     Parameters:
     name (str, optional): The name of the module or class to check. If no name is provided, the function checks for 'sklearn'.
@@ -356,22 +356,31 @@ def check_entity_loaded(name: Optional[str] = None) -> Optional[str]:
     the function returns None.
 
     Example:
-    >>> check_entity_loaded()
+    >>> is_in_locals()
     'sklearn or some parts of it are already loaded. patch_sklearn() only affects classes imported *after* calling it.
     To retrieve patched entities, make sure to call patch_sklearn() before any import statements from sklearn.'
 
-    >>> check_entity_loaded(name='LogisticRegression')
+    >>> is_in_locals(name='LogisticRegression')
     'LogisticRegression or some parts of it are already loaded. patch_sklearn() only affects classes imported *after*
     calling it. To retrieve patched entities, make sure to call patch_sklearn() before any import statements from LogisticRegression.'
     """
 
-    # is `name` or anything from sklearn already loaded?
+    print(globals())
+
+    def get_class_name(obj):
+        return getattr(getattr(obj, "__class__", ""), "__name__", "")
+
+    def is_sklearn_module(obj):
+        return getattr(obj, "__module__", "").startswith("sklearn")
+
     if name is None:
-        loaded = any(
-            [is_instance_in_memory(class_name) for class_name in get_patch_map().keys()]
-        )
+        # is scikit-learn loaded in local scope, i.e. by the user?
+        loaded = "sklearn" in locals().keys()
+        # is any class in local scope imported from scikit-learn?
+        loaded |= any([is_sklearn_module(obj) for obj in locals().values()])
     else:
-        loaded = is_instance_in_memory(name)
+        matching_objects = [obj for obj in locals() if get_class_name(obj) == name]
+        loaded = any([is_sklearn_module(obj) for obj in matching_objects])
 
     if loaded:
         return (
@@ -390,7 +399,7 @@ def patch_sklearn(name=None, verbose=True, global_patch=False, preview=False):
             "for scikit-learn >= 0.22 only ..."
         )
 
-    if verbose and (msg := check_entity_loaded(name)) is not None:
+    if verbose and (msg := is_in_locals(name)) is not None:
         logger.warning(msg)
 
     if global_patch:
