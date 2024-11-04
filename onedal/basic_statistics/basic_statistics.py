@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import warnings
+import time
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -101,7 +101,9 @@ class BasicStatistics(BaseBasicStatistics):
     ):
         module = self._get_backend("basic_statistics")
         params = self._get_onedal_params(is_csr, dtype)
+        start = time.time()
         result = module.compute(policy, params, data_table, weights_table)
+        print(f"Time taken: {time.time() - start}")
         options = self._get_result_options(self.options).split("|")
 
         return {opt: getattr(result, opt) for opt in options}

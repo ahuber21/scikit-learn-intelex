@@ -183,7 +183,12 @@ def support_input_format(freefunc=False, queue_param=True):
             if len(args) == 0 and len(kwargs) == 0:
                 return _run_on_device(func, obj, *args, **kwargs)
             data = (*args, *kwargs.values())
-            data_queue, hostargs, hostkwargs = _get_host_inputs(*args, **kwargs)
+            # data_queue, hostargs, hostkwargs = _get_host_inputs(*args, **kwargs)
+            # data_queue, hostargs, hostkwargs = _get_global_queue(), list(args), kwargs
+            usm_iface = getattr(args[0], "__sycl_usm_array_interface__", None)
+            data_queue = usm_iface["syclobj"] if usm_iface is not None else data_queue
+            hostargs = args
+            hostkwargs = kwargs
             if queue_param and not (
                 "queue" in hostkwargs and hostkwargs["queue"] is not None
             ):
