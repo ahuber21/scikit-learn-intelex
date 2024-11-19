@@ -30,10 +30,9 @@ from daal4py.sklearn._utils import daal_check_version, sklearn_check_version
 from onedal.covariance import (
     IncrementalEmpiricalCovariance as onedal_IncrementalEmpiricalCovariance,
 )
-from sklearnex import config_context
 
 from .._device_offload import dispatch, wrap_output_data
-from .._utils import IntelEstimator, PatchingConditionsChain, register_hyperparameters
+from .._utils import IntelEstimator, PatchingConditionsChain
 from ..metrics import pairwise_distances
 from ..utils._array_api import get_namespace
 

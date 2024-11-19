@@ -16,7 +16,7 @@
 
 import array_api_strict
 
-from sklearnex import config_context, patch_sklearn
+from sklearnex import patch_sklearn
 
 patch_sklearn()
 

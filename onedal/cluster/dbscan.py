@@ -14,7 +14,6 @@
 # limitations under the License.
 # ===============================================================================
 
-from abc import abstractmethod
 
 import numpy as np
 

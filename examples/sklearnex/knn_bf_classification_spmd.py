@@ -14,7 +14,6 @@
 # limitations under the License.
 # ==============================================================================
 
-from warnings import warn
 
 import dpctl
 import dpctl.tensor as dpt

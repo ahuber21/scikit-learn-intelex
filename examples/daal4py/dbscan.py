@@ -18,7 +18,6 @@
 
 from pathlib import Path
 
-import numpy as np
 from readcsv import pd_read_csv
 
 import daal4py as d4p

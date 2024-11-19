@@ -14,7 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 
-from ...common._backend import DefaultPolicyOverride, bind_spmd_backend
+from onedal.common._backend import DefaultPolicyOverride, bind_spmd_backend
+
 from ...decomposition import IncrementalPCA as base_IncrementalPCA
 
 

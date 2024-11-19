@@ -14,7 +14,6 @@
 # limitations under the License.
 # ==============================================================================
 
-import inspect
 import logging
 from multiprocessing import cpu_count
 
@@ -22,13 +21,7 @@ import pytest
 from sklearn.datasets import make_classification
 from sklearn.exceptions import NotFittedError
 
-from sklearnex.tests.utils import (
-    PATCHED_MODELS,
-    SPECIAL_INSTANCES,
-    call_method,
-    gen_dataset,
-    gen_models_info,
-)
+from sklearnex.tests.utils import PATCHED_MODELS, SPECIAL_INSTANCES, call_method
 
 _X, _Y = make_classification(n_samples=40, n_features=4, random_state=42)
 
@@ -100,7 +93,7 @@ def test_n_jobs_support(estimator, n_jobs, caplog):
             continue
         try:
             call_method(est, method_name, _X, _Y)
-        except (NotFittedError, AttributeError) as e:
+        except (NotFittedError, AttributeError):
             # handle sklearns available_if wrapper
             continue
 

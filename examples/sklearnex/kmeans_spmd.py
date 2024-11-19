@@ -14,10 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 
-from warnings import warn
 
 import dpctl.tensor as dpt
-import numpy as np
 from dpctl import SyclQueue
 from mpi4py import MPI
 from sklearn.datasets import load_digits

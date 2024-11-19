@@ -15,7 +15,7 @@
 # ==============================================================================
 
 import numbers
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 
 import numpy as np
 from sklearn.decomposition._pca import _infer_dimension
@@ -179,9 +179,8 @@ class PCA(BasePCA):
         self.n_samples_ = n_samples
         self.n_features_ = n_features
 
-        U = None
-        S = self.singular_values_
-        Vt = self.components_
+        self.singular_values_
+        self.components_
 
         n_components = self._resolve_n_components_for_result(X.shape)
         self.n_components_ = n_components

@@ -25,7 +25,6 @@ from collections import defaultdict
 from os.path import join as jp
 from time import gmtime, strftime
 
-from daal4py import __has_dist__
 from daal4py.sklearn._utils import get_daal_version
 from onedal.utils._dpep_helpers import dpctl_available
 

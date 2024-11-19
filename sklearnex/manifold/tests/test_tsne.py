@@ -15,7 +15,6 @@
 # ===============================================================================
 
 import numpy as np
-from numpy.testing import assert_allclose
 
 
 def test_sklearnex_import():

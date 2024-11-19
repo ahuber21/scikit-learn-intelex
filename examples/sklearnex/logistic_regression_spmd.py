@@ -14,14 +14,12 @@
 # limitations under the License.
 # ==============================================================================
 
-from warnings import warn
 
 import dpctl
 import dpctl.tensor as dpt
 import numpy as np
 from mpi4py import MPI
 from scipy.special import expit
-from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 

@@ -27,7 +27,6 @@ from onedal.tests.utils._dataframes_support import (
     get_dataframes_and_queues,
     get_queues,
 )
-from sklearnex import config_context
 from sklearnex.tests.utils import _IS_INTEL
 
 

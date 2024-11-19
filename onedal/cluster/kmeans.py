@@ -16,8 +16,7 @@
 
 import logging
 import warnings
-from abc import ABC, abstractmethod
-from types import ModuleType
+from abc import ABC
 
 import numpy as np
 

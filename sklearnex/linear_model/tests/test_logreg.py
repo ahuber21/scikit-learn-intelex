@@ -16,7 +16,7 @@
 
 import numpy as np
 import pytest
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 from scipy.sparse import csr_matrix
 from sklearn.datasets import load_breast_cancer, load_iris, make_classification
 from sklearn.metrics import accuracy_score

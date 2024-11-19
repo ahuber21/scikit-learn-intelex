@@ -31,7 +31,6 @@ from os.path import isdir
 from os.path import join as jp
 from shutil import copytree, rmtree
 from subprocess import call
-from sys import platform
 
 from .format import mk_var
 from .parse import parse_header, parse_version

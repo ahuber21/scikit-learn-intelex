@@ -26,7 +26,6 @@ from sklearn.linear_model import (
     LogisticRegressionCV,
     Ridge,
 )
-from sklearn.manifold import TSNE
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor, NearestNeighbors
 from sklearn.svm import SVC
 

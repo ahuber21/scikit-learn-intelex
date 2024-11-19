@@ -16,7 +16,6 @@
 
 import numpy as np
 import pytest
-from sklearn.datasets import make_regression
 
 from onedal.tests.utils._dataframes_support import (
     _convert_to_dataframe,
@@ -231,9 +230,6 @@ def test_rfreg_spmd_synthetic(
 ):
     # Import spmd and batch algo
     from sklearnex.ensemble import RandomForestRegressor as RandomForestRegressor_Batch
-    from sklearnex.spmd.ensemble import (
-        RandomForestRegressor as RandomForestRegressor_SPMD,
-    )
 
     # Generate data and convert to dataframe
     X_train, X_test, y_train, _ = _generate_regression_data(

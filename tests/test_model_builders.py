@@ -17,7 +17,6 @@
 import contextlib
 import unittest
 import warnings
-from datetime import datetime
 
 import lightgbm as lgbm
 import numpy as np

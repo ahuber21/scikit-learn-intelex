@@ -15,7 +15,8 @@
 # ==============================================================================
 
 
-from ...common._backend import DefaultPolicyOverride, bind_spmd_backend
+from onedal.common._backend import DefaultPolicyOverride, bind_spmd_backend
+
 from ...linear_model import (
     IncrementalLinearRegression as base_IncrementalLinearRegression,
 )

@@ -17,7 +17,6 @@
 import numpy as np
 import pytest
 from sklearn.cluster import DBSCAN as DBSCAN_SKLEARN
-from sklearn.cluster.tests.common import generate_clustered_data
 
 from onedal.cluster import DBSCAN as ONEDAL_DBSCAN
 from onedal.tests.utils._device_selection import get_queues
