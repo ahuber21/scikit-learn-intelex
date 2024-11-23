@@ -47,9 +47,6 @@ class DBSCAN(ClusterMixin):
         self.p = p
         self.n_jobs = n_jobs
 
-    @bind_default_backend("dbscan")
-    def _get_policy(self, queue, *data): ...
-
     @bind_default_backend("dbscan.clustering")
     def compute(self, policy, params, data_table, weights_table): ...
 
@@ -64,7 +61,6 @@ class DBSCAN(ClusterMixin):
         }
 
     def fit(self, X, y=None, sample_weight=None, queue=None):
-        policy = self._get_policy(queue, X)
         X = _check_array(X, accept_sparse="csr", dtype=[np.float64, np.float32])
         sample_weight = make2d(sample_weight) if sample_weight is not None else None
         X = make2d(X)
@@ -72,10 +68,14 @@ class DBSCAN(ClusterMixin):
         types = [np.float32, np.float64]
         if get_dtype(X) not in types:
             X = X.astype(np.float64)
-        X = _convert_to_supported(policy, X)
+
+        host_only = self.compute.backend_type == "host"
+        X = _convert_to_supported(host_only, queue, X)
         dtype = get_dtype(X)
         params = self._get_onedal_params(dtype)
-        result = self.compute(policy, params, to_table(X), to_table(sample_weight))
+
+        self.compute.update_policy(queue, X, y)
+        result = self.compute(params, to_table(X), to_table(sample_weight))
 
         self.labels_ = from_table(result.responses).ravel()
         if result.core_observation_indices is not None:

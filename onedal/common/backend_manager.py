@@ -41,3 +41,13 @@ class BackendManager:
             result = getattr(result, part)
 
         return result
+
+    def get_policy(self):
+        # each backend defines its own unique policy, we look for a match
+        for policy_names in (
+            "default_policy",
+            "data_parallel_policy",
+            "spmd_data_parallel_policy",
+        ):
+            if hasattr(self.backend, policy_names):
+                return getattr(self.backend, policy_names)

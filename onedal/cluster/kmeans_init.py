@@ -48,9 +48,6 @@ if daal_check_version((2023, "P", 200)):
             else:
                 self.local_trials_count = local_trials_count
 
-        @bind_default_backend("kmeans_init")
-        def _get_policy(self, policy, params, X_table): ...
-
         @bind_default_backend("kmeans_init.init", lookup_name="compute")
         def backend_compute(self, policy, params, X_table): ...
 
@@ -78,19 +75,20 @@ if daal_check_version((2023, "P", 200)):
             return (params, to_table(X), dtype)
 
         def compute(self, X, queue=None):
-            policy = self._get_policy(queue, X)
-            # oneDAL KMeans Init for sparse data does not have GPU support
-            if issparse(X):
-                policy = self._get_policy(None, None)
             _, X_table, dtype = self._get_params_and_input(X, policy)
 
-            centroids = self.compute_raw(X_table, policy, dtype)
+            if issparse(X):
+                # oneDAL KMeans Init for sparse data does not have GPU support
+                self.backend_compute.update_policy(None, None)
+            else:
+                self.backend_compute.update_policy(queue, X)
+            centroids = self.compute_raw(X_table, dtype)
 
             return from_table(centroids)
 
-        def compute_raw(self, X_table, policy, dtype=np.float32):
+        def compute_raw(self, X_table, dtype=np.float32):
             params = self._get_onedal_params(dtype)
-            result = self.backend_compute(policy, params, X_table)
+            result = self.backend_compute(params, X_table)
             return result.centroids
 
     def kmeans_plusplus(

@@ -43,18 +43,15 @@ class BasePCA(metaclass=ABCMeta):
         self.is_deterministic = is_deterministic
         self.whiten = whiten
 
-    @bind_default_backend("decomposition.dim_reduction")
-    def _get_policy(self, queue, *data): ...
-
     # provides direct access to the backend model constructor
     @bind_default_backend("decomposition.dim_reduction")
     def model(self): ...
 
     @bind_default_backend("decomposition.dim_reduction")
-    def train(self, policy, params, X): ...
+    def train(self, params, X): ...
 
     @bind_default_backend("decomposition.dim_reduction")
-    def infer(self, policy, params, X, model): ...
+    def infer(self, params, X, model): ...
 
     def _get_onedal_params(self, data, stage=None):
         if stage is None:

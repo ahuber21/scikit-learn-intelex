@@ -49,8 +49,16 @@ class PolicyManager:
             return queue
 
     def get_policy(self, provided_queue, *data):
+        """
+        Return the correct policy for provided queue and data.
+        In most cases, queue will be extracted from the provided data.
+        """
+
         data_queue = PolicyManager.get_queue(*data)
         queue = provided_queue if provided_queue is not None else data_queue
+
+        if self.backend.is_spmd and queue is None:
+            raise RuntimeError("Operations using SPMD require a queue")
 
         if not self.backend.is_dpc and queue is not None:
             raise RuntimeError("Operations using queues require the DPC backend")

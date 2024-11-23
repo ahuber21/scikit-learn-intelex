@@ -19,6 +19,7 @@ import warnings
 import numpy as np
 
 from onedal import _default_backend as backend
+from onedal.common.policy_manager import PolicyManager
 
 
 def _apply_and_pass(func, *args, **kwargs):
@@ -79,16 +80,14 @@ if backend.is_dpc:
         def _table_to_array(table, xp=None):
             return xp.asarray(table)
 
-    def _convert_to_supported(policy, *data):
+    def _convert_to_supported(host_only, queue, *data):
+
         def func(x):
             return x
 
-        if not policy.is_dpc:
+        if host_only:
             # CPUs support FP64 by default
             return _apply_and_pass(func, *data)
-
-        # It can be either SPMD or DPCPP policy
-        device = policy._queue.sycl_device
 
         def convert_or_pass(x):
             if (x is not None) and (x.dtype == np.float64):
@@ -101,7 +100,10 @@ if backend.is_dpc:
             else:
                 return x
 
-        if not device.has_aspect_fp64:
+        if queue is None:
+            queue = PolicyManager.get_queue(*data)
+
+        if queue and not queue.sycl_device.has_aspect_fp64:
             func = convert_or_pass
 
         return _apply_and_pass(func, *data)
@@ -130,7 +132,7 @@ if backend.is_dpc:
 
 else:
 
-    def _convert_to_supported(policy, *data):
+    def _convert_to_supported(host_only, queue, *data):
         def func(x):
             return x
 

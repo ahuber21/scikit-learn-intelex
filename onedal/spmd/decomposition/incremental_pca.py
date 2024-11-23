@@ -27,9 +27,6 @@ class IncrementalPCA(base_IncrementalPCA):
     API is the same as for `onedal.decomposition.IncrementalPCA`
     """
 
-    @bind_spmd_backend("decomposition")
-    def _get_policy(self, queue, *data): ...
-
     @bind_spmd_backend("decomposition.dim_reduction")
     def finalize_train(self, policy, params, partial_result): ...
 

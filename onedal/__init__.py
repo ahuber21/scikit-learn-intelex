@@ -27,6 +27,20 @@ class Backend:
         self.backend = backend_module
         self.is_dpc = is_dpc
         self.is_spmd = is_spmd
+        self.policy = None
+        self.__init_policy()
+
+    def __init_policy(self):
+        """
+        Each backend defines its own unique policy, we look for a match
+        See .cpp source files for the policy names.
+        """
+        if self.is_spmd:
+            self.policy = self.backend.spmd_data_parallel_policy
+        elif self.is_dpc:
+            self.policy = self.backend.data_parallel_policy
+        else:
+            self.policy = self.backend.host_policy
 
     # accessing the instance will return the backend_module
     def __getattr__(self, name):

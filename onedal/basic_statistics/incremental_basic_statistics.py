@@ -103,9 +103,8 @@ class IncrementalBasicStatistics(BaseBasicStatistics):
         self : object
             Returns the instance itself.
         """
-        self._queue = queue
-        policy = self._get_policy(queue, X)
-        X, weights = _convert_to_supported(policy, X, weights)
+        host_only = self.partial_compute.backend_type == "host"
+        X, weights = _convert_to_supported(host_only, queue, X, weights)
 
         X = _check_array(
             X, dtype=[np.float64, np.float32], ensure_2d=False, force_all_finite=False
@@ -123,8 +122,9 @@ class IncrementalBasicStatistics(BaseBasicStatistics):
             self._onedal_params = self._get_onedal_params(False, dtype=dtype)
 
         X_table, weights_table = to_table(X, weights)
+        self.partial_compute.update_policy(X)
         self._partial_result = self.partial_compute(
-            policy, self._onedal_params, self._partial_result, X_table, weights_table
+            self._onedal_params, self._partial_result, X_table, weights_table
         )
 
     def finalize_fit(self, queue=None):
@@ -143,12 +143,7 @@ class IncrementalBasicStatistics(BaseBasicStatistics):
             Returns the instance itself.
         """
 
-        if queue is not None:
-            policy = self._get_policy(queue)
-        else:
-            policy = self._get_policy(self._queue)
-
-        result = self.finalize_compute(policy, self._onedal_params, self._partial_result)
+        result = self.finalize_compute(self._onedal_params, self._partial_result)
 
         options = self._get_result_options(self.options).split("|")
         for opt in options:
